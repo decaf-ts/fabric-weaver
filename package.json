@@ -19,7 +19,7 @@
     "setup": "npm run build && ./bin/fabric.cjs setup",
     "build": "node ./bin/build-scripts.cjs --dev && npm run build:command",
     "build:prod": "node ./bin/build-scripts.cjs --prod && npm run build:command",
-    "build:command": "node ./bin/build-scripts-extended.cjs",
+    "build:command": "node ./bin/build-scripts-extended.cjs --commands",
     "test": "jest --runInBand --detectOpenHandles",
     "test:unit": "jest --testPathPattern=\"/tests/unit\" --passWithNoTests --detectOpenHandles",
     "test:integration": "jest --testPathPattern=\"/tests/(integration)\" --passWithNoTests --detectOpenHandles",

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import fs from "fs";
 import path from "path";
 import axios from "axios";
@@ -7,13 +5,7 @@ import { execSync } from "child_process";
 import { Command } from "commander";
 import { VERSION } from "../index";
 
-const INSTALL_SCRIPT = path.join(
-  __dirname,
-  "..",
-  "..",
-  "bin",
-  "install-fabric.sh"
-);
+const INSTALL_SCRIPT = path.join(__dirname, "..", "bin", "install-fabric.sh");
 
 // Default configuration
 const defaultConfig = {
@@ -53,20 +45,17 @@ program
 program
   .command("setup")
   .description("Set up Fabric components")
-  .action(async () => {
-    await setupFabric();
+  .action(async (options) => {
+    const config = {
+      ...defaultConfig,
+      fabricVersion: options.fabricVersion || program.opts().fabricVersion,
+      caVersion: options.caVersion || program.opts().caVersion,
+      components: options.components || program.opts().components,
+    };
+    await setupFabric(config);
   });
 
 program.parse(process.argv);
-
-const options = program.opts();
-
-const config = {
-  ...defaultConfig,
-  fabricVersion: options.fabricVersion,
-  caVersion: options.caVersion,
-  components: options.components,
-};
 
 async function updateFabric(): Promise<void> {
   console.log("Executing update...");
@@ -99,7 +88,7 @@ async function updateFabric(): Promise<void> {
   }
 }
 
-async function setupFabric(): Promise<void> {
+async function setupFabric(config: typeof defaultConfig): Promise<void> {
   console.log("Executing setup...");
   if (fs.existsSync(INSTALL_SCRIPT)) {
     console.log("Executing install-fabric.sh...");
@@ -122,6 +111,7 @@ async function setupFabric(): Promise<void> {
     console.error(
       "Error: install-fabric.sh not found. Please run the update command first."
     );
+    console.error(INSTALL_SCRIPT);
     process.exit(1);
   }
 }
