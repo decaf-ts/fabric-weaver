@@ -30,3 +30,5 @@
 !/bin/install-fabric.sh
 !/bin/tag-release.cjs
 !/bin/tag-release.sh
+!/bin/build-scripts-extended.cjs
+!/bin/fabric.cjs
