@@ -2,14 +2,24 @@
 
 # Function to display usage
 usage() {
-    echo "Usage: $0 [-h|--help] [-c|--command <command>]"
+    echo "Usage: $0 [-h|--help] [-c|--command <command>] [options]"
     echo "  -h, --help     Display this help message"
-    echo "  -c, --command  Specify a command (setup or update, defaults to setup)"
+    echo "  --command  Specify a command (setup or update, defaults to setup)"
+    echo ""
+    echo "Options for setup command:"
+    printf '\t%s\n' "<comp> Component to install, one or more of  docker | binary | samples | podman"
+    printf '\t%s\n' "      First letter of component also accepted; If none specified docker | binary | samples is assumed"
+    printf '\t%s\n' "-f, --fabric-version: FabricVersion (default: '2.5.12')"
+    printf '\t%s\n' "-c, --ca-version: Fabric CA Version (default: '1.5.15')"
     exit 1
 }
 
 # Initialize variables
 COMMAND="setup"
+INSTALL_SCRIPT="./bin/install-fabric.sh"
+COMPONENTS=""
+FABRIC_VERSION="2.5.12"
+CA_VERSION="1.5.15"
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
@@ -17,7 +27,7 @@ while [[ $# -gt 0 ]]; do
         -h|--help)
             usage
             ;;
-        -c|--command)
+        --command)
             if [[ "$2" == "setup" || "$2" == "update" ]]; then
                 COMMAND="$2"
                 shift 2
@@ -25,6 +35,18 @@ while [[ $# -gt 0 ]]; do
                 echo "Error: Command must be either 'setup' or 'update'"
                 usage
             fi
+            ;;
+        docker|binary|samples|podman|d|b|s|p)
+            COMPONENTS="$COMPONENTS $1"
+            shift
+            ;;
+        -f|--fabric-version)
+            FABRIC_VERSION="$2"
+            shift 2
+            ;;
+        -c|--ca-version)
+            CA_VERSION="$2"
+            shift 2
             ;;
         *)
             echo "Unknown option: $1"
@@ -40,11 +62,19 @@ echo "Received command: $COMMAND"
 case $COMMAND in
     setup)
         echo "Executing setup..."
-        # Add your setup logic here
+        if [ -f "$INSTALL_SCRIPT" ]; then
+            echo "Executing install-fabric.sh..."
+            if [ -z "$COMPONENTS" ]; then
+                COMPONENTS="docker binary samples"
+            fi
+            bash "$INSTALL_SCRIPT" $COMPONENTS -f $FABRIC_VERSION -c $CA_VERSION
+        else
+            echo "Error: $INSTALL_SCRIPT not found. Please run the update command first."
+            exit 1
+        fi
         ;;
     update)
         echo "Executing update..."
-        INSTALL_SCRIPT="./bin/install-fabric.sh"
         SCRIPT_URL="https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh"
 
         # Remove the existing file if it exists

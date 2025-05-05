@@ -20,3 +20,13 @@
 /.confluence-token
 /node_modules
 !.gitkeep
+/fabric-samples
+/builders
+/config
+/bin
+!/bin/build-scripts.cjs
+!/bin/update-scripts.cjs
+!/bin/fabric.sh
+!/bin/install-fabric.sh
+!/bin/tag-release.cjs
+!/bin/tag-release.sh
