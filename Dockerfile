@@ -4,7 +4,7 @@ FROM node:${NODE_VERSION:-22}-alpine as builder
 
 RUN apk update && apk upgrade
 
-ENV WORKDIR="ts-workspace"
+ENV WORKDIR="fabric-weaver"
 
 COPY ./bin/ $WORKDIR/bin/
 COPY ./src/ $WORKDIR/src/
@@ -22,7 +22,7 @@ FROM node:${NODE_VERSION:-22}-alpine AS production
 RUN apk update && apk upgrade
 RUN apk --no-cache add htop less grep && apk add --no-cache --upgrade bash # optional but useful
 
-ENV WORKDIR="ts-workspace"
+ENV WORKDIR="fabric-weaver"
 
 ENV NODE_ENV="production"
 

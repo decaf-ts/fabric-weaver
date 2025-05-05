@@ -44,9 +44,9 @@ The following npm scripts are available for development:
 
 - `do-install` - sets a `TOKEN` environment variable to the contents of `.token` and runs npm install (useful when you
   have private dependencies);
-- `update-scripts`: will pull the GitHub actions, templates, and style configs from the [ts-workspace](https://github.com/decaf-ts/ts-workspace) repository, overwriting the existing.
+- `update-scripts`: will pull the GitHub actions, templates, and style configs from the [fabric-weaver](https://github.com/decaf-ts/fabric-weaver) repository, overwriting the existing.
 - `on-first-run`: will run the initial setup script,
-- `set-git-auth` - change git config to include the token (no longer requires manual auth). ***Only run once per repository***;
+- `set-git-auth` - change git config to include the token (no longer requires manual auth). **_Only run once per repository_**;
 - `postinstall` - will run only on the first installation to trigger the dep update. Will self-delete;
 - `flash-forward` - updates all dependencies. Take care, This may not be desirable is some cases;
 - `reset` - updates all dependencies. Take care, This may not be desirable is some cases;
@@ -68,7 +68,7 @@ The following npm scripts are available for development:
   the `workdocs/resources` folder;
 - `uml` - compiles all PlantUML `*.puml` files in the `workdocs/uml` folder to png and moves them to
   the `workdocs/resources` folder;
-- `docs` - compiles all the coverage, drawings, uml, jsdocs, and md docs into a readable web page under `./docs`. Will be made available at [GitHub Pages](https://decaf-ts.github.io/ts-workspace);
+- `docs` - compiles all the coverage, drawings, uml, jsdocs, and md docs into a readable web page under `./docs`. Will be made available at [GitHub Pages](https://decaf-ts.github.io/fabric-weaver);
 - `publish-docs` - publishes the content of `./workdocs/confluence` to confluence according to the config at `./workdocs/confluence/.markdown-confluence.json`.
   Uses [markdown-confluence](https://markdown-confluence.com/introduction.html). Check their documentation for configuration details;
 
@@ -77,12 +77,13 @@ The following npm scripts are available for development:
 This repo comes with eslint + prettier preconfigured to the default standards.
 
 Please configure your IDE to recognize these files and perform automatic validation and fixes on save:
- - Webstorm:
-   - eslint recommended setup preconfigured under `.idea/jsLinters/eslint.xml`
-   - prettier recommended setup preconfigured under `.idea/prettier.xml`
- - VSCode(ium):
-   - eslint recommended setup preconfigured under `.vscode/settings.json`
-   - prettier recommended setup preconfigured under `.vscode/settings.json`
+
+- Webstorm:
+  - eslint recommended setup preconfigured under `.idea/jsLinters/eslint.xml`
+  - prettier recommended setup preconfigured under `.idea/prettier.xml`
+- VSCode(ium):
+  - eslint recommended setup preconfigured under `.vscode/settings.json`
+  - prettier recommended setup preconfigured under `.vscode/settings.json`
 
 ## Testing
 
@@ -194,7 +195,7 @@ When the `-no-ci` flag is passed then you can:
 ### Repository Structure
 
 ```
-ts-workspace
+fabric-weaver
 │
 │   .confluence-token               <-- stores confluence access token
 │   .dockerignore                   <-- Defines files by docker in the build image
@@ -298,23 +299,24 @@ To access and run them:
 For **WebStorm** users, everything comes integrated right out of the box 🎉  
 Common commands for builds, tests, and documentation generation are available in the **Run/Debug configurations** dropdown for quick access and execution via:
 
- - Jest integration:
-   - `tests/Unit Tests` - Runs all unit tests (analog to `test:unit`)
-   - `tests/Integration Tests` - Runs all integration tests (analog to `test:integration`)
-   - `tests/Bundling Tests` - Runs the dist and bundling tests (analog to `test:bundling`)
-   - `All Tests` - Runs all tests (analog to `test:all`)
+- Jest integration:
 
- - Node integration:
-   - `repo/docs` - Builds documentation (analog to `docs`)
-   - `repo/coverage` - runs `test:all`, collects coverage (csv, HTML), generates test reports (junit, HTML) (analog to `coverage`)
-   - `repo/uml` - builds uml into png files (analog to `uml`)
-   - `repo/test:circular` - test code for circular dependencies (analog to `test:circular`)
-   - `repo/lint-fix` - tries to fix linting issues (analog to `lint-fix`)
-   - `repo/drawings` - compiles draw.io files to png (one per page) (analog to `drawings`)
-   - `repo/flash-forward` - updates all dependencies to latest versions (analog to `flash-forward`)
-   - `repo/update-scripts` - runs cli to update repo's configs (CI, Doc boilerplate, Linting, Style, etc) via it's template repository (analog to `drawings`)
-   - `build:prod` - `build`s code in production mode (minify, uglify, doc extraction, and no source-map for bundled production)
-   - `build` - `build`s code in development mode
+  - `tests/Unit Tests` - Runs all unit tests (analog to `test:unit`)
+  - `tests/Integration Tests` - Runs all integration tests (analog to `test:integration`)
+  - `tests/Bundling Tests` - Runs the dist and bundling tests (analog to `test:bundling`)
+  - `All Tests` - Runs all tests (analog to `test:all`)
+
+- Node integration:
+  - `repo/docs` - Builds documentation (analog to `docs`)
+  - `repo/coverage` - runs `test:all`, collects coverage (csv, HTML), generates test reports (junit, HTML) (analog to `coverage`)
+  - `repo/uml` - builds uml into png files (analog to `uml`)
+  - `repo/test:circular` - test code for circular dependencies (analog to `test:circular`)
+  - `repo/lint-fix` - tries to fix linting issues (analog to `lint-fix`)
+  - `repo/drawings` - compiles draw.io files to png (one per page) (analog to `drawings`)
+  - `repo/flash-forward` - updates all dependencies to latest versions (analog to `flash-forward`)
+  - `repo/update-scripts` - runs cli to update repo's configs (CI, Doc boilerplate, Linting, Style, etc) via it's template repository (analog to `drawings`)
+  - `build:prod` - `build`s code in production mode (minify, uglify, doc extraction, and no source-map for bundled production)
+  - `build` - `build`s code in development mode
 
 ## Considerations
 
