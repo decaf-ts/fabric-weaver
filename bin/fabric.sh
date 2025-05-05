@@ -2,9 +2,9 @@
 
 # Function to display usage
 usage() {
-    echo "Usage: $0 [-h|--help] [-c|--command <command>] [options]"
+    echo "Usage: $0 [-h|--help] [--command <command>] [options]"
     echo "  -h, --help     Display this help message"
-    echo "  --command  Specify a command (setup or update, defaults to setup)"
+    echo "  --command      Specify a command (setup or update, defaults to setup)"
     echo ""
     echo "Options for setup command:"
     printf '\t%s\n' "<comp> Component to install, one or more of  docker | binary | samples | podman"
@@ -17,7 +17,7 @@ usage() {
 # Initialize variables
 COMMAND="setup"
 INSTALL_SCRIPT="./bin/install-fabric.sh"
-COMPONENTS=""
+COMPONENTS=()
 FABRIC_VERSION="2.5.12"
 CA_VERSION="1.5.15"
 
@@ -37,7 +37,7 @@ while [[ $# -gt 0 ]]; do
             fi
             ;;
         docker|binary|samples|podman|d|b|s|p)
-            COMPONENTS="$COMPONENTS $1"
+            COMPONENTS+=("$1")
             shift
             ;;
         -f|--fabric-version)
@@ -64,10 +64,18 @@ case $COMMAND in
         echo "Executing setup..."
         if [ -f "$INSTALL_SCRIPT" ]; then
             echo "Executing install-fabric.sh..."
-            if [ -z "$COMPONENTS" ]; then
-                COMPONENTS="docker binary samples"
+            if [ ${#COMPONENTS[@]} -eq 0 ]; then
+                COMPONENTS=(docker binary samples)
             fi
-            bash "$INSTALL_SCRIPT" $COMPONENTS -f $FABRIC_VERSION -c $CA_VERSION
+            for component in "${COMPONENTS[@]}"; do
+                echo "Installing component: $component"
+                bash "$INSTALL_SCRIPT" "$component" -f "$FABRIC_VERSION" -c "$CA_VERSION"
+                if [ $? -ne 0 ]; then
+                    echo "Error installing component: $component"
+                    exit 1
+                fi
+            done
+            echo "All components installed successfully."
         else
             echo "Error: $INSTALL_SCRIPT not found. Please run the update command first."
             exit 1
