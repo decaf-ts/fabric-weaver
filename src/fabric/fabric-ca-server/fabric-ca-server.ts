@@ -54,7 +54,7 @@ import path from "path";
 //       --intermediate.enrollment.profile string    Name of the signing profile to use in issuing the certificate
 //       --intermediate.enrollment.type string       The type of enrollment request: 'x509' or 'idemix' (default "x509")
 //       --intermediate.parentserver.caname string   Name of the CA to connect to on fabric-ca-server
-//   -u, --intermediate.parentserver.url string      URL of the parent fabric-ca-server (e.g. http://&lt;username&gt;:&lt;password&gt;@&lt;address&gt;:&lt;port&gt)
+//   -u, --intermediate.parentserver.url string      URL of the parent fabric-ca-server (e.g. http://<;username>;:<;password>;@<;address>;:<;port>)
 //       --intermediate.tls.certfiles strings        A list of comma-separated PEM-encoded trusted certificate files (e.g. root1.pem,root2.pem)
 //       --intermediate.tls.client.certfile string   PEM-encoded certificate file when mutual authenticate is enabled
 //       --intermediate.tls.client.keyfile string    PEM-encoded key file when mutual authentication is enabled
@@ -98,6 +98,7 @@ export class FabricCAServerCommandBuilder {
   setAddress(address?: string): this {
     if (address !== undefined) {
       this.args.set("address", address);
+      // Note: Not present in the FabricCAServerConfig interface.
     }
     return this;
   }
@@ -105,6 +106,7 @@ export class FabricCAServerCommandBuilder {
   setPort(port?: number): this {
     if (port !== undefined) {
       this.args.set("port", port);
+      this.config.port = port;
     }
     return this;
   }
@@ -112,6 +114,7 @@ export class FabricCAServerCommandBuilder {
   setHomeDirectory(home?: string): this {
     if (home !== undefined) {
       this.args.set("home", home);
+      // Note: Not present in the FabricCAServerConfig interface.
     }
     return this;
   }
@@ -119,6 +122,7 @@ export class FabricCAServerCommandBuilder {
   setLogLevel(level?: FabricLogLevel): this {
     if (level !== undefined) {
       this.args.set("loglevel", level);
+      // Note: Not present in the FabricCAServerConfig interface.
     }
     return this;
   }
@@ -126,6 +130,7 @@ export class FabricCAServerCommandBuilder {
   enableDebug(enable?: boolean): this {
     if (enable !== undefined) {
       this.args.set("debug", enable);
+      this.config.debug = enable;
     }
     return this;
   }
@@ -134,6 +139,7 @@ export class FabricCAServerCommandBuilder {
   setCACertFile(certfile?: string): this {
     if (certfile !== undefined) {
       this.args.set("ca.certfile", certfile);
+      this.config.ca.certfile = certfile;
     }
     return this;
   }
@@ -141,6 +147,7 @@ export class FabricCAServerCommandBuilder {
   setCAKeyFile(keyfile?: string): this {
     if (keyfile !== undefined) {
       this.args.set("ca.keyfile", keyfile);
+      this.config.ca.keyfile = keyfile;
     }
     return this;
   }
@@ -148,6 +155,7 @@ export class FabricCAServerCommandBuilder {
   setCAName(name?: string): this {
     if (name !== undefined) {
       this.args.set("ca.name", name);
+      this.config.ca.name = name;
     }
     return this;
   }
@@ -155,6 +163,7 @@ export class FabricCAServerCommandBuilder {
   setCAChainFile(chainfile?: string): this {
     if (chainfile !== undefined) {
       this.args.set("ca.chainfile", chainfile);
+      this.config.ca.chainfile = chainfile;
     }
     return this;
   }
@@ -162,6 +171,7 @@ export class FabricCAServerCommandBuilder {
   setCAReenrollIgnoreCertExpiry(ignore?: boolean): this {
     if (ignore !== undefined) {
       this.args.set("ca.reenrollignorecertexpiry", ignore);
+      this.config.ca.reenrollIgnoreCertExpiry = ignore;
     }
     return this;
   }
@@ -170,6 +180,7 @@ export class FabricCAServerCommandBuilder {
   enableTLS(enabled?: boolean): this {
     if (enabled !== undefined) {
       this.args.set("tls.enabled", enabled);
+      this.config.tls.enabled = enabled;
     }
     return this;
   }
@@ -177,6 +188,7 @@ export class FabricCAServerCommandBuilder {
   setTLSCertFile(certfile?: string): this {
     if (certfile !== undefined) {
       this.args.set("tls.certfile", certfile);
+      this.config.tls.certfile = certfile;
     }
     return this;
   }
@@ -184,6 +196,7 @@ export class FabricCAServerCommandBuilder {
   setTLSKeyFile(keyfile?: string): this {
     if (keyfile !== undefined) {
       this.args.set("tls.keyfile", keyfile);
+      this.config.tls.keyfile = keyfile;
     }
     return this;
   }
@@ -191,6 +204,7 @@ export class FabricCAServerCommandBuilder {
   setTLSClientAuthType(type?: string): this {
     if (type !== undefined) {
       this.args.set("tls.clientauth.type", type);
+      this.config.tls.clientauth.type = type;
     }
     return this;
   }
@@ -198,6 +212,7 @@ export class FabricCAServerCommandBuilder {
   setTLSClientAuthCertFiles(certfiles?: string[]): this {
     if (certfiles !== undefined) {
       this.args.set("tls.clientauth.certfiles", certfiles);
+      this.config.tls.clientauth.certfiles = certfiles;
     }
     return this;
   }
@@ -206,6 +221,7 @@ export class FabricCAServerCommandBuilder {
   enableLDAP(enabled?: boolean): this {
     if (enabled !== undefined) {
       this.args.set("ldap.enabled", enabled);
+      this.config.ldap.enabled = enabled;
     }
     return this;
   }
@@ -213,6 +229,7 @@ export class FabricCAServerCommandBuilder {
   setLDAPURL(url?: string): this {
     if (url !== undefined) {
       this.args.set("ldap.url", url);
+      this.config.ldap.url = url;
     }
     return this;
   }
@@ -220,6 +237,7 @@ export class FabricCAServerCommandBuilder {
   setLDAPUserFilter(filter?: string): this {
     if (filter !== undefined) {
       this.args.set("ldap.userfilter", filter);
+      // Note: Not present in the FabricCAServerConfig interface.
     }
     return this;
   }
@@ -227,6 +245,7 @@ export class FabricCAServerCommandBuilder {
   setLDAPGroupFilter(filter?: string): this {
     if (filter !== undefined) {
       this.args.set("ldap.groupfilter", filter);
+      // Note: Not present in the FabricCAServerConfig interface.
     }
     return this;
   }
@@ -234,6 +253,7 @@ export class FabricCAServerCommandBuilder {
   setLDAPAttributeNames(names?: string[]): this {
     if (names !== undefined) {
       this.args.set("ldap.attribute.names", names);
+      this.config.ldap.attribute.names = names;
     }
     return this;
   }
@@ -242,6 +262,7 @@ export class FabricCAServerCommandBuilder {
   setDBType(type?: FabricCAServerDBType): this {
     if (type !== undefined) {
       this.args.set("db.type", type);
+      this.config.db.type = type;
     }
     return this;
   }
@@ -249,6 +270,7 @@ export class FabricCAServerCommandBuilder {
   setDBDataSource(datasource?: string): this {
     if (datasource !== undefined) {
       this.args.set("db.datasource", datasource);
+      this.config.db.datasource = datasource;
     }
     return this;
   }
@@ -257,6 +279,7 @@ export class FabricCAServerCommandBuilder {
   setCSRCommonName(cn?: string): this {
     if (cn !== undefined) {
       this.args.set("csr.cn", cn);
+      this.config.csr.cn = cn;
     }
     return this;
   }
@@ -264,6 +287,7 @@ export class FabricCAServerCommandBuilder {
   setCSRHosts(hosts?: string[]): this {
     if (hosts !== undefined) {
       this.args.set("csr.hosts", hosts);
+      this.config.csr.hosts = hosts;
     }
     return this;
   }
@@ -272,6 +296,7 @@ export class FabricCAServerCommandBuilder {
   setIntermediateParentServerURL(url?: string): this {
     if (url !== undefined) {
       this.args.set("intermediate.parentserver.url", url);
+      this.config.intermediate.parentserver.url = url;
     }
     return this;
   }
@@ -280,6 +305,7 @@ export class FabricCAServerCommandBuilder {
   setRegistryMaxEnrollments(max?: number): this {
     if (max !== undefined) {
       this.args.set("registry.maxenrollments", max);
+      this.config.registry.maxenrollments = max;
     }
     return this;
   }
@@ -288,6 +314,7 @@ export class FabricCAServerCommandBuilder {
   setIdemixCurve(curve?: string): this {
     if (curve !== undefined) {
       this.args.set("idemix.curve", curve);
+      this.config.idemix.curve = curve;
     }
     return this;
   }
@@ -296,6 +323,7 @@ export class FabricCAServerCommandBuilder {
   enableCORS(enabled?: boolean): this {
     if (enabled !== undefined) {
       this.args.set("cors.enabled", enabled);
+      this.config.cors.enabled = enabled;
     }
     return this;
   }
@@ -303,11 +331,11 @@ export class FabricCAServerCommandBuilder {
   setCORSOrigins(origins?: string[]): this {
     if (origins !== undefined) {
       this.args.set("cors.origins", origins);
+      this.config.cors.origins = origins;
     }
     return this;
   }
 
-  // Build method remains unchanged
   build(): string {
     const commandArray: string[] = ["fabric-ca-server", this.command];
 
