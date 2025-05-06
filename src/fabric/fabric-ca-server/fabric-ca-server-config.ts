@@ -83,7 +83,7 @@ export interface FabricCAServerConfig {
       expiry: string;
     };
     profiles: {
-      ca: {
+      ca?: {
         usage: string[];
         expiry: string;
         caconstraint: {
@@ -91,7 +91,7 @@ export interface FabricCAServerConfig {
           maxpathlen: number;
         };
       };
-      tls: {
+      tls?: {
         usage: string[];
         expiry: string;
       };

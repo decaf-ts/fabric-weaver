@@ -224,6 +224,45 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  setCAProfile(maxpathlength?: number): this {
+    if (maxpathlength !== undefined) {
+      this.log.debug(`Setting CA max path length: ${maxpathlength}`);
+      this.config.signing.profiles.ca.caconstraint.maxpathlen = maxpathlength;
+    }
+    return this;
+  }
+
+  setOperationsListenAddress(address?: string): this {
+    if (address !== undefined) {
+      this.log.debug(`Setting operations listen address: ${address}`);
+      this.config.operations.listenAddress = address;
+    }
+    return this;
+  }
+
+  setMetricsListenAddress(address?: string): this {
+    if (address !== undefined) {
+      this.log.debug(`Setting metrics listen address: ${address}`);
+      this.config.metrics.statsd.address = address;
+    }
+    return this;
+  }
+
+  removeUnusedProfiles(
+    removeTLSProfile: boolean = false,
+    removeCAProfile: boolean = false
+  ): this {
+    if (removeTLSProfile) {
+      this.log.debug("Removing TLS profile");
+      delete this.config.signing?.profiles?.tls;
+    }
+    if (removeCAProfile) {
+      this.log.debug("Removing CA profile");
+      delete this.config.signing?.profiles?.ca;
+    }
+    return this;
+  }
+
   // TLS configuration
   enableTLS(enabled?: boolean): this {
     if (enabled !== undefined) {
