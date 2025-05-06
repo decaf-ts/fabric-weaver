@@ -218,8 +218,8 @@ async function setupFabric(config: typeof defaultConfig): Promise<void> {
     }
 
     try {
-      const srcConfigDir = path.join(__dirname, "..", "configs");
-      const destConfigDir = path.join(process.cwd(), "config");
+      const srcConfigDir = path.join(__dirname, "..", "src", "configs");
+      const destConfigDir = path.join(__dirname, "..", "config");
 
       // Create the destination directory if it doesn't exist
       if (!fs.existsSync(destConfigDir)) {
