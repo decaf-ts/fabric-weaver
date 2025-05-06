@@ -227,7 +227,13 @@ export class FabricCAServerCommandBuilder {
   setCAProfile(maxpathlength?: number): this {
     if (maxpathlength !== undefined) {
       this.log.debug(`Setting CA max path length: ${maxpathlength}`);
-      this.config.signing.profiles.ca.caconstraint.maxpathlen = maxpathlength;
+      if (
+        this.config.signing &&
+        this.config.signing.profiles &&
+        this.config.signing.profiles.ca &&
+        this.config.signing.profiles.ca.caconstraint
+      )
+        this.config.signing.profiles.ca.caconstraint.maxpathlen = maxpathlength;
     }
     return this;
   }
@@ -685,6 +691,9 @@ export class FabricCAServerCommandBuilder {
       }
     });
 
-    return commandArray.join(" ");
+    const commandStr = commandArray.join(" ");
+
+    this.log.debug(`Built command: ${commandStr}`);
+    return commandStr;
   }
 }
