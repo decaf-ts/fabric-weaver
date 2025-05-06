@@ -1,4 +1,4 @@
-import {ChildClass, Class, complexFunction, something,} from "../../src";
+import { ChildClass, Class, complexFunction, something } from "../../src";
 
 interface AddAttachParams {
   attach: string | Buffer;
@@ -14,10 +14,7 @@ interface AddMsgParams {
 export const JestReportersTempPathEnvKey = "JEST_HTML_REPORTERS_TEMP_DIR_PATH";
 export const JestCoverageEnvKey = "__coverage__";
 
-
-async function normalizeImport<T>(
-  importPromise: Promise<T>,
-): Promise<T> {
+async function normalizeImport<T>(importPromise: Promise<T>): Promise<T> {
   // CommonJS's `module.exports` is wrapped as `default` in ESModule.
   return importPromise.then((m: any) => (m.default || m) as T);
 }
@@ -29,25 +26,42 @@ export async function awaitTimeout(ms: number): Promise<void> {
 let addMsgFunction: (arg: AddMsgParams) => Promise<void>;
 let addAttachFunction: (arg: AddAttachParams) => Promise<void>;
 
-
 async function importHelpers(): Promise<void> {
   // if (!process.env[JestReportersTempPathEnvKey])
   //   process.env[JestReportersTempPathEnvKey] = './workdocs/reports';
-  const { addMsg, addAttach } = await normalizeImport(import('jest-html-reporters/helper'));
+  const { addMsg, addAttach } = await normalizeImport(
+    import("jest-html-reporters/helper")
+  );
   addMsgFunction = addMsg;
   addAttachFunction = addAttach;
 }
 
-async function addReportMessage(title: string, message: string | object): Promise<void> {
-  if (!(globalThis as {global: Record<string, unknown>}).global[JestCoverageEnvKey]) // we ony create reports when running coverage
+async function addReportMessage(
+  title: string,
+  message: string | object
+): Promise<void> {
+  if (
+    !(globalThis as { global: Record<string, unknown> }).global[
+      JestCoverageEnvKey
+    ]
+  )
+    // we ony create reports when running coverage
     return;
   if (!addMsgFunction) await importHelpers();
   const msg = `${title}\n${message}`;
   await addMsgFunction({ message: msg });
 }
 
-async function addReportAttachment(title: string, attachment: string | Buffer): Promise<void> {
-  if (!(globalThis as {global: Record<string, unknown>}).global[JestCoverageEnvKey]) // we ony create reports when running coverage
+async function addReportAttachment(
+  title: string,
+  attachment: string | Buffer
+): Promise<void> {
+  if (
+    !(globalThis as { global: Record<string, unknown> }).global[
+      JestCoverageEnvKey
+    ]
+  )
+    // we ony create reports when running coverage
     return;
   if (!addAttachFunction) await importHelpers();
   await addAttachFunction({
@@ -58,21 +72,29 @@ async function addReportAttachment(title: string, attachment: string | Buffer): 
 
 describe("Type Script Workspace test", function () {
   it("runs functions", function () {
-    expect(complexFunction(),).toBe("Hello Worlddefault",);
-  },);
+    expect(complexFunction()).toBe("Hello Worlddefault");
+  });
 
   it("Instantiates Classes", async function () {
-    const a = new Class(1, "string",);
-    expect(a,).toBeDefined();
-    expect(a.method,).rejects.toBeInstanceOf(Error,);
-    expect(Class.method,).toThrow();
-    const b = new ChildClass("string", "string",);
-    expect(b,).toBeDefined();
-    expect(() => b.method2("string",),).toThrow();
-    expect(something.call(a,),).toEqual(a,);
+    const a = new Class(1, "string");
+    expect(a).toBeDefined();
+    expect(a.method).rejects.toBeInstanceOf(Error);
+    expect(Class.method).toThrow();
+    const b = new ChildClass("string", "string");
+    expect(b).toBeDefined();
+    expect(() => b.method2("string")).toThrow();
+    expect(something.call(a)).toEqual(a);
     const res = await b.method();
-    expect(res,).toEqual("ok",);
-    await addReportMessage("Class Instantiation", `Class used:\n${a.constructor.name}\nChildClass used:\n${b.constructor.name}`)
-    await addReportAttachment("Class Instantiation 2", Buffer.from(`Class used:\n${a.constructor.name}\nChildClass used:\n${b.constructor.name}`))
-  },);
-},);
+    expect(res).toEqual("ok");
+    await addReportMessage(
+      "Class Instantiation",
+      `Class used:\n${a.constructor.name}\nChildClass used:\n${b.constructor.name}`
+    );
+    await addReportAttachment(
+      "Class Instantiation 2",
+      Buffer.from(
+        `Class used:\n${a.constructor.name}\nChildClass used:\n${b.constructor.name}`
+      )
+    );
+  });
+});

@@ -11,3 +11,5 @@
  *
  * @memberOf module:fabric-weaver
  */
+
+export * from "./build-scripts";

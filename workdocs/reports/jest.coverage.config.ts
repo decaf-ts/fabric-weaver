@@ -3,6 +3,11 @@ import conf from "../../jest.config";
 
 const config: Config.InitialOptions = {
   ...conf,
+  collectCoverageFrom: [
+    "src/**/*.{js,jsx,ts,tsx}",
+    "!src/bin/**/*",
+    "!src/utils/build-scripts.ts",
+  ],
   collectCoverage: true,
   coverageDirectory: "./workdocs/reports/coverage",
   reporters: [
