@@ -158,12 +158,13 @@ async function updateFabric(): Promise<void> {
  * @summary This function installs the specified Fabric components using the
  * install-fabric.sh script. It iterates through the components list and executes
  * the script for each component with the specified Fabric and CA versions.
+ * After installation, it copies configuration files to the root config folder.
  * @param {Object} config - Configuration object for Fabric setup
  * @param {string} config.fabricVersion - Fabric version to install
  * @param {string} config.caVersion - Fabric CA version to install
  * @param {string[]} config.components - List of components to install
  * @returns {Promise<void>}
- * @throws {Error} If the install script is not found or component installation fails
+ * @throws {Error} If the install script is not found, component installation fails, or file copying fails
  * @memberOf module:fabric-cli
  *
  * @example
@@ -190,6 +191,10 @@ async function updateFabric(): Promise<void> {
  *         Function->>Function: Log error and exit
  *       end
  *     end
+ *     Function->>FileSystem: Copy config files
+ *     alt Copy failed
+ *       Function->>Function: Log error
+ *     end
  *   end
  *   Function->>Function: Log success message
  */
@@ -211,6 +216,30 @@ async function setupFabric(config: typeof defaultConfig): Promise<void> {
         process.exit(1);
       }
     }
+
+    try {
+      const srcConfigDir = path.join(__dirname, "..", "configs");
+      const destConfigDir = path.join(process.cwd(), "config");
+
+      // Create the destination directory if it doesn't exist
+      if (!fs.existsSync(destConfigDir)) {
+        fs.mkdirSync(destConfigDir, { recursive: true });
+      }
+
+      // Copy files from src/configs to rootDir/config
+      fs.readdirSync(srcConfigDir).forEach((file) => {
+        const srcPath = path.join(srcConfigDir, file);
+        const destPath = path.join(destConfigDir, file);
+        fs.copyFileSync(srcPath, destPath);
+        console.log(`Copied ${file} to ${destConfigDir}`);
+      });
+
+      console.log("Configuration files copied successfully.");
+    } catch (error) {
+      console.error("Error copying configuration files:");
+      console.error(error);
+    }
+
     console.log("All components installed successfully.");
   } else {
     console.error(
