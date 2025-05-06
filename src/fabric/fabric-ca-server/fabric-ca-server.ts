@@ -1,5 +1,9 @@
+import { Logging } from "@decaf-ts/logging";
+import { readFileYaml } from "../../utils/yaml";
 import { FabricLogLevel } from "../general/constants";
 import { FabricCAServerCommand, FabricCAServerDBType } from "./constants";
+import { FabricCAServerConfig } from "./fabric-ca-server-config";
+import path from "path";
 
 // Usage:
 //   fabric-ca-server [command]
@@ -73,8 +77,14 @@ import { FabricCAServerCommand, FabricCAServerDBType } from "./constants";
 
 // Use "fabric-ca-server [command] --help" for more information about a command.
 export class FabricCAServerCommandBuilder {
+  private Logger = Logging.for(FabricCAServerCommandBuilder);
+
   private args: Map<string, string | boolean | number | string[]> = new Map();
   private command: FabricCAServerCommand = FabricCAServerCommand.START;
+
+  private config: FabricCAServerConfig = readFileYaml<FabricCAServerConfig>(
+    path.join(__dirname, "../../../config/fabric-ca-server.yaml")
+  ) as FabricCAServerConfig;
 
   // Command setter
   setCommand(command?: FabricCAServerCommand): this {
