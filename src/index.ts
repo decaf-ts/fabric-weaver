@@ -22,7 +22,7 @@
  */
 
 export * from "./utils";
-// export * from "./core";
+export * from "./fabric";
 
 /**
  * @const VERSION
