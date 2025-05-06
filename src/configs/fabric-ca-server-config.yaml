@@ -319,7 +319,6 @@ csr:
       O: Hyperledger
       OU: Fabric
   hosts:
-    - PDM-01276
     - localhost
   ca:
     expiry: 131400h
