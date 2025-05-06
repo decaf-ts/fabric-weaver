@@ -11,7 +11,41 @@ import { FabricCAServerConfig } from "./fabric-ca-server-config";
 import path from "path";
 import fs from "fs";
 
-// Use "fabric-ca-server [command] --help" for more information about a command.
+/**
+ * @class FabricCAServerCommandBuilder
+ * @description A builder class for constructing Fabric CA Server commands and configurations.
+ * @summary This class provides a fluent interface for building Fabric CA Server commands and configurations.
+ * It allows for easy setup of various CA server parameters, including basic configuration, CA configuration,
+ * TLS settings, LDAP integration, database configuration, CSR settings, intermediate CA setup, registry configuration,
+ * idemix settings, and CORS configuration.
+ *
+ * @param {FabricCAServerConfig} config - The initial configuration object for the Fabric CA Server.
+ *
+ * @example
+ * const builder = new FabricCAServerCommandBuilder();
+ * const command = builder
+ *   .setCommand(FabricCAServerCommand.START)
+ *   .setPort(7054)
+ *   .enableDebug(true)
+ *   .setCAName("org1-ca")
+ *   .enableTLS(true)
+ *   .build();
+ *
+ * @mermaid
+ * sequenceDiagram
+ *   participant Client
+ *   participant Builder as FabricCAServerCommandBuilder
+ *   participant Config as FabricCAServerConfig
+ *   Client->>Builder: new FabricCAServerCommandBuilder()
+ *   Builder->>Config: Initialize config
+ *   Client->>Builder: setCommand(START)
+ *   Client->>Builder: setPort(7054)
+ *   Client->>Builder: enableDebug(true)
+ *   Client->>Builder: setCAName("org1-ca")
+ *   Client->>Builder: enableTLS(true)
+ *   Client->>Builder: build()
+ *   Builder-->>Client: Fabric CA Server command string
+ */
 export class FabricCAServerCommandBuilder {
   private log = Logging.for(FabricCAServerCommandBuilder);
 
@@ -19,10 +53,15 @@ export class FabricCAServerCommandBuilder {
   private command: FabricCAServerCommand = FabricCAServerCommand.START;
 
   private config: FabricCAServerConfig = readFileYaml<FabricCAServerConfig>(
-    path.join(__dirname, "../../../config/fabric-ca-server.yaml")
+    path.join(__dirname, "../../../config/fabric-ca-server-config.yaml")
   ) as FabricCAServerConfig;
 
-  // Command setter
+  /**
+   * @description Sets the command for the Fabric CA Server.
+   * @summary Configures the primary action for the Fabric CA Server, such as starting the server or generating certificates.
+   * @param {FabricCAServerCommand} [command] - The command to be executed by the Fabric CA Server.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCommand(command?: FabricCAServerCommand): this {
     if (command !== undefined) {
       this.log.debug(`Setting command: ${command}`);
@@ -31,7 +70,14 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
-  // Basic configuration
+  // Basic configuration ---------------------------------------------------------------------
+
+  /**
+   * @description Sets the address for the Fabric CA Server.
+   * @summary Configures the network address on which the Fabric CA Server will listen for incoming connections.
+   * @param {string} [address] - The network address for the Fabric CA Server to listen on.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setAddress(address?: string): this {
     if (address !== undefined) {
       this.log.debug(`Setting address: ${address}`);
@@ -41,6 +87,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the port for the Fabric CA Server.
+   * @summary Configures the network port on which the Fabric CA Server will listen for incoming connections.
+   * @param {number} [port] - The port number for the Fabric CA Server to listen on.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setPort(port?: number): this {
     if (port !== undefined) {
       this.log.debug(`Setting port: ${port}`);
@@ -50,6 +102,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the home directory for the Fabric CA Server.
+   * @summary Configures the home directory where the Fabric CA Server will store its files and configurations.
+   * @param {string} [home] - The path to the home directory for the Fabric CA Server.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setHomeDirectory(home?: string): this {
     if (home !== undefined) {
       this.log.debug(`Setting home directory: ${home}`);
@@ -59,6 +117,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the log level for the Fabric CA Server.
+   * @summary Configures the verbosity of logging for the Fabric CA Server.
+   * @param {FabricLogLevel} [level] - The log level to set for the Fabric CA Server.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setLogLevel(level?: FabricLogLevel): this {
     if (level !== undefined) {
       this.args.set("loglevel", level);
@@ -67,6 +131,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Enables or disables debug mode for the Fabric CA Server.
+   * @summary Configures whether the Fabric CA Server should run in debug mode, providing more detailed logging and output.
+   * @param {boolean} [enable] - Whether to enable debug mode.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   enableDebug(enable?: boolean): this {
     if (enable !== undefined) {
       this.log.debug(`Setting debug: ${enable}`);
@@ -76,6 +146,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the bootstrap admin user for the Fabric CA Server.
+   * @summary Configures the initial admin user with full privileges for the Fabric CA Server.
+   * @param {string} [bootUser] - The bootstrap admin user in the format "username:password".
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setBootstrapAdmin(bootUser?: string): this {
     if (bootUser !== undefined) {
       const [user, password] = bootUser.split(":");
@@ -103,6 +179,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets whether affiliations can be removed in the Fabric CA Server.
+   * @summary Configures the ability to remove affiliations from the Fabric CA Server.
+   * @param {boolean} [allow] - Whether to allow removal of affiliations.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setAffiliationsAllowRemove(allow?: boolean): this {
     if (allow !== undefined) {
       this.log.debug(`Setting affiliations allow remove: ${allow}`);
@@ -113,6 +195,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets whether identities can be removed in the Fabric CA Server.
+   * @summary Configures the ability to remove identities from the Fabric CA Server.
+   * @param {boolean} [allow] - Whether to allow removal of identities.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setIdentitiesAllowRemove(allow?: boolean): this {
     if (allow !== undefined) {
       this.log.debug(`Setting identities allow remove: ${allow}`);
@@ -123,6 +211,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the maximum number of password attempts for identities in the Fabric CA Server.
+   * @summary Configures the maximum number of times an identity can attempt to authenticate before being locked out.
+   * @param {number} [attempts] - The maximum number of password attempts.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setIdentitiesPasswordAttempts(attempts?: number): this {
     if (attempts !== undefined) {
       this.log.debug(`Setting identities password attempts: ${attempts}`);
@@ -133,6 +227,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the expiry period for the Certificate Revocation List (CRL).
+   * @summary Configures how long the CRL should be considered valid before a new one needs to be generated.
+   * @param {string} [expiry] - The expiry period for the CRL (e.g., "24h").
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCRLExpiry(expiry?: string): this {
     if (expiry !== undefined) {
       this.log.debug(`Setting CRL expiry: ${expiry}`);
@@ -143,6 +243,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the size limit for the Certificate Revocation List (CRL).
+   * @summary Configures the maximum number of revoked certificates that can be included in a single CRL.
+   * @param {number} [limit] - The maximum number of revoked certificates in the CRL.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCRLSizeLimit(limit?: number): this {
     if (limit !== undefined) {
       this.log.debug(`Setting CRL size limit: ${limit}`);
@@ -152,6 +258,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Enables or disables the help flag for the Fabric CA Server command.
+   * @summary Configures whether to display help information when running the Fabric CA Server command.
+   * @param {boolean} [enable] - Whether to enable the help flag.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   enableHelp(enable?: boolean): this {
     if (enable !== undefined) {
       this.log.debug(`Setting help flag: ${enable}`);
@@ -164,7 +276,14 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
-  // CA configuration
+  // CA configuration ------------------------------------------------------------
+
+  /**
+   * @description Sets the CA certificate file for the Fabric CA Server.
+   * @summary Configures the path to the CA certificate file used by the Fabric CA Server.
+   * @param {string} [certfile] - The path to the CA certificate file.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCACertFile(certfile?: string): this {
     if (certfile !== undefined) {
       this.args.set("ca.certfile", certfile);
@@ -173,6 +292,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the CA key file for the Fabric CA Server.
+   * @summary Configures the path to the CA private key file used by the Fabric CA Server.
+   * @param {string} [keyfile] - The path to the CA private key file.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCAKeyFile(keyfile?: string): this {
     if (keyfile !== undefined) {
       this.args.set("ca.keyfile", keyfile);
@@ -181,6 +306,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the name of the CA for the Fabric CA Server.
+   * @summary Configures the name identifier for the Certificate Authority.
+   * @param {string} [name] - The name of the CA.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCAName(name?: string): this {
     if (name !== undefined) {
       this.log.debug(`Setting CA name: ${name}`);
@@ -190,6 +321,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the CA chain file for the Fabric CA Server.
+   * @summary Configures the path to the CA chain file used by the Fabric CA Server.
+   * @param {string} [chainfile] - The path to the CA chain file.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCAChainFile(chainfile?: string): this {
     if (chainfile !== undefined) {
       this.args.set("ca.chainfile", chainfile);
@@ -198,6 +335,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets whether to ignore certificate expiry during re-enrollment.
+   * @summary Configures the Fabric CA Server to allow re-enrollment of identities with expired certificates.
+   * @param {boolean} [ignore] - Whether to ignore certificate expiry during re-enrollment.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCAReenrollIgnoreCertExpiry(ignore?: boolean): this {
     if (ignore !== undefined) {
       this.args.set("ca.reenrollignorecertexpiry", ignore);
@@ -206,6 +349,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the number of CAs to run on the Fabric CA Server.
+   * @summary Configures the Fabric CA Server to run multiple CA instances.
+   * @param {number} [count] - The number of CA instances to run.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCACount(count?: number): this {
     if (count !== undefined) {
       this.log.debug(`Setting CA count: ${count}`);
@@ -215,6 +364,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the configuration files for multiple CAs.
+   * @summary Configures the Fabric CA Server with multiple CA configurations using separate files.
+   * @param {string[]} [files] - An array of paths to CA configuration files.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCAFiles(files?: string[]): this {
     if (files !== undefined && files.length > 0) {
       this.log.debug(`Setting CA configuration files: ${files.join(", ")}`);
@@ -224,6 +379,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the maximum path length for CA certificates.
+   * @summary Configures the maximum number of non-self-issued intermediate certificates that may follow this certificate in a valid certification path.
+   * @param {number} [maxpathlength] - The maximum path length for CA certificates.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setCAProfile(maxpathlength?: number): this {
     if (maxpathlength !== undefined) {
       this.log.debug(`Setting CA max path length: ${maxpathlength}`);
@@ -238,6 +399,12 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the listen address for operations in the Fabric CA Server.
+   * @summary Configures the network address on which the Fabric CA Server will listen for operations-related requests.
+   * @param {string} [address] - The listen address for operations.
+   * @return {this} The current instance of the builder for method chaining.
+   */
   setOperationsListenAddress(address?: string): this {
     if (address !== undefined) {
       this.log.debug(`Setting operations listen address: ${address}`);
@@ -246,6 +413,16 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the listen address for metrics in the Fabric CA Server.
+   * @summary Configures the network address on which the Fabric CA Server will expose metrics.
+   * This method allows you to specify where the Fabric CA Server should listen for metrics-related requests.
+   * @param {string} [address] - The listen address for metrics. If provided, it should be a valid network address.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setMetricsListenAddress('localhost:8080');
+   */
   setMetricsListenAddress(address?: string): this {
     if (address !== undefined) {
       this.log.debug(`Setting metrics listen address: ${address}`);
@@ -254,6 +431,33 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Removes unused profiles from the Fabric CA Server configuration.
+   * @summary This method allows you to remove the TLS and/or CA profiles from the configuration if they are not needed.
+   * Removing unused profiles can help streamline the configuration and potentially improve performance.
+   * @param {boolean} [removeTLSProfile=false] - Whether to remove the TLS profile.
+   * @param {boolean} [removeCAProfile=false] - Whether to remove the CA profile.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.removeUnusedProfiles(true, false); // Removes TLS profile, keeps CA profile
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as FabricCAServerConfig
+   *   Client->>Builder: removeUnusedProfiles(true, false)
+   *   Builder->>Builder: Check removeTLSProfile
+   *   alt removeTLSProfile is true
+   *     Builder->>Config: Remove TLS profile
+   *   end
+   *   Builder->>Builder: Check removeCAProfile
+   *   alt removeCAProfile is true
+   *     Builder->>Config: Remove CA profile
+   *   end
+   *   Builder-->>Client: Return this
+   */
   removeUnusedProfiles(
     removeTLSProfile: boolean = false,
     removeCAProfile: boolean = false
@@ -269,7 +473,17 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
-  // TLS configuration
+  // TLS configuration -----------------------------------------------------------------
+
+  /**
+   * @description Enables or disables TLS for the Fabric CA Server.
+   * @summary Configures whether the Fabric CA Server should use TLS (Transport Layer Security) for secure communication.
+   * @param {boolean} [enabled] - Whether to enable TLS. If true, TLS will be enabled; if false, it will be disabled.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.enableTLS(true);
+   */
   enableTLS(enabled?: boolean): this {
     if (enabled !== undefined) {
       this.log.debug(`Setting TLS enabled: ${enabled}`);
@@ -279,6 +493,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the TLS certificate file for the Fabric CA Server.
+   * @summary Configures the path to the TLS certificate file used by the Fabric CA Server for secure communication.
+   * @param {string} [certfile] - The path to the TLS certificate file.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setTLSCertFile('/path/to/tls-cert.pem');
+   */
   setTLSCertFile(certfile?: string): this {
     if (certfile !== undefined) {
       this.log.debug(`Setting TLS cert file: ${certfile}`);
@@ -288,6 +511,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the TLS key file for the Fabric CA Server.
+   * @summary Configures the path to the TLS private key file used by the Fabric CA Server for secure communication.
+   * @param {string} [keyfile] - The path to the TLS private key file.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setTLSKeyFile('/path/to/tls-key.pem');
+   */
   setTLSKeyFile(keyfile?: string): this {
     if (keyfile !== undefined) {
       this.log.debug(`Setting TLS key file: ${keyfile}`);
@@ -297,6 +529,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the TLS client authentication type for the Fabric CA Server.
+   * @summary Configures the type of client authentication to be used with TLS.
+   * @param {string} [type] - The TLS client authentication type (e.g., 'NoClientCert', 'RequestClientCert', 'RequireAnyClientCert', 'VerifyClientCertIfGiven', 'RequireAndVerifyClientCert').
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setTLSClientAuthType('RequireAndVerifyClientCert');
+   */
   setTLSClientAuthType(type?: string): this {
     if (type !== undefined) {
       this.log.debug(`Setting TLS client auth type: ${type}`);
@@ -306,6 +547,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the TLS client authentication certificate files for the Fabric CA Server.
+   * @summary Configures the paths to the client authentication certificate files used for TLS.
+   * @param {string[]} [certfiles] - An array of paths to the client authentication certificate files.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setTLSClientAuthCertFiles(['/path/to/client-cert1.pem', '/path/to/client-cert2.pem']);
+   */
   setTLSClientAuthCertFiles(certfiles?: string[]): this {
     if (certfiles !== undefined) {
       this.log.debug(`Setting TLS client auth cert files: ${certfiles}`);
@@ -315,7 +565,17 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
-  // LDAP configuration
+  // LDAP configuration ----------------------------------------------------------------------
+
+  /**
+   * @description Enables or disables LDAP authentication for the Fabric CA Server.
+   * @summary Configures whether the Fabric CA Server should use LDAP for authentication.
+   * @param {boolean} [enabled] - Whether to enable LDAP authentication. If true, LDAP will be enabled; if false, it will be disabled.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.enableLDAP(true);
+   */
   enableLDAP(enabled?: boolean): this {
     if (enabled !== undefined) {
       this.log.debug(`Setting LDAP enabled: ${enabled}`);
@@ -325,6 +585,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the LDAP URL for the Fabric CA Server.
+   * @summary Configures the URL of the LDAP server to be used for authentication.
+   * @param {string} [url] - The URL of the LDAP server.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setLDAPURL('ldap://ldap.example.com:389');
+   */
   setLDAPURL(url?: string): this {
     if (url !== undefined) {
       this.log.debug(`Setting LDAP URL: ${url}`);
@@ -334,6 +603,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the LDAP user filter for the Fabric CA Server.
+   * @summary Configures the LDAP filter used to search for users.
+   * @param {string} [filter] - The LDAP user filter string.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setLDAPUserFilter('(uid=%s)');
+   */
   setLDAPUserFilter(filter?: string): this {
     if (filter !== undefined) {
       this.log.debug(`Setting LDAP user filter: ${filter}`);
@@ -343,6 +621,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the LDAP group filter for the Fabric CA Server.
+   * @summary Configures the LDAP filter used to search for groups.
+   * @param {string} [filter] - The LDAP group filter string.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setLDAPGroupFilter('(memberUid=%s)');
+   */
   setLDAPGroupFilter(filter?: string): this {
     if (filter !== undefined) {
       this.log.debug(`Setting LDAP group filter: ${filter}`);
@@ -352,6 +639,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the LDAP attribute names for the Fabric CA Server.
+   * @summary Configures the LDAP attribute names used for mapping LDAP attributes to Fabric CA attributes.
+   * @param {string[]} [names] - An array of LDAP attribute names.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setLDAPAttributeNames(['uid', 'member']);
+   */
   setLDAPAttributeNames(names?: string[]): this {
     if (names !== undefined) {
       this.log.debug(`Setting LDAP attribute names: ${names}`);
@@ -361,6 +657,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the LDAP TLS certificate files for the Fabric CA Server.
+   * @summary Configures the paths to the TLS certificate files used for secure communication with the LDAP server.
+   * @param {string[]} [certfiles] - An array of paths to the LDAP TLS certificate files.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setLDAPTLSCertFiles(['/path/to/ldap-cert1.pem', '/path/to/ldap-cert2.pem']);
+   */
   setLDAPTLSCertFiles(certfiles?: string[]): this {
     if (certfiles !== undefined && certfiles.length > 0) {
       this.log.debug(`Setting LDAP TLS cert files: ${certfiles.join(", ")}`);
@@ -370,6 +675,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the LDAP TLS client certificate file for the Fabric CA Server.
+   * @summary Configures the path to the TLS client certificate file used for secure communication with the LDAP server.
+   * @param {string} [certfile] - The path to the LDAP TLS client certificate file.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setLDAPTLSClientCertFile('/path/to/ldap-client-cert.pem');
+   */
   setLDAPTLSClientCertFile(certfile?: string): this {
     if (certfile !== undefined) {
       this.log.debug(`Setting LDAP TLS client cert file: ${certfile}`);
@@ -379,6 +693,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the LDAP TLS client key file for the Fabric CA Server.
+   * @summary Configures the path to the TLS client key file used for secure communication with the LDAP server.
+   * @param {string} [keyfile] - The path to the LDAP TLS client key file.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setLDAPTLSClientKeyFile('/path/to/ldap-client-key.pem');
+   */
   setLDAPTLSClientKeyFile(keyfile?: string): this {
     if (keyfile !== undefined) {
       this.log.debug(`Setting LDAP TLS client key file: ${keyfile}`);
@@ -388,7 +711,17 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
-  // Database configuration
+  // Database configuration ---------------------------------------------------------------------
+
+  /**
+   * @description Sets the database type for the Fabric CA Server.
+   * @summary Configures the type of database to be used by the Fabric CA Server for storing data.
+   * @param {FabricCAServerDBType} [type] - The type of database to use.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setDBType('postgres');
+   */
   setDBType(type?: FabricCAServerDBType): this {
     if (type !== undefined) {
       this.log.debug(`Setting DB type: ${type}`);
@@ -398,6 +731,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the database data source for the Fabric CA Server.
+   * @summary Configures the data source (connection string) for the database used by the Fabric CA Server.
+   * @param {string} [datasource] - The database data source or connection string.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setDBDataSource('host=localhost port=5432 user=myuser password=mypassword dbname=fabricca');
+   */
   setDBDataSource(datasource?: string): this {
     if (datasource !== undefined) {
       this.log.debug(`Setting DB data source: ${datasource}`);
@@ -407,6 +749,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the database TLS certificate files for the Fabric CA Server.
+   * @summary Configures the paths to the TLS certificate files used for secure communication with the database.
+   * @param {string[]} [certfiles] - An array of paths to the database TLS certificate files.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setDBTLSCertFiles(['/path/to/db-cert1.pem', '/path/to/db-cert2.pem']);
+   */
   setDBTLSCertFiles(certfiles?: string[]): this {
     if (certfiles !== undefined && certfiles.length > 0) {
       this.log.debug(`Setting DB TLS cert files: ${certfiles.join(", ")}`);
@@ -417,6 +768,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the database TLS client certificate file for the Fabric CA Server.
+   * @summary Configures the path to the TLS client certificate file used for secure communication with the database.
+   * @param {string} [certfile] - The path to the database TLS client certificate file.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setDBTLSClientCertFile('/path/to/db-client-cert.pem');
+   */
   setDBTLSClientCertFile(certfile?: string): this {
     if (certfile !== undefined) {
       this.log.debug(`Setting DB TLS client cert file: ${certfile}`);
@@ -428,6 +788,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the database TLS client key file for the Fabric CA Server.
+   * @summary Configures the path to the TLS client key file used for secure communication with the database.
+   * @param {string} [keyfile] - The path to the database TLS client key file.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setDBTLSClientKeyFile('/path/to/db-client-key.pem');
+   */
   setDBTLSClientKeyFile(keyfile?: string): this {
     if (keyfile !== undefined) {
       this.log.debug(`Setting DB TLS client key file: ${keyfile}`);
@@ -439,7 +808,17 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
-  // CSR configuration
+  // CSR configuration -------------------------------------------------------------------
+
+  /**
+   * @description Sets the CSR (Certificate Signing Request) common name for the Fabric CA Server.
+   * @summary Configures the common name to be used in the CSR generated by the Fabric CA Server.
+   * @param {string} [cn] - The common name to be used in the CSR.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setCSRCommonName('fabric-ca-server.example.com');
+   */
   setCSRCommonName(cn?: string): this {
     if (cn !== undefined) {
       this.log.debug(`Setting CSR common name: ${cn}`);
@@ -449,6 +828,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the CSR (Certificate Signing Request) hosts for the Fabric CA Server.
+   * @summary Configures the list of hostnames to be included in the CSR generated by the Fabric CA Server.
+   * @param {string[]} [hosts] - An array of hostnames to be included in the CSR.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setCSRHosts(['localhost', 'fabric-ca-server.example.com']);
+   */
   setCSRHosts(hosts?: string[]): this {
     if (hosts !== undefined) {
       this.log.debug(`Setting CSR hosts: ${hosts}`);
@@ -458,6 +846,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the CSR (Certificate Signing Request) key request algorithm for the Fabric CA Server.
+   * @summary Configures the algorithm to be used for key generation in the CSR.
+   * @param {string} [algo] - The key request algorithm (e.g., 'ecdsa', 'rsa').
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setCSRKeyRequestAlgo('ecdsa');
+   */
   setCSRKeyRequestAlgo(algo?: string): this {
     if (algo !== undefined) {
       this.log.debug(`Setting CSR key request algorithm: ${algo}`);
@@ -468,6 +865,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets whether to reuse the key in CSR (Certificate Signing Request) for the Fabric CA Server.
+   * @summary Configures whether the Fabric CA Server should reuse an existing key when generating a new CSR.
+   * @param {boolean} [reuse] - Whether to reuse the key in CSR.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setCSRKeyRequestReuseKey(true);
+   */
   setCSRKeyRequestReuseKey(reuse?: boolean): this {
     if (reuse !== undefined) {
       this.log.debug(`Setting CSR key request reuse key: ${reuse}`);
@@ -478,6 +884,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the CSR (Certificate Signing Request) key request size for the Fabric CA Server.
+   * @summary Configures the key size to be used when generating a new key for the CSR.
+   * @param {number} [size] - The key size in bits.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setCSRKeyRequestSize(2048);
+   */
   setCSRKeyRequestSize(size?: number): this {
     if (size !== undefined) {
       this.log.debug(`Setting CSR key request size: ${size}`);
@@ -488,6 +903,15 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the CSR (Certificate Signing Request) serial number for the Fabric CA Server.
+   * @summary Configures the serial number to be used in the CSR generated by the Fabric CA Server.
+   * @param {string} [serialNumber] - The serial number to be used in the CSR.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setCSRSerialNumber('12345');
+   */
   setCSRSerialNumber(serialNumber?: string): this {
     if (serialNumber !== undefined) {
       this.log.debug(`Setting CSR serial number: ${serialNumber}`);
@@ -497,7 +921,30 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
-  // Intermediate CA configuration
+  // Intermediate CA configuration ------------------------------------------------
+
+  /**
+   * @description Sets the intermediate parent server URL for the Fabric CA Server.
+   * @summary Configures the URL of the parent CA server for an intermediate CA. This URL is used by the intermediate CA to communicate with its parent CA during enrollment and other operations.
+   * @param {string} [url] - The URL of the parent CA server.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIntermediateParentServerURL('https://parent-ca.example.com:7054');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIntermediateParentServerURL('https://parent-ca.example.com:7054')
+   *   Builder->>Builder: Check if URL is defined
+   *   alt URL is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set intermediate.parentserver.url
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIntermediateParentServerURL(url?: string): this {
     if (url !== undefined) {
       this.log.debug(`Setting intermediate parent server URL: ${url}`);
@@ -507,6 +954,28 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the intermediate enrollment label for the Fabric CA Server.
+   * @summary Configures the enrollment label for the intermediate CA. This label is used to identify the specific enrollment request when communicating with the parent CA.
+   * @param {string} [label] - The enrollment label for the intermediate CA.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIntermediateEnrollmentLabel('intermediate-ca-1');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIntermediateEnrollmentLabel('intermediate-ca-1')
+   *   Builder->>Builder: Check if label is defined
+   *   alt label is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set intermediate.enrollment.label
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIntermediateEnrollmentLabel(label?: string): this {
     if (label !== undefined) {
       this.log.debug(`Setting intermediate enrollment label: ${label}`);
@@ -519,6 +988,28 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the intermediate enrollment profile for the Fabric CA Server.
+   * @summary Configures the enrollment profile for the intermediate CA. This profile determines the attributes and extensions that will be included in the intermediate CA's certificate.
+   * @param {string} [profile] - The enrollment profile for the intermediate CA.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIntermediateEnrollmentProfile('ca');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIntermediateEnrollmentProfile('ca')
+   *   Builder->>Builder: Check if profile is defined
+   *   alt profile is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set intermediate.enrollment.profile
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIntermediateEnrollmentProfile(profile?: string): this {
     if (profile !== undefined) {
       this.log.debug(`Setting intermediate enrollment profile: ${profile}`);
@@ -531,6 +1022,28 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the intermediate enrollment type for the Fabric CA Server.
+   * @summary Configures the enrollment type for the intermediate CA. This determines how the intermediate CA will enroll with its parent CA.
+   * @param {FabricCAServerEnrollmentType} [type] - The enrollment type for the intermediate CA.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIntermediateEnrollmentType('tls');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIntermediateEnrollmentType('tls')
+   *   Builder->>Builder: Check if type is defined
+   *   alt type is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set intermediate.enrollment.type
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIntermediateEnrollmentType(type?: FabricCAServerEnrollmentType): this {
     if (type !== undefined) {
       this.log.debug(`Setting intermediate enrollment type: ${type}`);
@@ -543,6 +1056,28 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the intermediate parent server CA name for the Fabric CA Server.
+   * @summary Configures the name of the parent CA server for an intermediate CA. This name is used to identify the specific CA instance on the parent server during enrollment and other operations.
+   * @param {string} [caName] - The name of the parent CA server.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIntermediateParentServerCAName('root-ca');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIntermediateParentServerCAName('root-ca')
+   *   Builder->>Builder: Check if caName is defined
+   *   alt caName is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set intermediate.parentserver.caname
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIntermediateParentServerCAName(caName?: string): this {
     if (caName !== undefined) {
       this.log.debug(`Setting intermediate parent server CA name: ${caName}`);
@@ -554,6 +1089,29 @@ export class FabricCAServerCommandBuilder {
     }
     return this;
   }
+
+  /**
+   * @description Sets the intermediate TLS certificate files for the Fabric CA Server.
+   * @summary Configures the TLS certificate files for the intermediate CA. These certificates are used to establish secure TLS connections with the parent CA server.
+   * @param {string[]} [certfiles] - An array of paths to the TLS certificate files.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIntermediateTLSCertFiles(['/path/to/cert1.pem', '/path/to/cert2.pem']);
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIntermediateTLSCertFiles(['/path/to/cert1.pem', '/path/to/cert2.pem'])
+   *   Builder->>Builder: Check if certfiles is defined and not empty
+   *   alt certfiles is defined and not empty
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set intermediate.tls.certfiles
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIntermediateTLSCertFiles(certfiles?: string[]): this {
     if (certfiles !== undefined && certfiles.length > 0) {
       this.log.debug(
@@ -567,6 +1125,28 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the intermediate TLS client certificate file for the Fabric CA Server.
+   * @summary Configures the TLS client certificate file for the intermediate CA. This certificate is used by the intermediate CA to authenticate itself to the parent CA server during TLS handshakes.
+   * @param {string} [certfile] - The path to the TLS client certificate file.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIntermediateTLSClientCertFile('/path/to/client-cert.pem');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIntermediateTLSClientCertFile('/path/to/client-cert.pem')
+   *   Builder->>Builder: Check if certfile is defined
+   *   alt certfile is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set intermediate.tls.client.certfile
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIntermediateTLSClientCertFile(certfile?: string): this {
     if (certfile !== undefined) {
       this.log.debug(`Setting intermediate TLS client cert file: ${certfile}`);
@@ -580,6 +1160,28 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the intermediate TLS client key file for the Fabric CA Server.
+   * @summary Configures the TLS client key file for the intermediate CA. This key file is used in conjunction with the client certificate for TLS authentication to the parent CA server.
+   * @param {string} [keyfile] - The path to the TLS client key file.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIntermediateTLSClientKeyFile('/path/to/client-key.pem');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIntermediateTLSClientKeyFile('/path/to/client-key.pem')
+   *   Builder->>Builder: Check if keyfile is defined
+   *   alt keyfile is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set intermediate.tls.client.keyfile
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIntermediateTLSClientKeyFile(keyfile?: string): this {
     if (keyfile !== undefined) {
       this.log.debug(`Setting intermediate TLS client key file: ${keyfile}`);
@@ -593,7 +1195,30 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
-  // Registry configuration
+  // Registry configuration -----------------------------------------------------
+
+  /**
+   * @description Sets the registry maximum enrollments for the Fabric CA Server.
+   * @summary Configures the maximum number of times an identity can be enrolled. This setting applies to all identities registered with the CA unless overridden at the identity level.
+   * @param {number} [max] - The maximum number of enrollments allowed.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setRegistryMaxEnrollments(5);
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setRegistryMaxEnrollments(5)
+   *   Builder->>Builder: Check if max is defined
+   *   alt max is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set registry.maxenrollments
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setRegistryMaxEnrollments(max?: number): this {
     if (max !== undefined) {
       this.log.debug(`Setting registry max enrollments: ${max}`);
@@ -603,7 +1228,30 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
-  // idemix configuration
+  // idemix configuration ---------------------------------------------------------------------
+
+  /**
+   * @description Sets the Idemix curve for the Fabric CA Server.
+   * @summary Configures the elliptic curve to be used for Idemix operations. Idemix is a cryptographic protocol used for anonymous credentials in Hyperledger Fabric.
+   * @param {FabricCAServerCurveName} [curve] - The name of the elliptic curve to be used for Idemix.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIdemixCurve('256');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIdemixCurve('256')
+   *   Builder->>Builder: Check if curve is defined
+   *   alt curve is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set idemix.curve
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIdemixCurve(curve?: FabricCAServerCurveName): this {
     if (curve !== undefined) {
       this.log.debug(`Setting idemix curve: ${curve}`);
@@ -613,6 +1261,28 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the Idemix nonce expiration for the Fabric CA Server.
+   * @summary Configures the expiration time for Idemix nonces. Nonces are used to prevent replay attacks in the Idemix protocol.
+   * @param {string} [duration] - The duration string for nonce expiration (e.g., '15m' for 15 minutes).
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIdemixNonceExpiration('30m');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIdemixNonceExpiration('30m')
+   *   Builder->>Builder: Check if duration is defined
+   *   alt duration is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set idemix.nonceexpiration
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIdemixNonceExpiration(duration?: string): this {
     if (duration !== undefined) {
       this.log.debug(`Setting Idemix nonce expiration: ${duration}`);
@@ -623,6 +1293,28 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the Idemix nonce sweep interval for the Fabric CA Server.
+   * @summary Configures the interval at which expired Idemix nonces are removed from the system. This helps in maintaining system performance by regularly cleaning up unused nonces.
+   * @param {string} [interval] - The duration string for the nonce sweep interval (e.g., '15m' for every 15 minutes).
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIdemixNonceSweepInterval('1h');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIdemixNonceSweepInterval('1h')
+   *   Builder->>Builder: Check if interval is defined
+   *   alt interval is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set idemix.noncesweepinterval
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIdemixNonceSweepInterval(interval?: string): this {
     if (interval !== undefined) {
       this.log.debug(`Setting Idemix nonce sweep interval: ${interval}`);
@@ -633,6 +1325,28 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the Idemix revocation handle pool size for the Fabric CA Server.
+   * @summary Configures the size of the revocation handle pool for Idemix operations. Revocation handles are used in the Idemix protocol to enable credential revocation.
+   * @param {number} [size] - The size of the revocation handle pool.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setIdemixRHPoolSize(1000);
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setIdemixRHPoolSize(1000)
+   *   Builder->>Builder: Check if size is defined
+   *   alt size is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set idemix.rhpoolsize
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setIdemixRHPoolSize(size?: number): this {
     if (size !== undefined) {
       this.log.debug(`Setting Idemix revocation handle pool size: ${size}`);
@@ -643,7 +1357,30 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
-  // CORS configuration
+  // CORS configuration ----------------------------------------------------------------------
+
+  /**
+   * @description Enables or disables Cross-Origin Resource Sharing (CORS) for the Fabric CA Server.
+   * @summary Configures whether CORS is enabled for the Fabric CA Server. CORS allows web applications running at one origin to make requests to resources from a different origin.
+   * @param {boolean} [enabled] - Whether to enable CORS.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.enableCORS(true);
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: enableCORS(true)
+   *   Builder->>Builder: Check if enabled is defined
+   *   alt enabled is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set cors.enabled
+   *   end
+   *   Builder-->>Client: Return this
+   */
   enableCORS(enabled?: boolean): this {
     if (enabled !== undefined) {
       this.log.debug(`Setting CORS enabled: ${enabled}`);
@@ -653,6 +1390,28 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Sets the allowed origins for Cross-Origin Resource Sharing (CORS).
+   * @summary Configures the list of origins that are allowed to make cross-origin requests to the Fabric CA Server. This is used in conjunction with CORS when it's enabled.
+   * @param {string[]} [origins] - An array of allowed origin URLs.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setCORSOrigins(['https://example.com', 'https://test.com']);
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant Config as Configuration
+   *   Client->>Builder: setCORSOrigins(['https://example.com', 'https://test.com'])
+   *   Builder->>Builder: Check if origins is defined
+   *   alt origins is defined
+   *     Builder->>Builder: Log debug message
+   *     Builder->>Config: Set cors.origins
+   *   end
+   *   Builder-->>Client: Return this
+   */
   setCORSOrigins(origins?: string[]): this {
     if (origins !== undefined) {
       this.log.debug(`Setting CORS origins: ${origins}`);
@@ -662,6 +1421,32 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Saves the current configuration to a file.
+   * @summary Writes the current Fabric CA Server configuration to a YAML file at the specified path. If the directory doesn't exist, it will be created.
+   * @param {string} cpath - The path where the configuration file should be saved.
+   * @return {this} The current instance of the builder for method chaining.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.saveConfig('/path/to/config/fabric-ca-server.yaml');
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   participant FileSystem as File System
+   *   Client->>Builder: saveConfig('/path/to/config/fabric-ca-server.yaml')
+   *   Builder->>Builder: Check if cpath is defined
+   *   alt cpath is defined
+   *     Builder->>FileSystem: Check if directory exists
+   *     alt Directory doesn't exist
+   *       Builder->>FileSystem: Create directory
+   *     end
+   *     Builder->>Builder: Log debug message
+   *     Builder->>FileSystem: Write YAML configuration to file
+   *   end
+   *   Builder-->>Client: Return this
+   */
   saveConfig(cpath: string): this {
     if (cpath === undefined) return this;
 
@@ -678,6 +1463,31 @@ export class FabricCAServerCommandBuilder {
     return this;
   }
 
+  /**
+   * @description Builds the final Fabric CA Server command string.
+   * @summary Constructs the complete command string for the Fabric CA Server based on all the configured options. This method combines the base command with all the set arguments.
+   * @return {string} The complete Fabric CA Server command as a string.
+   * @example
+   * const builder = new FabricCAServerCommandBuilder();
+   * builder.setPort(7054).setTLSEnabled(true);
+   * const command = builder.build();
+   * console.log(command); // Outputs: fabric-ca-server start --port 7054 --tls.enabled
+   *
+   * @mermaid
+   * sequenceDiagram
+   *   participant Client
+   *   participant Builder as FabricCAServerCommandBuilder
+   *   Client->>Builder: build()
+   *   Builder->>Builder: Initialize command array
+   *   Builder->>Builder: Iterate through args Map
+   *   loop For each argument
+   *     Builder->>Builder: Format argument
+   *     Builder->>Builder: Add to command array
+   *   end
+   *   Builder->>Builder: Join command array into string
+   *   Builder->>Builder: Log debug message
+   *   Builder-->>Client: Return command string
+   */
   build(): string {
     const commandArray: string[] = ["fabric-ca-server", this.command];
 
