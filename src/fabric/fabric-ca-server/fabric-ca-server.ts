@@ -52,7 +52,7 @@ export class FabricCAServerCommandBuilder {
   private args: Map<string, string | boolean | number | string[]> = new Map();
   private command: FabricCAServerCommand = FabricCAServerCommand.START;
 
-  private config: FabricCAServerConfig = readFileYaml<FabricCAServerConfig>(
+  private config: FabricCAServerConfig = readFileYaml(
     path.join(__dirname, "../../../config/fabric-ca-server-config.yaml")
   ) as FabricCAServerConfig;
 
