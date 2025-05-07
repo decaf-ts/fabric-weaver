@@ -1,8 +1,12 @@
 {
+  "global": {
+    "image": "weaverlabs/weaver-node:latest"
+  },
+
   "orgs": [
     {
       "organization": {
-        "name": "Org1"
+        "name": "org1"
       }
     }
   ]

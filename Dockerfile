@@ -1,45 +1,65 @@
-ARG NODE_VERSION=22
+#
+# Base Docker image containing node and the fabric binaries
+# This Dockefile builds the software only!
+# node:22 has to many vulnerabilities so the recomendation is to use node:22-slim
+FROM node:22-slim AS builder
+LABEL builder=true
 
-FROM node:${NODE_VERSION:-22}-alpine as builder
+RUN echo "Entering build phase."
 
-RUN apk update && apk upgrade
+# The node environment:
+# This is the most important one, as it affects NPM described below.
+# In short NODE_ENV=production switch middlewares and dependencies to efficient code path and NPM installs only packages in dependencies.
+# Packages in devDependencies and peerDependencies are ignored.
+ARG NODE_ENV="development"
+ENV NODE_ENV=${NODE_ENV}
 
-ENV WORKDIR="fabric-weaver"
+ARG FABRIC_VERSION=2.5.12
+ENV FABRIC_VERSION=${FABRIC_VERSION}
 
-COPY ./bin/ $WORKDIR/bin/
-COPY ./src/ $WORKDIR/src/
-COPY ./tests/ $WORKDIR/tests/
-COPY ./workdocs/reports $WORKDIR/workdocs/reports
-COPY ./package*.json $WORKDIR/
-COPY ./.mpmrc $WORKDIR/
+ARG FABRIC_CA_VERSION=1.5.15
+ENV FABRIC_CA_VERSION=${FABRIC_CA_VERSION}
 
-# Install the dependencies from package-lock.json
-# Make the workfolder available to the the 'node' user. The `node` user is built in the Node image.
-RUN --mount=type=secret,id=TOKEN TOKEN=$(cat /run/secrets/TOKEN) npm ci && npm cache clean --force && chown -R node:node .
+ENV FOLDER_NAME="fabric"
 
-FROM node:${NODE_VERSION:-22}-alpine AS production
+RUN echo "Building Base image under node $(node -v) and npm $(npm -v)"
 
-RUN apk update && apk upgrade
-RUN apk --no-cache add htop less grep && apk add --no-cache --upgrade bash # optional but useful
+RUN apt update -y && apt upgrade -y
 
-ENV WORKDIR="fabric-weaver"
+RUN apt-get install -y jq vim
 
-ENV NODE_ENV="production"
+COPY package*.json ./$FOLDER_NAME/
+COPY tsconfig.json ./$FOLDER_NAME/
+COPY src ./$FOLDER_NAME/src
+COPY bin ./$FOLDER_NAME/bin
 
-#COPY --from=builder --chown=node:node $WORKDIR/dist $WORKDIR/ #one or the other usually
-COPY --from=builder --chown=node:node $WORKDIR/lib $WORKDIR/lib/
-COPY --from=builder --chown=node:node $WORKDIR/package*.json $WORKDIR/
+RUN cd ${FOLDER_NAME} && npm install && npm cache clean --force && chown -R node:node .
 
-USER node
+RUN find /$FOLDER_NAME/bin -type f \( -name "*.cjs" -o -name "*.sh" \) -delete
 
-WORKDIR $WORKDIR
+ENV FABRIC_BIN_FOLDER="/$FOLDER_NAME/bin"
+ENV PATH="$PATH:$FABRIC_BIN_FOLDER"
 
-# Install the dependencies from package-lock.json
-# Make the workfolder available to the the 'node' user. The `node` user is built in the Node image.
-RUN --mount=type=secret,id=TOKEN TOKEN=$(cat /run/secrets/TOKEN) npm ci && npm cache clean --force && chown -R node:node .
+LABEL name="Fabric Base Image" description="A base node image for fabric images cointaining the binaries"
 
+#
+# Base Docker image containing node and the fabric binaries
+# This Dockefile builds the software only!
+# node:22 has to many vulnerabilities so the recomendation is to use node:22-slim
+FROM node:22-slim
 
-ENTRYPOINT ["node", "lib/cli.cjs"]
+# The node environment:
+# This is the most important one, as it affects NPM described below.
+# In short NODE_ENV=production switch middlewares and dependencies to efficient code path and NPM installs only packages in dependencies.
+# Packages in devDependencies and peerDependencies are ignored.
+ARG NODE_ENV="production"
+ENV NODE_ENV=${NODE_ENV}
 
-LABEL name="TS Workspace" description="Template Dockerfile for typescript projects"
+ENV FOLDER_NAME="fabric"
 
+COPY --chown=node:node --from=builder /$FOLDER_NAME/bin /$FOLDER_NAME/bin
+
+ENV FABRIC_BIN_FOLDER="/$FOLDER_NAME/bin"
+ENV PATH="$PATH:$FABRIC_BIN_FOLDER"
+
+RUN echo "Runtime phase completed"

@@ -6,3 +6,4 @@
 !./.npmrc
 !gulpfile.js
 !jest.config.ts
+!bin/*

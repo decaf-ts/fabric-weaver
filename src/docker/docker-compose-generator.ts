@@ -1,4 +1,8 @@
-import { WeaverConfig, WeaverOrgConfig } from "../core/interfaces";
+import {
+  WeaverConfig,
+  WeaverGlobalConfig,
+  WeaverOrgConfig,
+} from "../core/interfaces";
 import { writeFileYaml } from "../utils/yaml";
 import { DockerRestartPolicy } from "./constants";
 import { DockerCompose, DockerService } from "./types";
@@ -15,7 +19,7 @@ export function generateDockerComposeFile(config: WeaverConfig) {
 
   //Create organization CA's
   for (const org of config.orgs) {
-    const caService = createCAService(org.organization);
+    const caService = createCAService(config.global, org.organization);
     Object.assign(dockerCompose.services, caService);
   }
 
@@ -32,16 +36,21 @@ export function generateDockerComposeFile(config: WeaverConfig) {
   );
 }
 
-export function createCAService(org: WeaverOrgConfig) {
-  return createBaseDockerService(org.name + "-ca");
+export function createCAService(cfg: WeaverGlobalConfig, org: WeaverOrgConfig) {
+  return createBaseDockerService(org.name + "-ca", cfg.image);
 }
 
-export function createBaseDockerService(name: string): DockerService {
+export function createBaseDockerService(
+  name: string,
+  image: string
+): DockerService {
   const service: DockerService = {
     [name]: {
       container_name: name,
       hostname: name,
       restart: DockerRestartPolicy.UNLESS_STOPPED,
+      image: image,
+      command: "tail -f /dev/null",
     },
   };
 

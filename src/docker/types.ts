@@ -12,4 +12,9 @@ export type DockerServiceDefinition = {
   container_name: string;
   hostname: string;
   restart: DockerRestartPolicy;
+  image: string;
+  environment?: string[];
+  volumes?: string[];
+  ports?: string[];
+  command?: string;
 };

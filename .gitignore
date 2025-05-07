@@ -32,3 +32,4 @@
 !/bin/tag-release.sh
 !/bin/build-scripts-extended.cjs
 !/bin/fabric.cjs
+/output
