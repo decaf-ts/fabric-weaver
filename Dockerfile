@@ -48,13 +48,6 @@ LABEL name="Fabric Base Image" description="A base node image for fabric images 
 # node:22 has to many vulnerabilities so the recomendation is to use node:22-slim
 FROM node:22-slim
 
-# The node environment:
-# This is the most important one, as it affects NPM described below.
-# In short NODE_ENV=production switch middlewares and dependencies to efficient code path and NPM installs only packages in dependencies.
-# Packages in devDependencies and peerDependencies are ignored.
-ARG NODE_ENV="production"
-ENV NODE_ENV=${NODE_ENV}
-
 ENV FOLDER_NAME="fabric"
 
 COPY --chown=node:node --from=builder /$FOLDER_NAME/bin /$FOLDER_NAME/bin
