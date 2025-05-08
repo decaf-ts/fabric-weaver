@@ -3,6 +3,7 @@ import { VERSION } from "../../index";
 import { Logger, Logging } from "@decaf-ts/logging";
 import { addFabricToPath } from "../../utils/path";
 import { EnvVars } from "../constants/env-vars";
+import { printBanner } from "../../utils/banner";
 
 /**
  * @class BaseCLI
@@ -46,6 +47,7 @@ export abstract class BaseCLI {
       .description(description)
       .version(VERSION)
       .hook("preAction", () => {
+        printBanner();
         this.log.debug(`Starting ${this.program.name()} v${VERSION}`);
         addFabricToPath(process.env[EnvVars.FABRIC_BIN_FOLDER]);
       });

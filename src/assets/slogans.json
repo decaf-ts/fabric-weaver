@@ -1,0 +1,202 @@
+[
+  {
+    "Slogan": "Hyperledger Fabric: Building trust, block by block.",
+    "Tags": "Blockchain, Trust, Foundation"
+  },
+  {
+    "Slogan": "Permissioned networks, unlimited possibilities.",
+    "Tags": "Fabric, Permissioned, Potential"
+  },
+  {
+    "Slogan": "Smart contracts, smarter business.",
+    "Tags": "Smart Contracts, Business, Efficiency"
+  },
+  {
+    "Slogan": "Chaincode your way to success.",
+    "Tags": "Chaincode, Development, Success"
+  },
+  {
+    "Slogan": "Fabric: Weaving the future of enterprise blockchain.",
+    "Tags": "Enterprise, Innovation, Future"
+  },
+  {
+    "Slogan": "Consensus without the energy cost.",
+    "Tags": "Consensus, Efficiency, Sustainability"
+  },
+  {
+    "Slogan": "Private data, public trust.",
+    "Tags": "Privacy, Trust, Data Management"
+  },
+  {
+    "Slogan": "Modular architecture for flexible solutions.",
+    "Tags": "Architecture, Flexibility, Customization"
+  },
+  {
+    "Slogan": "Channels: Your private highway on the blockchain.",
+    "Tags": "Channels, Privacy, Network"
+  },
+  {
+    "Slogan": "MSPs: Managing identities in a decentralized world.",
+    "Tags": "MSP, Identity, Decentralization"
+  },
+  {
+    "Slogan": "Orderer service: Keeping your transactions in check.",
+    "Tags": "Orderer, Transactions, Consistency"
+  },
+  {
+    "Slogan": "Peers: The backbone of your blockchain network.",
+    "Tags": "Peers, Network, Infrastructure"
+  },
+  {
+    "Slogan": "CouchDB: Bringing rich queries to your ledger.",
+    "Tags": "CouchDB, Query, Data Management"
+  },
+  {
+    "Slogan": "Fabric CA: Your trusted certificate authority.",
+    "Tags": "CA, Security, Trust"
+  },
+  {
+    "Slogan": "Gossip protocol: Spreading the word, securely.",
+    "Tags": "Gossip, Communication, Security"
+  },
+  {
+    "Slogan": "Endorsement policies: Ensuring agreement, every step of the way.",
+    "Tags": "Endorsement, Consensus, Policy"
+  },
+  {
+    "Slogan": "Ledger: Immutable history for an accountable future.",
+    "Tags": "Ledger, Immutability, Accountability"
+  },
+  {
+    "Slogan": "Fabric: Where privacy meets transparency.",
+    "Tags": "Privacy, Transparency, Balance"
+  },
+  {
+    "Slogan": "Scaling blockchain for the enterprise world.",
+    "Tags": "Scalability, Enterprise, Growth"
+  },
+  {
+    "Slogan": "Plug-and-play with Fabric's modular design.",
+    "Tags": "Modularity, Design, Flexibility"
+  },
+  {
+    "Slogan": "Fabric SDK: Your gateway to blockchain development.",
+    "Tags": "SDK, Development, Integration"
+  },
+  {
+    "Slogan": "Membership Service Provider: Trust, but verify.",
+    "Tags": "MSP, Trust, Verification"
+  },
+  {
+    "Slogan": "Fabric: Making blockchain work for business.",
+    "Tags": "Business, Practicality, Implementation"
+  },
+  {
+    "Slogan": "Channels: Segregate data, unite networks.",
+    "Tags": "Channels, Data Isolation, Collaboration"
+  },
+  {
+    "Slogan": "Endorsement: Multi-party validation made simple.",
+    "Tags": "Endorsement, Validation, Simplicity"
+  },
+  {
+    "Slogan": "World State: Real-time insights, blockchain-powered.",
+    "Tags": "World State, Real-time, Insights"
+  },
+  {
+    "Slogan": "Fabric Explorer: Visualize your blockchain network.",
+    "Tags": "Explorer, Visualization, Monitoring"
+  },
+  {
+    "Slogan": "Private Data Collections: Share data, not secrets.",
+    "Tags": "Private Data, Sharing, Confidentiality"
+  },
+  {
+    "Slogan": "Fabric: The enterprise-grade blockchain platform.",
+    "Tags": "Enterprise, Platform, Reliability"
+  },
+  {
+    "Slogan": "Chaincode lifecycle: Govern your smart contracts.",
+    "Tags": "Chaincode, Lifecycle, Governance"
+  },
+  {
+    "Slogan": "Fabric Network: Where trust is distributed.",
+    "Tags": "Network, Trust, Distribution"
+  },
+  {
+    "Slogan": "Anchor Peers: Bridging organizations in Fabric.",
+    "Tags": "Anchor Peers, Interoperability, Organizations"
+  },
+  {
+    "Slogan": "Fabric Composer: Orchestrating blockchain solutions.",
+    "Tags": "Composer, Development, Orchestration"
+  },
+  {
+    "Slogan": "Fabric: Blockchain without the bottlenecks.",
+    "Tags": "Performance, Scalability, Efficiency"
+  },
+  {
+    "Slogan": "Identity Mixer: Anonymity meets accountability.",
+    "Tags": "Identity Mixer, Privacy, Accountability"
+  },
+  {
+    "Slogan": "Fabric: Tailored for your industry's needs.",
+    "Tags": "Industry-specific, Customization, Adaptability"
+  },
+  {
+    "Slogan": "Chaincode as Microservices: Modular smart contracts.",
+    "Tags": "Microservices, Modularity, Smart Contracts"
+  },
+  {
+    "Slogan": "Fabric: Open-source, enterprise-ready.",
+    "Tags": "Open-source, Enterprise, Readiness"
+  },
+  {
+    "Slogan": "Event-driven architecture: React to blockchain in real-time.",
+    "Tags": "Events, Real-time, Architecture"
+  },
+  {
+    "Slogan": "Fabric: Compliance-friendly blockchain.",
+    "Tags": "Compliance, Regulation, Adaptability"
+  },
+  {
+    "Slogan": "Channels: Multi-lateral privacy in a shared network.",
+    "Tags": "Channels, Privacy, Collaboration"
+  },
+  {
+    "Slogan": "Fabric CA: The root of trust in your network.",
+    "Tags": "CA, Trust, Security"
+  },
+  {
+    "Slogan": "Consensus: Agreement without argument.",
+    "Tags": "Consensus, Agreement, Efficiency"
+  },
+  {
+    "Slogan": "Fabric: Blockchain that means business.",
+    "Tags": "Business, Practicality, Enterprise"
+  },
+  {
+    "Slogan": "Chaincode: Smart contracts with enterprise smarts.",
+    "Tags": "Chaincode, Smart Contracts, Enterprise"
+  },
+  {
+    "Slogan": "Fabric: Permissioned but not restrictive.",
+    "Tags": "Permissioned, Flexibility, Access Control"
+  },
+  {
+    "Slogan": "Ledger queries: Blockchain data at your fingertips.",
+    "Tags": "Queries, Data Access, Efficiency"
+  },
+  {
+    "Slogan": "Fabric: The collaborative blockchain platform.",
+    "Tags": "Collaboration, Platform, Ecosystem"
+  },
+  {
+    "Slogan": "Access Control Lists: Fine-grained permissions for your blockchain.",
+    "Tags": "ACL, Permissions, Security"
+  },
+  {
+    "Slogan": "Fabric: Uniting blockchain and enterprise IT.",
+    "Tags": "Integration, Enterprise IT, Synergy"
+  }
+]
