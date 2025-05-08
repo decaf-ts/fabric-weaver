@@ -1,0 +1,61 @@
+# Fabric version to be used in the fabric binaries
+ARG FABRIC_VERSION=2.5.12
+ARG WEAVER_VERSION=latest
+
+# Base Docker image containing the software - NOT to be used at runtime!
+# This Dockefile builds the software only!
+#
+FROM ghcr.io/decaf-ts/fabric-weaver:base-${FABRIC_VERSION}-${WEAVER_VERSION} AS builder
+LABEL builder=true
+RUN echo "Entering build phase.\n Using Fabric version: $FABRIC_VERSION. \n Using Weaver Version: $WEAVER_VERSION"
+
+RUN echo "Building image under node '$NODE_VERSION' and npm $(npm -v)"
+
+RUN apt update -y && apt upgrade -y
+
+# The node environment:
+# This is the most important one, as it affects NPM described below.
+# In short NODE_ENV=production switch middlewares and dependencies to efficient code path and NPM installs only packages in dependencies.
+# Packages in devDependencies and peerDependencies are ignored.
+ARG NODE_ENV="development"
+ENV NODE_ENV=${NODE_ENV}
+
+ARG TARGET_FOLDER_NAME
+ENV TARGET_FOLDER_NAME=${TARGET_FOLDER_NAME:-weaver}
+
+COPY package*.json ./$TARGET_FOLDER_NAME/
+COPY tsconfig.json ./$TARGET_FOLDER_NAME/
+COPY src ./$TARGET_FOLDER_NAME/src
+COPY bin ./$TARGET_FOLDER_NAME/bin
+
+RUN --mount=type=secret,id=TOKEN TOKEN=$(cat /run/secrets/TOKEN) cd ${TARGET_FOLDER_NAME} && npm install && npm run setup && npm cache clean --force && chown -R node:node .
+
+RUN echo "Build phase completed"
+
+## ----------------------------------------------------------------------------------------------------
+FROM ghcr.io/decaf-ts/fabric-weaver:base-${FABRIC_VERSION}-${WEAVER_VERSION} AS runtime
+RUN echo "Entering runing phase.\n Using Fabric version: $FABRIC_VERSION. \n Using Weaver Version: $WEAVER_VERSION"
+
+RUN apt update -y && apt upgrade -y
+
+ARG TARGET_FOLDER_NAME
+ENV TARGET_FOLDER_NAME=${TARGET_FOLDER_NAME:-weaver}
+
+# The node environment:
+# This is the most important one, as it affects NPM described below.
+# In short NODE_ENV=production switch middlewares and dependencies to efficient code path and NPM installs only packages in dependencies.
+# Packages in devDependencies and peerDependencies are ignored.
+ARG NODE_ENV="production"
+ENV NODE_ENV=${NODE_ENV}
+
+COPY package*.json ./$TARGET_FOLDER_NAME/
+
+
+RUN --mount=type=secret,id=TOKEN TOKEN=$(cat /run/secrets/TOKEN) cd ${TARGET_FOLDER_NAME} && npm install && npm cache clean --force && chown -R node:node .
+
+COPY --chown=node:node --from=builder /$TARGET_FOLDER_NAME/lib /$TARGET_FOLDER_NAME/lib
+
+RUN rm -rf /$TARGET_FOLDER_NAME/package*.json
+
+LABEL name="Base Weaver" description="The Weaver BaseContainer"
+RUN echo "Runtime phase completed"

@@ -2,7 +2,7 @@
 # Base Docker image containing node and the fabric binaries
 # This Dockefile builds the software only!
 # node:22 has to many vulnerabilities so the recomendation is to use node:22-slim
-FROM node:22-slim AS builder
+FROM node:22 AS builder
 LABEL builder=true
 
 RUN echo "Entering build phase."
@@ -33,20 +33,24 @@ COPY tsconfig.json ./$FOLDER_NAME/
 COPY src ./$FOLDER_NAME/src
 COPY bin ./$FOLDER_NAME/bin
 
-RUN cd ${FOLDER_NAME} && npm install && npm cache clean --force && chown -R node:node .
+RUN --mount=type=secret,id=TOKEN TOKEN=$(cat /run/secrets/TOKEN) cd ${FOLDER_NAME} && npm install && npm run setup && npm cache clean --force && chown -R node:node .
 
 RUN find /$FOLDER_NAME/bin -type f \( -name "*.cjs" -o -name "*.sh" \) -delete
 
 ENV FABRIC_BIN_FOLDER="/$FOLDER_NAME/bin"
 ENV PATH="$PATH:$FABRIC_BIN_FOLDER"
 
-LABEL name="Fabric Base Image" description="A base node image for fabric images cointaining the binaries"
+LABEL name="Fabric Base Builder Image" description="A base node image builder for fabric images cointaining the binaries"
 
+
+# -------------------------------------------------------------------------------------------------------
 #
 # Base Docker image containing node and the fabric binaries
 # This Dockefile builds the software only!
 # node:22 has to many vulnerabilities so the recomendation is to use node:22-slim
-FROM node:22-slim
+FROM node:22
+
+RUN apt update -y && apt upgrade -y
 
 ENV FOLDER_NAME="fabric"
 
@@ -56,3 +60,4 @@ ENV FABRIC_BIN_FOLDER="/$FOLDER_NAME/bin"
 ENV PATH="$PATH:$FABRIC_BIN_FOLDER"
 
 RUN echo "Runtime phase completed"
+LABEL name="Fabric Base Image" description="A base node image for fabric images cointaining the binaries"

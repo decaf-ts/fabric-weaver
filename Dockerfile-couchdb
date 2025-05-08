@@ -1,0 +1,6 @@
+ARG COUCHDB_VERSION=${COUCHDB_VERSION:-latest}
+
+FROM couchdb:${COUCHDB_VERSION}
+COPY docker/configs/couchdb.ini /opt/couchdb/etc/default.ini
+
+LABEL name="Replication CouchDB" description="CORS enabled couchdb image"
