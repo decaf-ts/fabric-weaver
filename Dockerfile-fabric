@@ -54,6 +54,7 @@ COPY package*.json ./$TARGET_FOLDER_NAME/
 RUN --mount=type=secret,id=TOKEN TOKEN=$(cat /run/secrets/TOKEN) cd ${TARGET_FOLDER_NAME} && npm install && npm cache clean --force && chown -R node:node .
 
 COPY --chown=node:node --from=builder /$TARGET_FOLDER_NAME/lib /$TARGET_FOLDER_NAME/lib
+COPY --chown=node:node --from=builder /$TARGET_FOLDER_NAME/config /$TARGET_FOLDER_NAME/config
 
 RUN rm -rf /$TARGET_FOLDER_NAME/package*.json
 

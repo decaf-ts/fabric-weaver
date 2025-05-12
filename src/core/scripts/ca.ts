@@ -4,30 +4,58 @@ import { Logger, Logging } from "@decaf-ts/logging";
 import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server";
 import { FabricCAServerCommand } from "../../fabric/fabric-ca-server/constants";
 import { runCommand } from "../../utils/child-process";
+import { CAConfig } from "../../fabric/fabric-ca-server/fabric-ca-server-config";
 
-export async function bootCAServer(homeDir: string, bootFileLocation?: string) {
-  if (hasCAInitialized(bootFileLocation)) return startCAServer();
+export async function bootCAServer(
+  homeDir: string,
+  caConfig: CAConfig,
+  bootFileLocation?: string
+) {
+  if (hasCAInitialized(bootFileLocation))
+    return startCAServer(homeDir, caConfig);
 
-  issueCA(homeDir);
-  await startCAServer();
+  issueCA(homeDir, caConfig);
+  await startCAServer(homeDir, caConfig);
 }
 
-export async function startCAServer() {
+export async function startCAServer(homeDir: string, caConfig: CAConfig) {
   const builder: FabricCAServerCommandBuilder =
     new FabricCAServerCommandBuilder();
 
-  const command = builder.setCommand(FabricCAServerCommand.START).build();
+  const command = builder
+    .setCommand(FabricCAServerCommand.START)
+    .setHomeDirectory(homeDir)
+    .setPort(caConfig.port)
+    .enableDebug(caConfig.debug)
+    .setLogLevel(caConfig.logLevel)
+    .setBootstrapAdmin(caConfig.bootstrapUser)
+    .setCAName(caConfig.ca?.name)
+    .setOperationsListenAddress(caConfig.operations?.listenAddress)
+    .setMetricsListenAddress(caConfig.metrics?.statsd?.address);
+
+  const bin = command.getBinary();
+  const argz = [command.getCommand(), ...command.getArgs()];
 
   const regex = /\[\s*INFO\s*\] Listening on http/;
 
-  await runCommand(command, [], {}, regex);
+  await runCommand(bin, argz, {}, regex);
 }
 
-export function issueCA(homeDir: string) {
+export function issueCA(homeDir: string, caConfig: CAConfig) {
   const builder: FabricCAServerCommandBuilder =
     new FabricCAServerCommandBuilder();
 
-  builder.setCommand(FabricCAServerCommand.START).saveConfig(homeDir);
+  builder
+    .setCommand(FabricCAServerCommand.START)
+    .setHomeDirectory(homeDir)
+    .setPort(caConfig.port)
+    .enableDebug(caConfig.debug)
+    .setLogLevel(caConfig.logLevel)
+    .setBootstrapAdmin(caConfig.bootstrapUser)
+    .setCAName(caConfig.ca?.name)
+    .setOperationsListenAddress(caConfig.operations?.listenAddress)
+    .setMetricsListenAddress(caConfig.metrics?.statsd?.address)
+    .saveConfig(homeDir);
 }
 
 export function hasCAInitialized(fileLocation?: string): boolean {

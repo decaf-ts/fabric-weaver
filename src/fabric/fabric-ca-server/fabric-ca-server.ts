@@ -287,7 +287,7 @@ export class FabricCAServerCommandBuilder {
   setCACertFile(certfile?: string): this {
     if (certfile !== undefined) {
       this.args.set("ca.certfile", certfile);
-      this.config.ca.certfile = certfile;
+      this.config.ca!.certfile = certfile;
     }
     return this;
   }
@@ -301,7 +301,7 @@ export class FabricCAServerCommandBuilder {
   setCAKeyFile(keyfile?: string): this {
     if (keyfile !== undefined) {
       this.args.set("ca.keyfile", keyfile);
-      this.config.ca.keyfile = keyfile;
+      this.config.ca!.keyfile = keyfile;
     }
     return this;
   }
@@ -316,7 +316,7 @@ export class FabricCAServerCommandBuilder {
     if (name !== undefined) {
       this.log.debug(`Setting CA name: ${name}`);
       this.args.set("ca.name", name);
-      this.config.ca.name = name;
+      this.config.ca!.name = name;
     }
     return this;
   }
@@ -330,7 +330,7 @@ export class FabricCAServerCommandBuilder {
   setCAChainFile(chainfile?: string): this {
     if (chainfile !== undefined) {
       this.args.set("ca.chainfile", chainfile);
-      this.config.ca.chainfile = chainfile;
+      this.config.ca!.chainfile = chainfile;
     }
     return this;
   }
@@ -344,7 +344,7 @@ export class FabricCAServerCommandBuilder {
   setCAReenrollIgnoreCertExpiry(ignore?: boolean): this {
     if (ignore !== undefined) {
       this.args.set("ca.reenrollignorecertexpiry", ignore);
-      this.config.ca.reenrollIgnoreCertExpiry = ignore;
+      this.config.ca!.reenrollIgnoreCertExpiry = ignore;
     }
     return this;
   }
@@ -408,7 +408,7 @@ export class FabricCAServerCommandBuilder {
   setOperationsListenAddress(address?: string): this {
     if (address !== undefined) {
       this.log.debug(`Setting operations listen address: ${address}`);
-      this.config.operations.listenAddress = address;
+      this.config.operations!.listenAddress = address;
     }
     return this;
   }
@@ -426,7 +426,7 @@ export class FabricCAServerCommandBuilder {
   setMetricsListenAddress(address?: string): this {
     if (address !== undefined) {
       this.log.debug(`Setting metrics listen address: ${address}`);
-      this.config.metrics.statsd.address = address;
+      this.config.metrics!.statsd!.address = address;
     }
     return this;
   }
@@ -1488,8 +1488,8 @@ export class FabricCAServerCommandBuilder {
    *   Builder->>Builder: Log debug message
    *   Builder-->>Client: Return command string
    */
-  build(): string {
-    const commandArray: string[] = ["fabric-ca-server", this.command];
+  build(): string[] | Array<Array<string>> {
+    const commandArray: string[] = [this.getBinary(), this.command];
 
     this.args.forEach((value, key) => {
       if (typeof value === "boolean") {
@@ -1504,6 +1504,30 @@ export class FabricCAServerCommandBuilder {
     const commandStr = commandArray.join(" ");
 
     this.log.debug(`Built command: ${commandStr}`);
-    return commandStr;
+    return [commandStr];
+  }
+
+  getCommand(): string {
+    return this.command;
+  }
+
+  getBinary(): string {
+    return "fabric-ca-server";
+  }
+
+  getArgs(): string[] {
+    const argsArray: string[] = [];
+
+    this.args.forEach((value, key) => {
+      if (typeof value === "boolean") {
+        if (value) argsArray.push(`--${key}`);
+      } else if (Array.isArray(value)) {
+        argsArray.push(`--${key}`, value.join(","));
+      } else {
+        argsArray.push(`--${key}`, value.toString());
+      }
+    });
+
+    return argsArray;
   }
 }

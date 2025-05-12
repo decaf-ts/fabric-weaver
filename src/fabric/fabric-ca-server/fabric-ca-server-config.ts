@@ -1,3 +1,5 @@
+import { FabricLogLevel } from "../general/constants";
+
 /**
  * @description Configuration interface for Fabric CA Server.
  * @summary Defines the structure of the configuration object for a Fabric CA Server instance.
@@ -57,12 +59,12 @@ export interface FabricCAServerConfig {
    * @property {string} [chainfile] - Path to the CA's chain file.
    * @property {boolean} reenrollIgnoreCertExpiry - Whether to ignore certificate expiry during re-enrollment.
    */
-  ca: {
+  ca?: {
     name?: string;
     keyfile?: string;
     certfile?: string;
     chainfile?: string;
-    reenrollIgnoreCertExpiry: boolean;
+    reenrollIgnoreCertExpiry?: boolean;
   };
 
   /**
@@ -280,19 +282,19 @@ export interface FabricCAServerConfig {
    * @property {string} listenAddress - Address to listen on for operations requests.
    * @property {Object} tls - TLS settings for the operations service.
    */
-  operations: {
-    listenAddress: string;
-    tls: {
-      enabled: boolean;
-      cert: {
+  operations?: {
+    listenAddress?: string;
+    tls?: {
+      enabled?: boolean;
+      cert?: {
         file?: string;
       };
-      key: {
+      key?: {
         file?: string;
       };
-      clientAuthRequired: boolean;
-      clientRootCAs: {
-        files: string[];
+      clientAuthRequired?: boolean;
+      clientRootCAs?: {
+        files?: string[];
       };
     };
   };
@@ -302,13 +304,18 @@ export interface FabricCAServerConfig {
    * @property {string} provider - Metrics provider to use.
    * @property {Object} statsd - StatsD configuration for metrics.
    */
-  metrics: {
-    provider: string;
-    statsd: {
-      network: string;
-      address: string;
-      writeInterval: string;
-      prefix: string;
+  metrics?: {
+    provider?: string;
+    statsd?: {
+      network?: string;
+      address?: string;
+      writeInterval?: string;
+      prefix?: string;
     };
   };
 }
+
+export type CAConfig = Partial<FabricCAServerConfig> & {
+  bootstrapUser: string;
+  logLevel: FabricLogLevel;
+};
