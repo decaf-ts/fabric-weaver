@@ -316,6 +316,8 @@ export interface FabricCAServerConfig {
 }
 
 export type CAConfig = Partial<FabricCAServerConfig> & {
-  bootstrapUser: string;
-  logLevel: FabricLogLevel;
+  bootstrapUser?: string;
+  logLevel?: FabricLogLevel;
+  noCA?: boolean;
+  noTLS?: boolean;
 };

@@ -1454,7 +1454,7 @@ export class FabricCAServerCommandBuilder {
       fs.mkdirSync(path.join(cpath), { recursive: true });
 
     if (!cpath.endsWith(".yaml"))
-      cpath = path.join(cpath, "fabric-ca-server.yaml");
+      cpath = path.join(cpath, "fabric-ca-server-config.yaml");
 
     this.log.debug(`Writing configuration to ${cpath}`);
     this.log.verbose(`Config file: ${JSON.stringify(this.config)}`, 3);

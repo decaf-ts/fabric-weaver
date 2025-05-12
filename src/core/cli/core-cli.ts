@@ -1,7 +1,6 @@
-import { FabricLogLevel } from "../../fabric/general/constants";
 import { CAConfig } from "../../fabric/fabric-ca-server/fabric-ca-server-config";
 import { safeParseInt } from "../../utils/parsers";
-import { bootCAServer } from "../scripts/ca";
+import { bootCAServer, issueCA } from "../scripts/ca";
 import { BaseCLI } from "./base-cli";
 
 export class CoreCLI extends BaseCLI {
@@ -11,14 +10,6 @@ export class CoreCLI extends BaseCLI {
   }
 
   private setupCommands() {
-    // Add docker-specific commands here
-    this.program
-      .command("hello")
-      .description("A base command")
-      .action(() => {
-        this.log.info("Hello world");
-      });
-
     this.program
       .command("docker:boot-ca")
       .description("Boot the CA server")
@@ -44,11 +35,7 @@ export class CoreCLI extends BaseCLI {
         "Bootstrap Identity for the the CA server. If no other authenticators are configured, the bootstrap identity is mandatory.",
         undefined
       )
-      .option(
-        "-l, --log-level <level>",
-        "Log level (default: info)",
-        FabricLogLevel.INFO
-      )
+      .option("-l, --log-level <level>", "Log level (default: info)")
       .option(
         "--ca-name <string>",
         "CA name in lower case migth be word separated with -",
@@ -56,6 +43,8 @@ export class CoreCLI extends BaseCLI {
       )
       .option("--operations-address <string>", "Operations address", undefined)
       .option("--metrics-address <string>", "Metrics address", undefined)
+      .option("--no-tls", "Disable TLS profile (default: false)")
+      .option("--no-ca", "Disable CA profile (default: false)")
       .action((options) => {
         this.log.info(`Booting CA with home directory: ${options.home}`);
         this.log.info(`CA server port: ${options.port}`);
@@ -68,6 +57,8 @@ export class CoreCLI extends BaseCLI {
           debug: options.debug,
           bootstrapUser: options.bootstrapUser,
           logLevel: options.logLevel,
+          noCA: options.noCa,
+          noTLS: options.noTls,
           ca: {
             name: options.caName,
           },
@@ -82,6 +73,71 @@ export class CoreCLI extends BaseCLI {
         };
 
         bootCAServer(options.home, config, options.bootFile);
+      });
+
+    this.program
+      .command("docker:issue-ca")
+      .description("Boot the CA server")
+      .option(
+        "-h, --home <directory>",
+        "Home directory for the CA server",
+        "/weaver/server/"
+      )
+      .option(
+        "--boot-file <file>",
+        "Boot file location (optional). Defaults to <rootDir>/server/ca-cert.pem",
+        undefined
+      )
+      .option(
+        "-p, --port <number>",
+        "Port for the CA server (default: 7054)",
+        safeParseInt,
+        7054
+      )
+      .option("-d, --debug", "Enable debug mode (default: false)")
+      .option(
+        "-b, --bootstrap-user <USER:SECRET>",
+        "Bootstrap Identity for the the CA server. If no other authenticators are configured, the bootstrap identity is mandatory.",
+        undefined
+      )
+      .option("-l, --log-level <level>", "Log level (default: info)")
+      .option(
+        "--ca-name <string>",
+        "CA name in lower case migth be word separated with -",
+        undefined
+      )
+      .option("--operations-address <string>", "Operations address", undefined)
+      .option("--metrics-address <string>", "Metrics address", undefined)
+      .option("--no-tls", "Disable TLS profile (default: false)")
+      .option("--no-ca", "Disable CA profile (default: false)")
+      .action((options) => {
+        this.log.info(`Booting CA with home directory: ${options.home}`);
+        this.log.info(`CA server port: ${options.port}`);
+        this.log.info(
+          `Boot file location: ${options.bootFile ? options.bootFile : "{workdir}/server/ca-cert.pem"}`
+        );
+
+        const config: CAConfig = {
+          port: options.port,
+          debug: options.debug,
+          bootstrapUser: options.bootstrapUser,
+          logLevel: options.logLevel,
+          noCA: options.noCa,
+          noTLS: options.noTls,
+          ca: {
+            name: options.caName,
+          },
+          operations: {
+            listenAddress: options.operationsAddress,
+          },
+          metrics: {
+            statsd: {
+              address: options.metricsAddress,
+            },
+          },
+        };
+
+        issueCA(options.home, config);
       });
   }
 }
