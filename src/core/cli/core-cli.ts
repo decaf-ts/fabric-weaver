@@ -186,6 +186,11 @@ export class CoreCLI extends BaseCLI {
     this.program
       .command("docker:client-register")
       .description("Register a Client")
+      .option("--url <PROTOCOl://DOMAIN:PORT>", "URL of the CA server")
+      .option("--id-name <string>", "Client ID")
+      .option("--id-secret <string>", "Client Secret")
+      .option("--tls-certfiles <string>", "TLS Certfile location")
+      .option("--mspdir <string>", "MSP directory")
       .action((options) => {
         this.log.info(`Register client...`);
         this.log.info(options);
@@ -197,6 +202,12 @@ export class CoreCLI extends BaseCLI {
     this.program
       .command("docker:client-enroll")
       .description("Enroll a Client")
+      .option(
+        "--url <PROTOCOl://USER:PASSWORD@DOMAIN:PORT>",
+        "URL of the CA server containing the user and password"
+      )
+      .option("--mspdir <string>", "MSP directory")
+      .option("--tls-certfiles <string>", "TLS Certfile location")
       .action((options) => {
         this.log.info(`Enroll client...`);
         this.log.info(options);
