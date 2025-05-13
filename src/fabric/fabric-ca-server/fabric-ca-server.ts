@@ -10,6 +10,7 @@ import {
 import { FabricCAServerConfig } from "./fabric-ca-server-config";
 import path from "path";
 import fs from "fs";
+import { runCommand } from "../../utils/child-process";
 
 /**
  * @class FabricCAServerCommandBuilder
@@ -52,7 +53,7 @@ export class FabricCAServerCommandBuilder {
   private binName: FabricBinaries = FabricBinaries.SERVER;
 
   private args: Map<string, string | boolean | number | string[]> = new Map();
-  private command: FabricCAServerCommand = FabricCAServerCommand.START;
+  private command: FabricCAServerCommand = FabricCAServerCommand.HELP;
 
   private config: FabricCAServerConfig = readFileYaml(
     path.join(__dirname, "../../../config/fabric-ca-server-config.yaml")
@@ -1531,5 +1532,14 @@ export class FabricCAServerCommandBuilder {
     });
 
     return argsArray;
+  }
+
+  async execute(): Promise<void> {
+    const bin = this.getBinary();
+    const argz = [this.getCommand(), ...this.getArgs()];
+
+    const regex = /\[\s*INFO\s*\] Listening on http/;
+
+    await runCommand(bin, argz, {}, regex);
   }
 }

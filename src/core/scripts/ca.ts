@@ -3,7 +3,6 @@ import fs from "fs";
 import { Logger, Logging } from "@decaf-ts/logging";
 import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server";
 import { FabricCAServerCommand } from "../../fabric/fabric-ca-server/constants";
-import { runCommand } from "../../utils/child-process";
 import { CAConfig } from "../../fabric/fabric-ca-server/fabric-ca-server-config";
 
 export async function bootCAServer(
@@ -33,12 +32,13 @@ export async function startCAServer(homeDir: string, caConfig: CAConfig) {
     .setOperationsListenAddress(caConfig.operations?.listenAddress)
     .setMetricsListenAddress(caConfig.metrics?.statsd?.address);
 
-  const bin = command.getBinary();
-  const argz = [command.getCommand(), ...command.getArgs()];
+  await command.execute();
+  // const bin = command.getBinary();
+  // const argz = [command.getCommand(), ...command.getArgs()];
 
-  const regex = /\[\s*INFO\s*\] Listening on http/;
+  // const regex = /\[\s*INFO\s*\] Listening on http/;
 
-  await runCommand(bin, argz, {}, regex);
+  // await runCommand(bin, argz, {}, regex);
 }
 
 export function issueCA(homeDir: string, caConfig: CAConfig) {
