@@ -14,10 +14,10 @@ services:
       start_period: 30s
     command: >
       node ./weaver/lib/core/cli.cjs docker:boot-ca
-        -h /weaver/server
-        -p 7010
-        -d
-        -b admin:adminpw
+        --home /weaver/server
+        --port 7010
+        --debug
+        --bootstrap-user admin:adminpw
         --ca-name org-1
         --operations-address 127.0.0.1:8010
         --metrics-address 127.0.0.1:9010
@@ -38,10 +38,10 @@ services:
       start_period: 30s
     command: >
       node ./weaver/lib/core/cli.cjs docker:boot-ca
-        -h /weaver/server
-        -p 7010
-        -d
-        -b admin:adminpw
+        --home /weaver/server
+        --port 7010
+        --debug
+        --bootstrap-user admin:adminpw
         --ca-name org-2
         --operations-address 127.0.0.1:8010
         --metrics-address 127.0.0.1:9010

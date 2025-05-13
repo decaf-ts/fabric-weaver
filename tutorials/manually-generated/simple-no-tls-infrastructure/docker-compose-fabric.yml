@@ -8,10 +8,10 @@ services:
       - org1-vol:/weaver/server:rw
     command: >
       node ./weaver/lib/core/cli.cjs docker:issue-ca
-        -h /weaver/server
-        -p 7012
-        -d
-        -b admin:adminpw
+        --home /weaver/server
+        --port 7012
+        --debug
+        --bootstrap-user admin:adminpw
         --ca-name org-1
         --operations-address 127.0.0.1:8010
         --metrics-address 127.0.0.1:9010
@@ -26,10 +26,10 @@ services:
       - org2-vol:/weaver/server:rw
     command: >
       node ./weaver/lib/core/cli.cjs docker:issue-ca
-        -h /weaver/server
-        -p 7013
-        -d
-        -b admin:adminpw
+        --home /weaver/server
+        --port 7013
+        --debug
+        --bootstrap-user admin:adminpw
         --ca-name org-2
         --operations-address 127.0.0.1:8010
         --metrics-address 127.0.0.1:9010
