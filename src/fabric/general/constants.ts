@@ -20,3 +20,10 @@ export enum FabricLogLevel {
   /** Critical error messages that require immediate attention */
   CRITICAL = "critical",
 }
+
+export enum FabricBinaries {
+  CLIENT = "fabric-ca-client",
+  SERVER = "fabric-ca-server",
+  ORDERER = "orderer",
+  PEER = "peer",
+}

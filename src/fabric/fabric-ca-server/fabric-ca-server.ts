@@ -1,6 +1,6 @@
 import { Logging } from "@decaf-ts/logging";
 import { readFileYaml, writeFileYaml } from "../../utils/yaml";
-import { FabricLogLevel } from "../general/constants";
+import { FabricBinaries, FabricLogLevel } from "../general/constants";
 import {
   FabricCAServerCommand,
   FabricCAServerCurveName,
@@ -48,6 +48,8 @@ import fs from "fs";
  */
 export class FabricCAServerCommandBuilder {
   private log = Logging.for(FabricCAServerCommandBuilder);
+
+  private binName: FabricBinaries = FabricBinaries.SERVER;
 
   private args: Map<string, string | boolean | number | string[]> = new Map();
   private command: FabricCAServerCommand = FabricCAServerCommand.START;
@@ -1512,7 +1514,7 @@ export class FabricCAServerCommandBuilder {
   }
 
   getBinary(): string {
-    return "fabric-ca-server";
+    return this.binName;
   }
 
   getArgs(): string[] {
