@@ -10,6 +10,13 @@ export class CoreCLI extends BaseCLI {
   }
 
   private setupCommands() {
+    this.dockerBootCA();
+    this.dockerIssueCA();
+    this.dockerClientRegister();
+    this.dockerClientEnroll();
+  }
+
+  private dockerBootCA() {
     this.program
       .command("docker:boot-ca")
       .description("Boot the CA server")
@@ -75,6 +82,39 @@ export class CoreCLI extends BaseCLI {
         bootCAServer(options.home, config, options.bootFile);
       });
 
+    // .option('--working-dir <string>', 'Working directory inside docker container. Defaults to "aeon"', 'aeon')
+    // .option('--ca-name <string>', 'CA name in lower case migth be word separated with -. Defaults to "fabric-ca"', 'fabric-ca')
+    // .option('-d, --debug', 'Enable debug mode defaults to "false"', false)
+    // .option('--tls-enabled', 'Enable tls communication. Defaults to "false"', false)
+    // .option('--tls-certfile <string>', 'TLS Certfile location', undefined)
+    // .option('--tls-keyfile <string>', 'TLS Keyfile location', undefined)
+    // .option("--max-enrollments <string>", "maximum enrollments", safeParseInt, -1)
+    // .option('--user <string>', 'Identity Username to start the server', 'admin')
+    // .option('--user-secret <string>', 'Identity Secret to start the server', 'admin-password')
+    // .option('--domain <string>', 'Server domain', '0.0.0.0')
+    // .option('--operations-address <string>', 'address for operations endpoint as <domain>:<port>', '127.0.0.1:8001')
+    // .option('--enrollment-requests <EnrollmentRequestArray>', 'Array of enrollment requests passed as a JSON stringified', safeParseJSON, [])
+    // .option('--tls-enrollment-requests <EnrollmentRequestArray>', 'Array of enrollment requests passed as a JSON stringified', safeParseJSON, [])
+    // .option('--is-tls', 'Signals this is a TLS CA', false)
+    // .option("--maxpathlen <string>", "CA max path length", safeParseInt, 0)
+    // .option("--pathlength <string>", "CA pathlenght", safeParseInt, 1)
+    // .option('--is-ica', 'Signals this is a TLS CA', false)
+    // .option('--parent-url <string>', 'Parent Server URL with credentials')
+    // .option('--parent-name <string>', 'Parent CA Server Name')
+    // .option('--parent-tls <string>', 'Parent tls certfile location')
+    // .option('--orderer-name <string>', 'Orderer USER')
+    // .option('--orderer-folder <string>', 'Orderer folder')
+    // .option('--orderer-enrollment-requests <EnrollmentRequestArray>', 'Array of enrollment requests passed as a JSON stringified', safeParseJSON, [])
+    // .option('--nodeou-cert-name <string>', 'TLS Certfile location', undefined)
+    // .option('--peer-name <string>', 'Peer USER')
+    // .option('--peer-folder <string>', 'peer folder')
+    // .option('--peer-enrollment-requests <EnrollmentRequestArray>', 'Array of enrollment requests passed as a JSON stringified', safeParseJSON, [])
+    // .option('--orderer-tls <string>', 'Orderer Tls file name')
+    // .option('--peer-tls <string>', 'Peer Tls file name')
+    // .option('--backend-url <string>', 'Backend url')
+    // .option('--is-external', 'Signals booting process for ca external to aeon private infrastructure', false)
+  }
+  private dockerIssueCA() {
     this.program
       .command("docker:issue-ca")
       .description("Boot the CA server")
@@ -138,38 +178,30 @@ export class CoreCLI extends BaseCLI {
         };
 
         issueCA(options.home, config);
+        this.log.info("CA server issued successfully!");
+      });
+  }
+
+  private dockerClientRegister() {
+    this.program
+      .command("docker:client-register")
+      .description("Register a Client")
+      .action((options) => {
+        this.log.info(`Register client...`);
+        this.log.info(options);
+
+        this.log.info("Client registered successfully!");
+      });
+  }
+  private dockerClientEnroll() {
+    this.program
+      .command("docker:client-enroll")
+      .description("Enroll a Client")
+      .action((options) => {
+        this.log.info(`Enroll client...`);
+        this.log.info(options);
+
+        this.log.info("Client enrolled successfully!");
       });
   }
 }
-
-// .option('--working-dir <string>', 'Working directory inside docker container. Defaults to "aeon"', 'aeon')
-// .option('--ca-name <string>', 'CA name in lower case migth be word separated with -. Defaults to "fabric-ca"', 'fabric-ca')
-// .option('-d, --debug', 'Enable debug mode defaults to "false"', false)
-// .option('--tls-enabled', 'Enable tls communication. Defaults to "false"', false)
-// .option('--tls-certfile <string>', 'TLS Certfile location', undefined)
-// .option('--tls-keyfile <string>', 'TLS Keyfile location', undefined)
-// .option("--max-enrollments <string>", "maximum enrollments", safeParseInt, -1)
-// .option('--user <string>', 'Identity Username to start the server', 'admin')
-// .option('--user-secret <string>', 'Identity Secret to start the server', 'admin-password')
-// .option('--domain <string>', 'Server domain', '0.0.0.0')
-// .option('--operations-address <string>', 'address for operations endpoint as <domain>:<port>', '127.0.0.1:8001')
-// .option('--enrollment-requests <EnrollmentRequestArray>', 'Array of enrollment requests passed as a JSON stringified', safeParseJSON, [])
-// .option('--tls-enrollment-requests <EnrollmentRequestArray>', 'Array of enrollment requests passed as a JSON stringified', safeParseJSON, [])
-// .option('--is-tls', 'Signals this is a TLS CA', false)
-// .option("--maxpathlen <string>", "CA max path length", safeParseInt, 0)
-// .option("--pathlength <string>", "CA pathlenght", safeParseInt, 1)
-// .option('--is-ica', 'Signals this is a TLS CA', false)
-// .option('--parent-url <string>', 'Parent Server URL with credentials')
-// .option('--parent-name <string>', 'Parent CA Server Name')
-// .option('--parent-tls <string>', 'Parent tls certfile location')
-// .option('--orderer-name <string>', 'Orderer USER')
-// .option('--orderer-folder <string>', 'Orderer folder')
-// .option('--orderer-enrollment-requests <EnrollmentRequestArray>', 'Array of enrollment requests passed as a JSON stringified', safeParseJSON, [])
-// .option('--nodeou-cert-name <string>', 'TLS Certfile location', undefined)
-// .option('--peer-name <string>', 'Peer USER')
-// .option('--peer-folder <string>', 'peer folder')
-// .option('--peer-enrollment-requests <EnrollmentRequestArray>', 'Array of enrollment requests passed as a JSON stringified', safeParseJSON, [])
-// .option('--orderer-tls <string>', 'Orderer Tls file name')
-// .option('--peer-tls <string>', 'Peer Tls file name')
-// .option('--backend-url <string>', 'Backend url')
-// .option('--is-external', 'Signals booting process for ca external to aeon private infrastructure', false)
