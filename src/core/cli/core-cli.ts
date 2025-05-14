@@ -1,6 +1,8 @@
+import { FabricCAClientCommand } from "../../fabric/fabric-ca-client/constants";
 import { CAConfig } from "../../fabric/fabric-ca-server/fabric-ca-server-config";
 import { safeParseInt } from "../../utils/parsers";
-import { bootCAServer, issueCA } from "../scripts/ca";
+import { processEnrollmentRequest } from "../scripts/ca-client";
+import { bootCAServer, issueCA } from "../scripts/ca-server";
 import { BaseCLI } from "./base-cli";
 
 export class CoreCLI extends BaseCLI {
@@ -181,7 +183,6 @@ export class CoreCLI extends BaseCLI {
         this.log.info("CA server issued successfully!");
       });
   }
-
   private dockerClientRegister() {
     this.program
       .command("docker:client-register")
@@ -191,9 +192,18 @@ export class CoreCLI extends BaseCLI {
       .option("--id-secret <string>", "Client Secret")
       .option("--tls-certfiles <string>", "TLS Certfile location")
       .option("--mspdir <string>", "MSP directory")
+      .option("-d, --debug", "Enable debug mode (default: false)")
       .action((options) => {
-        this.log.info(`Register client...`);
-        this.log.info(options);
+        this.log.info(`Registering client ${options.idName} ...`);
+        this.log.info(`Debug: ${options.debug}`);
+        this.log.info(`URL: ${options.url}`);
+        if (options.debug) this.log.debug(`Secret: ${options.idSecret}`);
+        this.log.info(`TLS Certfiles: ${options.tlsCertfiles}`);
+        this.log.info(`MSP directory: ${options.mspdir}`);
+
+        processEnrollmentRequest({
+          type: FabricCAClientCommand.REGISTER,
+        });
 
         this.log.info("Client registered successfully!");
       });
@@ -208,9 +218,44 @@ export class CoreCLI extends BaseCLI {
       )
       .option("--mspdir <string>", "MSP directory")
       .option("--tls-certfiles <string>", "TLS Certfile location")
+      .option("-d, --debug", "Enable debug mode (default: false)")
       .action((options) => {
-        this.log.info(`Enroll client...`);
-        this.log.info(options);
+        this.log.info(`Enrolling client...`);
+        this.log.info(`Debug: ${options.debug}`);
+
+        if (options.url) {
+          try {
+            const url = new URL(options.url);
+
+            const protocol = url.protocol.slice(0, -1); // Remove the trailing ':'
+            const username = url.username;
+            const password = url.password;
+            const domain = url.hostname;
+            const port = url.port;
+
+            this.log.info(`Protocol: ${protocol}`);
+            this.log.info(`Username: ${username}`);
+            if (options.debug) {
+              this.log.debug(`Password: ${password}`);
+            } else {
+              this.log.info(`Password: ********`);
+            }
+            this.log.info(`Domain: ${domain}`);
+            this.log.info(`Port: ${port}`);
+          } catch (error) {
+            this.log.error("Invalid URL format: " + error);
+          }
+        } else {
+          this.log.error("URL is required for enrollment");
+          return;
+        }
+
+        this.log.info(`TLS Certfiles: ${options.tlsCertfiles}`);
+        this.log.info(`MSP directory: ${options.mspdir}`);
+
+        processEnrollmentRequest({
+          type: FabricCAClientCommand.ENROLL,
+        });
 
         this.log.info("Client enrolled successfully!");
       });

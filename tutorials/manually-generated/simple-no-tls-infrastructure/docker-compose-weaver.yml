@@ -46,3 +46,23 @@ services:
         --operations-address 127.0.0.1:8010
         --metrics-address 127.0.0.1:9010
         --no-tls
+
+  test-1:
+    container_name: test-1
+    hostname: test-1
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    command: >
+      node ./weaver/lib/core/cli.cjs docker:client-register
+        --url https://somedomain:7000
+        --id-name myuser
+        --id-secret mypass
+        --tls-certfiles /somelocation/somfile.pem
+        --mspdir /somelocation/mspdir
+        -d
+        &&
+        node ./weaver/lib/core/cli.cjs docker:client-enroll
+        --url https://myuser:mypassword@somedomain:7000
+        --tls-certfiles /somelocation/somfile.pem
+        --mspdir /somelocation/mspdir
+        -d
