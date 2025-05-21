@@ -60,8 +60,14 @@ services:
         --tls-certfiles /somelocation/somfile.pem
         --mspdir /somelocation/mspdir
         -d
-        &&
-        node ./weaver/lib/core/cli.cjs docker:client-enroll
+
+  test-2:
+    container_name: test-2
+    hostname: test-2
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    command: >
+      node ./weaver/lib/core/cli.cjs docker:client-enroll
         --url https://myuser:mypassword@somedomain:7000
         --tls-certfiles /somelocation/somfile.pem
         --mspdir /somelocation/mspdir
