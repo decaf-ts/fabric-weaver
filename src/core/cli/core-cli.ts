@@ -1,3 +1,4 @@
+import { LogLevel } from "@decaf-ts/logging";
 import { FabricCAClientCommand } from "../../fabric/fabric-ca-client/constants";
 import { CAConfig } from "../../fabric/fabric-ca-server/fabric-ca-server-config";
 import { safeParseInt } from "../../utils/parsers";
@@ -55,6 +56,9 @@ export class CoreCLI extends BaseCLI {
       .option("--no-tls", "Disable TLS profile (default: false)")
       .option("--no-ca", "Disable CA profile (default: false)")
       .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
         this.log.info(`Booting CA with home directory: ${options.home}`);
         this.log.info(`CA server port: ${options.port}`);
         this.log.info(
@@ -153,6 +157,9 @@ export class CoreCLI extends BaseCLI {
       .option("--no-tls", "Disable TLS profile (default: false)")
       .option("--no-ca", "Disable CA profile (default: false)")
       .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
         this.log.info(`Booting CA with home directory: ${options.home}`);
         this.log.info(`CA server port: ${options.port}`);
         this.log.info(
@@ -194,6 +201,9 @@ export class CoreCLI extends BaseCLI {
       .option("--mspdir <string>", "MSP directory")
       .option("-d, --debug", "Enable debug mode (default: false)")
       .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
         this.log.info(`Registering client ${options.idName} ...`);
         this.log.info(`Debug: ${options.debug}`);
         this.log.info(`URL: ${options.url}`);
@@ -203,6 +213,13 @@ export class CoreCLI extends BaseCLI {
 
         processEnrollmentRequest({
           type: FabricCAClientCommand.REGISTER,
+          request: {
+            url: options.url,
+            idName: options.idName,
+            idSecret: options.idSecret,
+            tlsCertfiles: options.tlsCertfiles,
+            mspdir: options.mspdir,
+          },
         });
 
         this.log.info("Client registered successfully!");
@@ -217,9 +234,12 @@ export class CoreCLI extends BaseCLI {
         "URL of the CA server containing the user and password"
       )
       .option("--mspdir <string>", "MSP directory")
-      .option("--tls-certfiles <string>", "TLS Certfile location")
+      .option("--tls-certfiles <CSV>", "TLS Certfile location")
       .option("-d, --debug", "Enable debug mode (default: false)")
       .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
         this.log.info(`Enrolling client...`);
         this.log.info(`Debug: ${options.debug}`);
 
@@ -255,6 +275,11 @@ export class CoreCLI extends BaseCLI {
 
         processEnrollmentRequest({
           type: FabricCAClientCommand.ENROLL,
+          request: {
+            url: options.url,
+            tlsCertfiles: options.tlsCertfiles,
+            mspdir: options.mspdir,
+          },
         });
 
         this.log.info("Client enrolled successfully!");

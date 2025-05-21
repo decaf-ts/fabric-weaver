@@ -131,8 +131,11 @@ export class FabricCAClientCommandBuilder {
    * @param {string} name - The unique name of the identity.
    * @returns {FabricCAClientCommandBuilder} The current instance for method chaining.
    */
-  setIdName(name: string): FabricCAClientCommandBuilder {
-    this.flags.set("id.name", name);
+  setIdName(name?: string): FabricCAClientCommandBuilder {
+    if (name !== undefined) {
+      this.log.debug(`Setting ID Name: ${name}`);
+      this.flags.set("id.name", name);
+    }
     return this;
   }
 
@@ -141,8 +144,11 @@ export class FabricCAClientCommandBuilder {
    * @param {string} secret - The enrollment secret.
    * @returns {FabricCAClientCommandBuilder} The current instance for method chaining.
    */
-  setIdSecret(secret: string): FabricCAClientCommandBuilder {
-    this.flags.set("id.secret", secret);
+  setIdSecret(secret?: string): FabricCAClientCommandBuilder {
+    if (secret !== undefined) {
+      this.log.debug(`Setting ID Secret: ${secret}`);
+      this.flags.set("id.secret", secret);
+    }
     return this;
   }
 
@@ -181,8 +187,11 @@ export class FabricCAClientCommandBuilder {
    * @param {string} dir - The MSP directory path.
    * @returns {FabricCAClientCommandBuilder} The current instance for method chaining.
    */
-  setMSPDir(dir: string): FabricCAClientCommandBuilder {
-    this.flags.set("mspdir", dir);
+  setMSPDir(dir?: string): FabricCAClientCommandBuilder {
+    if (dir !== undefined) {
+      this.log.debug(`Setting MSP directory: ${dir}`);
+      this.flags.set("mspdir", dir);
+    }
     return this;
   }
 
@@ -241,8 +250,13 @@ export class FabricCAClientCommandBuilder {
    * @param {string[]} certfiles - An array of paths to trusted certificate files.
    * @returns {FabricCAClientCommandBuilder} The current instance for method chaining.
    */
-  setTLSCertFiles(certfiles: string[]): FabricCAClientCommandBuilder {
-    this.flags.set("tls.certfiles", certfiles);
+  setTLSCertFiles(certfiles?: string[]): FabricCAClientCommandBuilder {
+    if (certfiles !== undefined) {
+      this.log.debug(
+        `Setting TLS certificate files to ${certfiles} (length: ${certfiles.length})`
+      );
+      this.flags.set("tls.certfiles", certfiles);
+    }
     return this;
   }
 
@@ -271,8 +285,11 @@ export class FabricCAClientCommandBuilder {
    * @param {string} url - The URL of the Fabric CA server.
    * @returns {FabricCAClientCommandBuilder} The current instance for method chaining.
    */
-  setURL(url: string): FabricCAClientCommandBuilder {
-    this.flags.set("url", url);
+  setURL(url?: string): FabricCAClientCommandBuilder {
+    if (url !== undefined) {
+      this.log.debug(`Setting URL to ${url}`);
+      this.flags.set("url", url);
+    }
     return this;
   }
 

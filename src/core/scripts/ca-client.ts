@@ -6,6 +6,7 @@
 
 import { Logging } from "@decaf-ts/logging";
 import { EnrollmentRequest } from "../constants/enrollment-request";
+import { FabricCAClientCommandBuilder } from "../../fabric/fabric-ca-client/fabric-ca-client";
 
 //             return accum + ' --' + value.join(" ");
 //         }, `fabric-ca-client ${request.type}${debug ? " -d" : ""}`)],
@@ -30,6 +31,20 @@ export function processEnrollmentRequest(
 ) {
   const log = Logging.for(processEnrollmentRequest);
 
-  log.info(`Processing enrollment request: ${JSON.stringify(request)}`);
+  const builder: FabricCAClientCommandBuilder =
+    new FabricCAClientCommandBuilder();
+
+  builder
+    .setCommand(request.type)
+    .setURL(request.request.url)
+    .setTLSCertFiles(
+      request.request.tlsCertfiles
+        ? request.request.tlsCertfiles.split(",")
+        : undefined
+    )
+    .setMSPDir(request.request.mspdir)
+    .setIdName(request.request.idName)
+    .setIdSecret(request.request.idSecret);
+
   log.info(`Debug mode: ${debug}`);
 }
