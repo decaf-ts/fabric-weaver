@@ -340,9 +340,6 @@ export class FabricCAClientCommandBuilder {
     const bin = this.getBinary();
     const argz = [this.getCommand(), ...this.getArgs()];
 
-    // const regex = /\[\s*INFO\s*\] Listening on http/;
-
-    // await runCommand(bin, argz, {}, regex);
     await runCommand(bin, argz, {});
   }
 }

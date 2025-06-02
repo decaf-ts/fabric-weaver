@@ -34,6 +34,8 @@ export function processEnrollmentRequest(
   const builder: FabricCAClientCommandBuilder =
     new FabricCAClientCommandBuilder();
 
+  log.info(`Debug mode: ${debug}`);
+
   builder
     .setCommand(request.type)
     .setURL(request.request.url)
@@ -44,7 +46,8 @@ export function processEnrollmentRequest(
     )
     .setMSPDir(request.request.mspdir)
     .setIdName(request.request.idName)
-    .setIdSecret(request.request.idSecret);
+    .setIdSecret(request.request.idSecret)
+    .execute();
 
-  log.info(`Debug mode: ${debug}`);
+  log.info(`Enrollment request processed successfully.`);
 }
