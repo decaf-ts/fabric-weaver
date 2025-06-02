@@ -63,12 +63,17 @@ services:
         condition: service_healthy
     command: >
       bash -c "
-      if [ -f /boot/boot-tls.lock ]; then
+      if [ -f /boot/boot-orgs.lock ]; then
         echo 'boot-tls has already run. Exiting.';
         exit 0;
       fi;
       apt-get update &&
       apt-get install -y docker.io &&
+
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-1:7010' --mspdir '/weaver/client/admin/msp' &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-2:7011' --mspdir '/weaver/client/admin/msp' &&
+
       touch /boot/boot-tls.lock
       "
 
