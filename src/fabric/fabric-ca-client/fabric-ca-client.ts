@@ -255,7 +255,7 @@ export class FabricCAClientCommandBuilder {
       this.log.debug(
         `Setting TLS certificate files to ${certfiles} (length: ${certfiles.length})`
       );
-      this.flags.set("tls.certfiles", certfiles);
+      this.flags.set("tls.certfiles", certfiles.join(","));
     }
     return this;
   }
