@@ -2,6 +2,7 @@ import { Logger, Logging } from "@decaf-ts/logging";
 import { FabricBinaries } from "../general/constants";
 import { FabricCAClientCommand } from "./constants";
 import { runCommand } from "../../utils/child-process";
+import { getAccountType } from "../general/fabric-account-types";
 
 //TODO: Implement the subcommands for each Fabric CA Client commands
 // reference page https://hyperledger-fabric-ca.readthedocs.io/en/latest/clientcli.html
@@ -111,8 +112,11 @@ export class FabricCAClientCommandBuilder {
    * @param {string[]} attrs - A list of attributes in the form <name>=<value>.
    * @returns {FabricCAClientCommandBuilder} The current instance for method chaining.
    */
-  setIdAttributes(attrs: string[]): FabricCAClientCommandBuilder {
-    this.flags.set("id.attrs", attrs);
+  setIdAttributes(attrs?: string): FabricCAClientCommandBuilder {
+    if (attrs !== undefined) {
+      this.log.debug(`Setting ID Attributes: ${attrs}`);
+      this.flags.set("id.attrs", attrs);
+    }
     return this;
   }
 
@@ -157,8 +161,13 @@ export class FabricCAClientCommandBuilder {
    * @param {string} type - The type of identity (e.g. 'peer', 'app', 'user').
    * @returns {FabricCAClientCommandBuilder} The current instance for method chaining.
    */
-  setIdType(type: string): FabricCAClientCommandBuilder {
-    this.flags.set("id.type", type);
+  setIdType(type?: string): FabricCAClientCommandBuilder {
+    if (type !== undefined) {
+      type = getAccountType(type);
+      this.log.debug(`Setting ID Type: ${type}`);
+      this.flags.set("id.type", type);
+    }
+
     return this;
   }
 

@@ -1,4 +1,5 @@
 import { FabricCAClientCommand } from "../../fabric/fabric-ca-client/constants";
+import { FabricAccountType } from "../../fabric/general/fabric-account-types";
 
 export type EnrollmentType =
   | FabricCAClientCommand.ENROLL
@@ -12,10 +13,12 @@ export type EnrollmentRequest = {
     idSecret?: string;
     tlsCertfiles?: string;
     mspdir?: string;
-    //     "id.type"?: ACCOUNT_TYPE;
+    idType?: FabricAccountType;
+    idAttrs?: string;
+
     //     "enrollment.profile"?: string;
     //     "csr.hosts"?: string;
-    //     "id.attrs"?: string;
+    //
     //     home?: string;
   };
   copykey?: boolean;

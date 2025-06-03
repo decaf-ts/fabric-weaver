@@ -197,6 +197,8 @@ export class CoreCLI extends BaseCLI {
       .option("--url <PROTOCOl://DOMAIN:PORT>", "URL of the CA server")
       .option("--id-name <string>", "Client ID")
       .option("--id-secret <string>", "Client Secret")
+      .option("--id-type <string>", "Client Type")
+      .option("--id-attrs <string>", "Client Attributes")
       .option("--tls-certfiles <string>", "TLS Certfile location")
       .option("--mspdir <string>", "MSP directory")
       .option("-d, --debug", "Enable debug mode (default: false)")
@@ -219,6 +221,7 @@ export class CoreCLI extends BaseCLI {
             idSecret: options.idSecret,
             tlsCertfiles: options.tlsCertfiles,
             mspdir: options.mspdir,
+            idType: options.idType,
           },
         });
 
