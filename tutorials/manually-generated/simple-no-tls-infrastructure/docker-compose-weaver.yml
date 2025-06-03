@@ -39,7 +39,7 @@ services:
     command: >
       node ./weaver/lib/core/cli.cjs docker:boot-ca
         --home /weaver/server
-        --port 7010
+        --port 7011
         --debug
         --bootstrap-user admin:adminpw
         --ca-name org-2
@@ -72,6 +72,8 @@ services:
 
       docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-1:7010' --mspdir '/weaver/client/admin/msp' &&
 
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d  --url 'http://org-1:7010' --id-name 'orderer-admin-org1' --id-secret 'orderer-admin-org1-pw' --id-type 'admin' --id-attrs '"hf.Registrar.Roles=admin,client,user,orderer","hf.Registrar.Attributes=*","hf.Revoker=true","hf.GenCRL=true","admin=true:ecert","abac.init=true:ecert"' --mspdir '/weaver/client/admin/msp' &&
+
       docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-2:7011' --mspdir '/weaver/client/admin/msp' &&
 
       touch /boot/boot-tls.lock
@@ -80,3 +82,9 @@ services:
 volumes:
   boot-lock:
     name: boot-lock
+# {\"tls.certfiles\":\"/fabric/storage/tls/ca-cert.pem\",\"mspdir\":\"/fabric/clients/admin/msp\"}}]' &&
+# docker exec org-1-ca node ./fabric/build/fabric/cli.js enrollment -d --enrollment-requests '[{\"type\":\"enroll\",\"request\":{\"url\":\"https://orderer-admin-org1:orderer-admin-org1@org-1-ca:7010\",\"tls.certfiles\":\"/fabric/storage/tls/ca-cert.pem\",\"mspdir\":\"/fabric/clients/orderer-1/client/msp\",\"csr.hosts\":\"'0.0.0.0,localhost,org-1-orderer'\",\"home\":\"/fabric/clients/orderer-1/client\"},\"changeKeyName\":true}]' &&
+# docker exec org-1-ca node ./fabric/build/fabric/cli.js enrollment -d --enrollment-requests '[{\"type\":\"register\",\"request\":{\"id.name\":\"orderer-org1\",\"id.secret\":\"orderer-org1\",\"id.type\":\"orderer\",\"url\":\"https://org-1-ca:7010\",\"tls.certfiles\":\"/fabric/storage/tls/ca-cert.pem\",\"mspdir\":\"/fabric/clients/orderer-1/client/msp\"}}]' &&
+# docker exec org-1-ca node ./fabric/build/fabric/cli.js enrollment -d --enrollment-requests '[{\"type\":\"enroll\",\"request\":{\"url\":\"https://orderer-org1:orderer-org1@org-1-ca:7010\",\"tls.certfiles\":\"/fabric/storage/tls/ca-cert.pem\",\"mspdir\":\"/fabric/clients/orderer-1/msp\",\"home\":\"/fabric/clients/orderer-1\"},\"changeKeyName\":true}]' &&
+# docker exec org-1-ca cp /fabric/storage/tls/ca-cert.pem /fabric/clients/orderer-1/tls-cert.pem &&
+# docker exec org-1-ca node ./fabric/build/fabric/cli.js enrollment -d --enrollment-requests '[{\"type\":\"enroll\",\"request\":{\"url\":\"https://orderer-org1:orderer-org1@org-1-ca-tls:7000\",\"enrollment.profile\":\"tls\",\"csr.hosts\":\"'0.0.0.0,localhost,org-1-orderer'\",\"home\":\"/fabric/clients/orderer-1\",\"tls.certfiles\":\"/fabric/storage/tls/ca-cert.pem\",\"mspdir\":\"/fabric/clients/orderer-1/tls-msp\"},\"changeKeyName\":true}]' &&
