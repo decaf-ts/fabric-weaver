@@ -5,6 +5,7 @@ import { safeParseInt } from "../../utils/parsers";
 import { processEnrollmentRequest } from "../scripts/ca-client";
 import { bootCAServer, issueCA } from "../scripts/ca-server";
 import { BaseCLI } from "./base-cli";
+import { bootOrderer, issueOrderer } from "../scripts/orderer";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -17,6 +18,8 @@ export class CoreCLI extends BaseCLI {
     this.dockerIssueCA();
     this.dockerClientRegister();
     this.dockerClientEnroll();
+    this.dockerBootOrderer();
+    this.dockerIssueOrderer();
   }
 
   private dockerBootCA() {
@@ -295,6 +298,132 @@ export class CoreCLI extends BaseCLI {
         });
 
         this.log.info("Client enrolled successfully!");
+      });
+  }
+
+  private dockerBootOrderer() {
+    this.program
+      .command("docker:boot-orderer")
+      .option("-d, --debug", "Enables debug mode")
+      .option(
+        "--config-location <string>",
+        "Path to the orderer configuration file"
+      )
+      .option(
+        "--listen-address <string>",
+        "Address for the orderer to listen on"
+      )
+      .option(
+        "--port <number>",
+        "Port for the orderer to listen on",
+        safeParseInt
+      )
+      .option("--local-mspdir <string>", "Local MSP directory")
+      .option("--local-mspid <string>", "Local MSP ID")
+      .option(
+        "--admin-listenaddress <string>",
+        "Address for the admin server to listen on"
+      )
+      .option(
+        "--consensus-snapdir <string>",
+        "Path to the consensus snapshot directory"
+      )
+      .option(
+        "--consensus-waldir <string>",
+        "Path to the consensus write-ahead log directory"
+      )
+      .option(
+        "--operations-address <string>",
+        "Address for the operations server to listen on"
+      )
+      .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Booting orderer...");
+
+        bootOrderer(options.configLocation, {
+          General: {
+            ListenAddress: options.listenAddress,
+            ListenPort: options.port,
+            LocalMSPDir: options.localMspdir,
+            LocalMSPID: options.localMspid,
+          },
+          Admin: {
+            ListenAddress: options.adminListenaddress,
+          },
+          Consensus: {
+            SnapDir: options.consensusSnapdir,
+            WALDir: options.consensusWaldir,
+          },
+          Operations: {
+            ListenAddress: options.operationsAddress,
+          },
+        });
+        this.log.info("Orderer booted successfully!");
+      });
+  }
+
+  private dockerIssueOrderer() {
+    this.program
+      .command("docker:boot-orderer")
+      .option("-d, --debug", "Enables debug mode")
+      .option(
+        "--config-location <string>",
+        "Path to the orderer configuration file"
+      )
+      .option(
+        "--listen-address <string>",
+        "Address for the orderer to listen on"
+      )
+      .option(
+        "--port <number>",
+        "Port for the orderer to listen on",
+        safeParseInt
+      )
+      .option("--local-mspdir <string>", "Local MSP directory")
+      .option("--local-mspid <string>", "Local MSP ID")
+      .option(
+        "--admin-listenaddress <string>",
+        "Address for the admin server to listen on"
+      )
+      .option(
+        "--consensus-snapdir <string>",
+        "Path to the consensus snapshot directory"
+      )
+      .option(
+        "--consensus-waldir <string>",
+        "Path to the consensus write-ahead log directory"
+      )
+      .option(
+        "--operations-address <string>",
+        "Address for the operations server to listen on"
+      )
+      .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Issueing orderer...");
+
+        issueOrderer(options.configLocation, {
+          General: {
+            ListenAddress: options.listenAddress,
+            ListenPort: options.port,
+            LocalMSPDir: options.localMspdir,
+            LocalMSPID: options.localMspid,
+          },
+          Admin: {
+            ListenAddress: options.adminListenaddress,
+          },
+          Consensus: {
+            SnapDir: options.consensusSnapdir,
+            WALDir: options.consensusWaldir,
+          },
+          Operations: {
+            ListenAddress: options.operationsAddress,
+          },
+        });
+        this.log.info("Orderer issued successfully!");
       });
   }
 }

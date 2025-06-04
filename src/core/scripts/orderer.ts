@@ -13,6 +13,7 @@ export function issueOrderer(
 ) {
   const log: Logger = Logging.for(issueOrderer);
   log.debug(`Issuing Orderer with config: ${JSON.stringify(ordererConfig)}`);
+  log.debug(`Writing configuration to ${cpath}`);
 
   const builder = new OrdererCommandBuilder();
 
