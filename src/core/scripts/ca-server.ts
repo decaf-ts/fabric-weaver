@@ -33,12 +33,6 @@ export async function startCAServer(homeDir: string, caConfig: CAConfig) {
     .setMetricsListenAddress(caConfig.metrics?.statsd?.address);
 
   await command.execute();
-  // const bin = command.getBinary();
-  // const argz = [command.getCommand(), ...command.getArgs()];
-
-  // const regex = /\[\s*INFO\s*\] Listening on http/;
-
-  // await runCommand(bin, argz, {}, regex);
 }
 
 export function issueCA(homeDir: string, caConfig: CAConfig) {
