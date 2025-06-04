@@ -3,6 +3,7 @@ import { FabricBinaries } from "../general/constants";
 import { FabricCAClientCommand } from "./constants";
 import { runCommand } from "../../utils/child-process";
 import { getAccountType } from "../general/fabric-account-types";
+import fs from "fs";
 
 //TODO: Implement the subcommands for each Fabric CA Client commands
 // reference page https://hyperledger-fabric-ca.readthedocs.io/en/latest/clientcli.html
@@ -33,8 +34,11 @@ export class FabricCAClientCommandBuilder {
     return this;
   }
 
-  setCSRHosts(hosts: string[]): FabricCAClientCommandBuilder {
-    this.flags.set("csr.hosts", hosts);
+  setCSRHosts(hosts?: string[]): FabricCAClientCommandBuilder {
+    if (hosts !== undefined) {
+      this.log.debug(`Setting CSR hosts: ${hosts}`);
+      this.flags.set("csr.hosts", hosts.join(","));
+    }
     return this;
   }
 
@@ -83,8 +87,11 @@ export class FabricCAClientCommandBuilder {
     return this;
   }
 
-  setHome(home: string): FabricCAClientCommandBuilder {
-    this.flags.set("home", home);
+  setHome(home?: string): FabricCAClientCommandBuilder {
+    if (home !== undefined) {
+      this.log.debug(`Setting home directory: ${home}`);
+      this.flags.set("home", home);
+    }
     return this;
   }
 
@@ -319,6 +326,24 @@ export class FabricCAClientCommandBuilder {
 
     this.log.debug(`Built command: ${commandStr}`);
     return [commandStr];
+  }
+
+  changeKeyName(pathToMSPDir?: string): FabricCAClientCommandBuilder {
+    if (pathToMSPDir !== undefined) {
+      try {
+        const pathToKeystore = pathToMSPDir + "/keystore";
+        const fileList = fs.readdirSync(pathToKeystore);
+        const currentName = `${pathToKeystore}/${fileList[0]}`;
+        const finalName = `${pathToKeystore}/key.pem`;
+        fs.renameSync(currentName, finalName);
+      } catch (error: unknown) {
+        this.log.error(
+          `Error: Failed to rename the key file in the MSP directory: ${error}`
+        );
+      }
+    }
+
+    return this;
   }
 
   getCommand(): string {

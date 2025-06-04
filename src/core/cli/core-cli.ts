@@ -239,6 +239,12 @@ export class CoreCLI extends BaseCLI {
       .option("--mspdir <string>", "MSP directory")
       .option("--tls-certfiles <CSV>", "TLS Certfile location")
       .option("-d, --debug", "Enable debug mode (default: false)")
+      .option("--home <string>", "Home directory for the client")
+      .option("--csr-hosts <CSV>", "Comma-separated list of CSR hostnames")
+      .option(
+        "-c, --change-keyname",
+        "Change the keyname of the enrolled client"
+      )
       .action((options) => {
         this.log.setConfig({
           level: options.debug ? LogLevel.debug : LogLevel.info,
@@ -282,7 +288,10 @@ export class CoreCLI extends BaseCLI {
             url: options.url,
             tlsCertfiles: options.tlsCertfiles,
             mspdir: options.mspdir,
+            home: options.home,
+            csrHosts: options.csrHosts?.split(",") || undefined,
           },
+          changeKeyName: options.changeKeyname,
         });
 
         this.log.info("Client enrolled successfully!");

@@ -48,6 +48,15 @@ export function processEnrollmentRequest(
     .setIdSecret(request.request.idSecret)
     .setIdType(request.request.idType)
     .setIdAttributes(request.request.idAttrs)
+    .setCSRHosts(request.request.csrHosts)
+    .setHome(request.request.home)
+    .changeKeyName(
+      request.changeKeyName
+        ? request.request.mspdir
+          ? request.request.mspdir
+          : undefined
+        : undefined
+    )
     .execute();
 
   log.info(`Enrollment request processed successfully.`);

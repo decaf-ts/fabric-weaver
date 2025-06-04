@@ -15,11 +15,9 @@ export type EnrollmentRequest = {
     mspdir?: string;
     idType?: FabricAccountType;
     idAttrs?: string;
-
+    home?: string;
+    csrHosts?: string[];
     //     "enrollment.profile"?: string;
-    //     "csr.hosts"?: string;
-    //
-    //     home?: string;
   };
   copykey?: boolean;
   changeKeyName?: boolean;
