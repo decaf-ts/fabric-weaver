@@ -76,7 +76,7 @@ services:
       docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-admin-org1:orderer-admin-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/msp' --home '/weaver/client/orderer1' --csr-hosts '0.0.0.0,localhost,org-1-orderer' --change-keyname &&
 
       docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d  --url 'http://org-1:7010'  --id-name 'orderer-org1'  --id-secret 'orderer-org1-pw' --id-type 'orderer' --mspdir '/weaver/client/orderer1/client/msp' &&
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-org1:orderer-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/msp' --home '/weaver/client/orderer1' --changeKeyName &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-org1:orderer-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/msp' --home '/weaver/client/orderer1' --change-keyname &&
 
       docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-2:7011' --mspdir '/weaver/client/admin/msp' &&
 
@@ -86,7 +86,3 @@ services:
 volumes:
   boot-lock:
     name: boot-lock
-# {\"tls.certfiles\":\"/fabric/storage/tls/ca-cert.pem\",' &&
-# ,\"tls.certfiles\":\"/fabric/storage/tls/ca-cert.pem\" &&
-# ,\"tls.certfiles\":\"/fabric/storage/tls/ca-cert.pem\"
-# "tls.certfiles\":\"/fabric/storage/tls/ca-cert.pem\",
