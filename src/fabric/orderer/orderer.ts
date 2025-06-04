@@ -42,7 +42,7 @@ export class OrdererCommandBuilder {
   setListenAddress(address?: string): OrdererCommandBuilder {
     if (address !== undefined) {
       this.log.debug(`Setting listen address to ${address}`);
-      this.config.General.ListenAddress = address;
+      this.config.General!.ListenAddress = address;
     }
     return this;
   }
@@ -55,7 +55,7 @@ export class OrdererCommandBuilder {
   setListenPort(port?: number): OrdererCommandBuilder {
     if (port !== undefined) {
       this.log.debug(`Setting listen port to ${port}`);
-      this.config.General.ListenPort = port;
+      this.config.General!.ListenPort = port;
     }
     return this;
   }
@@ -68,7 +68,7 @@ export class OrdererCommandBuilder {
   setLocalMSPDir(dir?: string): OrdererCommandBuilder {
     if (dir !== undefined) {
       this.log.debug(`Setting local MSP directory to ${dir}`);
-      this.config.General.LocalMSPDir = dir;
+      this.config.General!.LocalMSPDir = dir;
     }
     return this;
   }
@@ -81,7 +81,7 @@ export class OrdererCommandBuilder {
   setLocalMSPID(mspID?: string): OrdererCommandBuilder {
     if (mspID !== undefined) {
       this.log.debug(`Setting local MSP ID to ${mspID}`);
-      this.config.General.LocalMSPID = mspID;
+      this.config.General!.LocalMSPID = mspID;
     }
     return this;
   }
@@ -94,7 +94,7 @@ export class OrdererCommandBuilder {
   setAdminListenAddress(address?: string): OrdererCommandBuilder {
     if (address !== undefined) {
       this.log.debug(`Setting admin listen address to ${address}`);
-      this.config.Admin.ListenAddress = address;
+      this.config.Admin!.ListenAddress = address;
     }
     return this;
   }
@@ -107,7 +107,7 @@ export class OrdererCommandBuilder {
   setOperationsListenAddress(address?: string): OrdererCommandBuilder {
     if (address !== undefined) {
       this.log.debug(`Setting operations listen address to ${address}`);
-      this.config.Operations.ListenAddress = address;
+      this.config.Operations!.ListenAddress = address;
     }
     return this;
   }
@@ -120,7 +120,7 @@ export class OrdererCommandBuilder {
   setConsensusWALDir(dir?: string): OrdererCommandBuilder {
     if (dir !== undefined) {
       this.log.debug(`Setting Consensus WAL directory to ${dir}`);
-      this.config.Consensus.WALDir = dir;
+      this.config.Consensus!.WALDir = dir;
     }
     return this;
   }
@@ -133,7 +133,7 @@ export class OrdererCommandBuilder {
   setConsensusSnapDir(dir?: string): OrdererCommandBuilder {
     if (dir !== undefined) {
       this.log.debug(`Setting Consensus Snapshot directory to ${dir}`);
-      this.config.Consensus.SnapDir = dir;
+      this.config.Consensus!.SnapDir = dir;
     }
     return this;
   }

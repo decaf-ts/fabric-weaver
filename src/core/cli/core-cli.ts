@@ -360,6 +360,7 @@ export class CoreCLI extends BaseCLI {
             ListenAddress: options.operationsAddress,
           },
         });
+
         this.log.info("Orderer booted successfully!");
       });
   }
