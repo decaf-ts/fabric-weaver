@@ -205,7 +205,7 @@ export class CoreCLI extends BaseCLI {
       .option("--tls-certfiles <string>", "TLS Certfile location")
       .option("--mspdir <string>", "MSP directory")
       .option("-d, --debug", "Enable debug mode (default: false)")
-      .action((options) => {
+      .action(async (options) => {
         this.log.setConfig({
           level: options.debug ? LogLevel.debug : LogLevel.info,
         });
@@ -215,8 +215,9 @@ export class CoreCLI extends BaseCLI {
         if (options.debug) this.log.debug(`Secret: ${options.idSecret}`);
         this.log.info(`TLS Certfiles: ${options.tlsCertfiles}`);
         this.log.info(`MSP directory: ${options.mspdir}`);
+        this.log.info(`ID Attributes: ${options.idAttrs}`);
 
-        processEnrollmentRequest({
+        await processEnrollmentRequest({
           type: FabricCAClientCommand.REGISTER,
           request: {
             url: options.url,
@@ -225,6 +226,7 @@ export class CoreCLI extends BaseCLI {
             tlsCertfiles: options.tlsCertfiles,
             mspdir: options.mspdir,
             idType: options.idType,
+            idAttrs: options.idAttrs,
           },
         });
 
@@ -248,7 +250,7 @@ export class CoreCLI extends BaseCLI {
         "-c, --change-keyname",
         "Change the keyname of the enrolled client"
       )
-      .action((options) => {
+      .action(async (options) => {
         this.log.setConfig({
           level: options.debug ? LogLevel.debug : LogLevel.info,
         });
@@ -285,7 +287,7 @@ export class CoreCLI extends BaseCLI {
         this.log.info(`TLS Certfiles: ${options.tlsCertfiles}`);
         this.log.info(`MSP directory: ${options.mspdir}`);
 
-        processEnrollmentRequest({
+        await processEnrollmentRequest({
           type: FabricCAClientCommand.ENROLL,
           request: {
             url: options.url,
@@ -336,7 +338,7 @@ export class CoreCLI extends BaseCLI {
         "--operations-address <string>",
         "Address for the operations server to listen on"
       )
-      .action((options) => {
+      .action(async (options) => {
         this.log.setConfig({
           level: options.debug ? LogLevel.debug : LogLevel.info,
         });
@@ -367,7 +369,7 @@ export class CoreCLI extends BaseCLI {
 
   private dockerIssueOrderer() {
     this.program
-      .command("docker:boot-orderer")
+      .command("docker:issue-orderer")
       .option("-d, --debug", "Enables debug mode")
       .option(
         "--config-location <string>",

@@ -6,6 +6,7 @@ import {
 } from "../../fabric/orderer/";
 import path from "path";
 import fs from "fs";
+import { setOrdererEnvironment } from "../../utils/environment";
 
 export function issueOrderer(
   cpath: string,
@@ -29,9 +30,10 @@ export function issueOrderer(
     .saveConfig(cpath);
 }
 
-export async function startOrderer() {
+export async function startOrderer(cpath: string) {
   const log: Logger = Logging.for(startOrderer);
   log.debug(`Starting Orderer`);
+  setOrdererEnvironment(cpath);
 
   const builder = new OrdererCommandBuilder();
 
@@ -46,7 +48,8 @@ export async function bootOrderer(
   log.debug(`Booting Orderer with config: ${JSON.stringify(config)}`);
 
   issueOrderer(cpath, config);
-  await startOrderer();
+  // await new Promise((resolve) => setTimeout(resolve, 500000));
+  await startOrderer(cpath);
 }
 
 export function hasOrdererInitialized(fileLocation?: string): boolean {

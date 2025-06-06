@@ -4,8 +4,12 @@ services:
     hostname: org-1
     image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
     restart: no
+    # environment:
+    #   - FABRIC_CA_CLIENT_HOME=/weaver/client/admin
     ports:
       - "7010:7010"
+    volumes:
+      - orderer-org-1-vol:/weaver/client/orderer1:rw
     healthcheck:
       test: bash -c "[ -f /weaver/server/ca-cert.pem ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
       interval: 10s
@@ -72,8 +76,8 @@ services:
 
       docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-1:7010' --mspdir '/weaver/client/admin/msp' &&
 
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d  --url 'http://org-1:7010' --id-name 'orderer-admin-org1' --id-secret 'orderer-admin-org1-pw' --id-type 'admin' --id-attrs '"hf.Registrar.Roles=admin,client,user,orderer","hf.Registrar.Attributes=*","hf.Revoker=true","hf.GenCRL=true","admin=true:ecert","abac.init=true:ecert"' --mspdir '/weaver/client/admin/msp' &&
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-admin-org1:orderer-admin-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/msp' --home '/weaver/client/orderer1' --csr-hosts '0.0.0.0,localhost,org-1-orderer' --change-keyname &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d  --url 'http://org-1:7010' --id-name 'orderer-admin-org1' --id-secret 'orderer-admin-org1-pw' --id-type 'admin'  --mspdir '/weaver/client/admin/msp' --id-attrs "hf.Registrar.Roles=*,hf.Registrar.DelegateRoles=*,hf.IntermediateCA=true,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-admin-org1:orderer-admin-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/client/msp' --home '/weaver/client/orderer1/client' --csr-hosts '0.0.0.0,localhost,org-1-orderer' --change-keyname &&
 
       docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d --url 'http://org-1:7010' --id-name 'orderer-org1' --id-secret 'orderer-org1-pw' --id-type 'orderer' --mspdir '/weaver/client/orderer1/client/msp' &&
       docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-org1:orderer-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/msp' --home '/weaver/client/orderer1' --change-keyname &&
@@ -83,6 +87,40 @@ services:
       touch /boot/boot-tls.lock
       "
 
+  # orderer-org-1:
+  #   container_name: orderer-org-1
+  #   hostname: orderer-org-1
+  #   image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+  #   restart: no
+  #   ports:
+  #     - "7012:7012"
+  #   volumes:
+  #     - orderer-org-1-vol:/weaver/orderer:rw
+  #   healthcheck:
+  #     test: bash -c "[ -f /weaver/orderer/orderer.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+  #     interval: 10s
+  #     timeout: 3s
+  #     retries: 10
+  #     start_period: 30s
+  #   depends_on:
+  #     boot-orgs:
+  #       condition: service_completed_successfully
+  #   command: >
+  #     node ./weaver/lib/core/cli.cjs docker:boot-orderer
+  #       -d
+  #       --config-location '/weaver/orderer'
+  #       --port 7012
+  #       --listen-address '0.0.0.0'
+  #       --local-mspdir '/weaver/orderer/client/msp'
+  #       --local-mspid 'OrdererOrg1MSP'
+  #       --admin-listenaddress 127.0.0.1:9000
+  #       --consensus-snapdir '/weaver/orderer/production/orderer/etcdraft/snapshot'
+  #       --consensus-waldir  '/weaver/orderer/production/orderer/etcdraft/wal'
+  #       --operations-address '127.0.0.1:8010'
+
 volumes:
   boot-lock:
     name: boot-lock
+
+  orderer-org-1-vol:
+    name: orderer-org-1-vol

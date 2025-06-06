@@ -4,6 +4,7 @@ import { Logger, Logging } from "@decaf-ts/logging";
 import { addFabricToPath } from "../../utils/path";
 import { EnvVars } from "../constants/env-vars";
 import { printBanner } from "../../utils/banner";
+import { safeParseInt } from "../../utils/parsers";
 
 /**
  * @class BaseCLI
@@ -50,6 +51,20 @@ export abstract class BaseCLI {
         printBanner();
         this.log.debug(`Starting ${this.program.name()} v${VERSION}`);
         addFabricToPath(process.env[EnvVars.FABRIC_BIN_FOLDER]);
+      });
+
+    this.sleep();
+  }
+
+  private sleep() {
+    this.program
+      .command("sleep")
+      .option("--time <number>", "sleep time in seconds", safeParseInt)
+      .action(async () => {
+        const time = this.program.opts().time || 120;
+        const ms = time * 1000;
+
+        await new Promise((resolve) => setTimeout(resolve, ms));
       });
   }
 

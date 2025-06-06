@@ -373,7 +373,9 @@ export class FabricCAClientCommandBuilder {
   async execute(): Promise<void> {
     const bin = this.getBinary();
     const argz = [this.getCommand(), ...this.getArgs()];
+    const regex =
+      /(\[\s*INFO\s*\] Stored Issuer revocation|Configuration file location:)/;
 
-    await runCommand(bin, argz, {});
+    await runCommand(bin, argz, {}, regex);
   }
 }

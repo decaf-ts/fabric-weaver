@@ -1,4 +1,5 @@
 import { spawn } from "child_process";
+import { Logger, Logging } from "@decaf-ts/logging";
 
 export async function runCommand(
   command: string,
@@ -7,6 +8,9 @@ export async function runCommand(
   logMatch?: RegExp
 ) {
   return new Promise((resolve, reject) => {
+    const log: Logger = Logging.for(runCommand);
+
+    log.info(`Running command: ${command} ${args.join(" ")}`);
     const child = spawn(command, args, options);
     const regex = logMatch;
 

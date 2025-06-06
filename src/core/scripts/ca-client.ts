@@ -24,7 +24,7 @@ import { FabricCAClientCommandBuilder } from "../../fabric/fabric-ca-client/fabr
 //     ).execAll()
 // }
 
-export function processEnrollmentRequest(
+export async function processEnrollmentRequest(
   request: EnrollmentRequest,
   debug: boolean = false
 ) {
@@ -35,7 +35,7 @@ export function processEnrollmentRequest(
 
   log.info(`Debug mode: ${debug}`);
 
-  builder
+  await builder
     .setCommand(request.type)
     .setURL(request.request.url)
     .setTLSCertFiles(
@@ -50,14 +50,15 @@ export function processEnrollmentRequest(
     .setIdAttributes(request.request.idAttrs)
     .setCSRHosts(request.request.csrHosts)
     .setHome(request.request.home)
-    .changeKeyName(
-      request.changeKeyName
-        ? request.request.mspdir
-          ? request.request.mspdir
-          : undefined
-        : undefined
-    )
     .execute();
+
+  builder.changeKeyName(
+    request.changeKeyName
+      ? request.request.mspdir
+        ? request.request.mspdir
+        : undefined
+      : undefined
+  );
 
   log.info(`Enrollment request processed successfully.`);
 }
