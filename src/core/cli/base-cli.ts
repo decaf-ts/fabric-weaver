@@ -5,6 +5,8 @@ import { addFabricToPath } from "../../utils/path";
 import { EnvVars } from "../constants/env-vars";
 import { printBanner } from "../../utils/banner";
 import { safeParseInt } from "../../utils/parsers";
+import fs from "fs";
+import path from "path";
 
 /**
  * @class BaseCLI
@@ -54,6 +56,7 @@ export abstract class BaseCLI {
       });
 
     this.sleep();
+    this.copy();
   }
 
   private sleep() {
@@ -65,6 +68,38 @@ export abstract class BaseCLI {
         const ms = time * 1000;
 
         await new Promise((resolve) => setTimeout(resolve, ms));
+      });
+  }
+
+  private copy() {
+    this.program
+      .command("copy")
+      .description("Copy a file from origin to destination")
+      .requiredOption("--origin <string>", "Origin file path")
+      .requiredOption("--dest <string>", "Destination file path")
+      .action(async (options) => {
+        try {
+          const { origin, dest } = options;
+
+          // Check if the origin file exists
+          if (!fs.existsSync(origin)) {
+            this.log.error(`Origin file does not exist: ${origin}`);
+            return;
+          }
+
+          // Ensure the destination directory exists
+          const destDir = path.dirname(dest);
+          if (!fs.existsSync(destDir)) {
+            fs.mkdirSync(destDir, { recursive: true });
+          }
+
+          // Copy the file
+          fs.copyFileSync(origin, dest);
+
+          this.log.info(`File copied successfully from ${origin} to ${dest}`);
+        } catch (error: unknown) {
+          this.log.error(`Error copying file: ${(error as Error).message}`);
+        }
       });
   }
 

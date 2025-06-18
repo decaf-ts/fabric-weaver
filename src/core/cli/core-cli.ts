@@ -6,6 +6,8 @@ import { processEnrollmentRequest } from "../scripts/ca-client";
 import { bootCAServer, issueCA } from "../scripts/ca-server";
 import { BaseCLI } from "./base-cli";
 import { bootOrderer, issueOrderer } from "../scripts/orderer";
+import { createGenesisBlock } from "../scripts/configtxgen";
+import { createNodeOU } from "../../fabric/general/node-ou";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -20,6 +22,9 @@ export class CoreCLI extends BaseCLI {
     this.dockerClientEnroll();
     this.dockerBootOrderer();
     this.dockerIssueOrderer();
+    this.createGenesisBlock();
+
+    this.createNodeOu();
   }
 
   private dockerBootCA() {
@@ -427,6 +432,40 @@ export class CoreCLI extends BaseCLI {
           },
         });
         this.log.info("Orderer issued successfully!");
+      });
+  }
+
+  private createGenesisBlock() {
+    this.program
+      .command("docker:create-genesis-block")
+      .option("--config-path <string>", "Path to configtx file")
+      .option("--channel-id <string>", "Channel ID")
+      .option("--output-block <string>", "Path to output block file")
+      .option("--profile <string>", "Profile name")
+      .action(async (options: any) => {
+        await createGenesisBlock(
+          options.configPath,
+          options.profile,
+          options.channelId,
+          options.outputBlock
+        );
+      });
+  }
+
+  private createNodeOu() {
+    this.program
+      .command("docker:create-node-ou")
+      .option("--enable", "Enable node organizational unit")
+      .option("--path <string>", "Path to output directory", "cacerts")
+      .option("--mspdir <string>", "mspdirlocation")
+      .option("--cert <string>", "Cert file name", undefined)
+      .action(async (options: any) => {
+        createNodeOU(
+          options.enable,
+          options.path,
+          options.mspdir,
+          options.cert
+        );
       });
   }
 }

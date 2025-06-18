@@ -60,6 +60,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - boot-lock:/boot:rw
+      - ../simple-no-tls-infrastructure:/weaver/genesis:ro
+      - orderer-org-1-vol:/weaver/orderer:rw
     depends_on:
       org-1:
         condition: service_healthy
@@ -84,39 +86,48 @@ services:
 
       docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-2:7011' --mspdir '/weaver/client/admin/msp' &&
 
+      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/msp' &&
+      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/client/msp' &&
+
+      node ./weaver/lib/core/cli.cjs docker:create-genesis-block --config-path '/weaver/genesis' --profile 'SampleAppChannelEtcdRaft' --channel-id 'simple-channel' --output-block '/weaver/orderer/genesisblock' &&
+
+
       touch /boot/boot-tls.lock
       "
 
-  # orderer-org-1:
-  #   container_name: orderer-org-1
-  #   hostname: orderer-org-1
-  #   image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
-  #   restart: no
-  #   ports:
-  #     - "7012:7012"
-  #   volumes:
-  #     - orderer-org-1-vol:/weaver/orderer:rw
-  #   healthcheck:
-  #     test: bash -c "[ -f /weaver/orderer/orderer.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
-  #     interval: 10s
-  #     timeout: 3s
-  #     retries: 10
-  #     start_period: 30s
-  #   depends_on:
-  #     boot-orgs:
-  #       condition: service_completed_successfully
-  #   command: >
-  #     node ./weaver/lib/core/cli.cjs docker:boot-orderer
-  #       -d
-  #       --config-location '/weaver/orderer'
-  #       --port 7012
-  #       --listen-address '0.0.0.0'
-  #       --local-mspdir '/weaver/orderer/client/msp'
-  #       --local-mspid 'OrdererOrg1MSP'
-  #       --admin-listenaddress 127.0.0.1:9000
-  #       --consensus-snapdir '/weaver/orderer/production/orderer/etcdraft/snapshot'
-  #       --consensus-waldir  '/weaver/orderer/production/orderer/etcdraft/wal'
-  #       --operations-address '127.0.0.1:8010'
+  #  node ./weaver/lib/core/cli.cjs sleep &&
+  # node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/msp' --path 'admincerts' --cert 'cert.pem' &&
+  #       node ./weaver/lib/core/cli.cjs copy --origin 'weaver/orderer/client/msp/signcerts/cert.pem' --dest 'weaver/orderer/msp/admincerts/cert.pem' &&
+  orderer-org-1:
+    container_name: orderer-org-1
+    hostname: orderer-org-1
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    ports:
+      - "7012:7012"
+    volumes:
+      - orderer-org-1-vol:/weaver/orderer:rw
+    healthcheck:
+      test: bash -c "[ -f /weaver/orderer/orderer.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      boot-orgs:
+        condition: service_completed_successfully
+    command: >
+      node ./weaver/lib/core/cli.cjs docker:boot-orderer
+        -d
+        --config-location '/weaver/orderer'
+        --port 7012
+        --listen-address '0.0.0.0'
+        --local-mspdir '/weaver/orderer/client/msp'
+        --local-mspid 'OrdererOrg1MSP'
+        --admin-listenaddress 127.0.0.1:9000
+        --consensus-snapdir '/weaver/orderer/production/orderer/etcdraft/snapshot'
+        --consensus-waldir  '/weaver/orderer/production/orderer/etcdraft/wal'
+        --operations-address '127.0.0.1:8010'
 
 volumes:
   boot-lock:

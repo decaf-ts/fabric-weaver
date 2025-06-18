@@ -23,6 +23,7 @@ export function issueOrderer(
     .setListenPort(ordererConfig.General?.ListenPort)
     .setLocalMSPDir(ordererConfig.General?.LocalMSPDir)
     .setLocalMSPID(ordererConfig.General?.LocalMSPID)
+    .setLocalMSPNodeOU()
     .setAdminListenAddress(ordererConfig.Admin?.ListenAddress)
     .setConsensusSnapDir(ordererConfig.Consensus?.SnapDir)
     .setConsensusWALDir(ordererConfig.Consensus?.WALDir)
@@ -48,7 +49,6 @@ export async function bootOrderer(
   log.debug(`Booting Orderer with config: ${JSON.stringify(config)}`);
 
   issueOrderer(cpath, config);
-  // await new Promise((resolve) => setTimeout(resolve, 500000));
   await startOrderer(cpath);
 }
 
