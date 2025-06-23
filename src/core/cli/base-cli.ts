@@ -3,7 +3,7 @@ import { VERSION } from "../../index";
 import { Logger, Logging } from "@decaf-ts/logging";
 import { addFabricToPath } from "../../utils/path";
 import { EnvVars } from "../constants/env-vars";
-import { printBanner } from "../../utils/banner";
+import { printBanner, printBorder } from "../../utils/banner";
 import { safeParseInt } from "../../utils/parsers";
 import fs from "fs";
 import path from "path";
@@ -49,12 +49,19 @@ export abstract class BaseCLI {
       .name(name)
       .description(description)
       .version(VERSION)
-      .option("--no-banner", "Suppress the Fabric Weaver banner")
+      .option("-s, --skip-banner", "Suppress the Fabric Weaver banner")
+      .option("-l, --limiter", "Supress the line after the command output")
       .hook("preAction", (cmd) => {
-        const skipBanner = cmd.opts().noBanner === true;
+        const skipBanner = cmd.opts().skipBanner === true;
         printBanner(skipBanner);
+        this.log.debug(`Skip banner: ${skipBanner}`);
         this.log.debug(`Starting ${this.program.name()} v${VERSION}`);
         addFabricToPath(process.env[EnvVars.FABRIC_BIN_FOLDER]);
+      })
+      .hook("postAction", (cmd) => {
+        const skipLimiter = cmd.opts().limiter === true;
+        printBorder(skipLimiter);
+        this.log.debug(`Skip Limiter: ${skipLimiter}`);
       });
 
     this.sleep();
