@@ -139,6 +139,27 @@ export function getSlogan(i?: number): { Slogan: string; Tags: string } {
   }
 }
 
+export const border = bannerBorder
+  .split("")
+  .map((c) => {
+    return style(c || "").raw(getColor()).text;
+  })
+  .join("");
+
+export function printBorder(skipBorder: boolean = false) {
+  if (skipBorder) return;
+
+  const log = Logging.for(printBorder);
+  log.setConfig({
+    timestamp: false,
+    style: false,
+    context: false,
+    logLevel: false,
+  });
+
+  log.info(border);
+}
+
 export function printBanner(skipBanner: boolean = false) {
   if (skipBanner) return;
 
@@ -151,18 +172,11 @@ export function printBanner(skipBanner: boolean = false) {
     logLevel: false,
   });
 
-  const border = bannerBorder
-    .split("")
-    .map((c) => {
-      return style(c || "").raw(getColor()).text;
-    })
-    .join("");
-
-  log.info(border);
+  printBorder(skipBanner);
 
   banner1Creation(log);
   banner2Creation(log);
   banner3Creation(log);
 
-  log.info(border);
+  printBorder(skipBanner);
 }
