@@ -3,6 +3,7 @@ import {
   OrdererCommand,
   OrdererCommandBuilder,
   OrdererConfig,
+  OSNAdminCommandBuilder,
 } from "../../fabric/orderer/";
 import path from "path";
 import fs from "fs";
@@ -23,7 +24,6 @@ export function issueOrderer(
     .setListenPort(ordererConfig.General?.ListenPort)
     .setLocalMSPDir(ordererConfig.General?.LocalMSPDir)
     .setLocalMSPID(ordererConfig.General?.LocalMSPID)
-    .setLocalMSPNodeOU()
     .setAdminListenAddress(ordererConfig.Admin?.ListenAddress)
     .setConsensusSnapDir(ordererConfig.Consensus?.SnapDir)
     .setConsensusWALDir(ordererConfig.Consensus?.WALDir)
@@ -74,4 +74,29 @@ export function hasOrdererInitialized(fileLocation?: string): boolean {
   log.debug(`Orderer has been booted: ${booted}`);
 
   return booted;
+}
+
+export function osnAdminJoin(
+  channelID?: string,
+  configBlock?: string,
+  adminAddress?: string,
+  caFile?: string,
+  clientCert?: string,
+  clientKey?: string,
+  noStatus?: boolean
+) {
+  const log: Logger = Logging.for(osnAdminJoin);
+  log.debug(`Joining Orderer to the network`);
+
+  const builder = new OSNAdminCommandBuilder();
+
+  builder
+    .setChannelID(channelID)
+    .setConfigBlock(configBlock)
+    .setOrdererAdminAddress(adminAddress)
+    .setCAFile(caFile)
+    .setClientCert(clientCert)
+    .setClientKey(clientKey)
+    .setNoStatus(noStatus)
+    .execute();
 }

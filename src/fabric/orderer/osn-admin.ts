@@ -72,7 +72,7 @@ export class OSNAdminCommandBuilder {
     return this;
   }
 
-  setConfigBlock(configBlock: string): OSNAdminCommandBuilder {
+  setConfigBlock(configBlock?: string): OSNAdminCommandBuilder {
     if (configBlock !== undefined) {
       this.log.debug(`Setting config block to ${configBlock}`);
       this.args.set("config-block", configBlock);
