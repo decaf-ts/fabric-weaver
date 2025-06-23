@@ -91,13 +91,9 @@ services:
 
       node ./weaver/lib/core/cli.cjs docker:create-genesis-block --config-path '/weaver/genesis' --profile 'SampleAppChannelEtcdRaft' --channel-id 'simple-channel' --output-block '/weaver/orderer/genesisblock' &&
 
-
       touch /boot/boot-tls.lock
       "
 
-  #  node ./weaver/lib/core/cli.cjs sleep &&
-  # node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/msp' --path 'admincerts' --cert 'cert.pem' &&
-  #       node ./weaver/lib/core/cli.cjs copy --origin 'weaver/orderer/client/msp/signcerts/cert.pem' --dest 'weaver/orderer/msp/admincerts/cert.pem' &&
   orderer-org-1:
     container_name: orderer-org-1
     hostname: orderer-org-1

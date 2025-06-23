@@ -6,7 +6,6 @@ import path from "path";
 import fs from "fs";
 import { readFileYaml, writeFileYaml } from "../../utils/yaml";
 import { runCommand } from "../../utils/child-process";
-import { createNodeOU, getCertName } from "../general/node-ou";
 
 export class OrdererCommandBuilder {
   private log = Logging.for(OrdererCommandBuilder);
@@ -71,21 +70,6 @@ export class OrdererCommandBuilder {
       this.log.debug(`Setting local MSP directory to ${dir}`);
       this.config.General!.LocalMSPDir = dir;
     }
-    return this;
-  }
-
-  setLocalMSPNodeOU(cert?: string) {
-    if (cert !== undefined) {
-      this.log.info(
-        `Setting local MSP node OU to ${cert} at ${this.config.General!.LocalMSPDir!}`
-      );
-      createNodeOU(true, "signcerts", this.config.General!.LocalMSPDir!, cert);
-    } else {
-      cert = getCertName(this.config.General!.LocalMSPDir!);
-      this.log.info(`Setting local MSP node OU to ${cert}`);
-      createNodeOU(true, "cacerts", this.config.General!.LocalMSPDir!, cert);
-    }
-
     return this;
   }
 
