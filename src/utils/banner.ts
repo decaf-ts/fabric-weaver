@@ -139,7 +139,9 @@ export function getSlogan(i?: number): { Slogan: string; Tags: string } {
   }
 }
 
-export function printBanner() {
+export function printBanner(skipBanner: boolean = false) {
+  if (skipBanner) return;
+
   const log = Logging.for(printBanner);
 
   log.setConfig({

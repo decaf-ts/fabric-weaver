@@ -49,8 +49,10 @@ export abstract class BaseCLI {
       .name(name)
       .description(description)
       .version(VERSION)
-      .hook("preAction", () => {
-        printBanner();
+      .option("--no-banner", "Suppress the Fabric Weaver banner")
+      .hook("preAction", (cmd) => {
+        const skipBanner = cmd.opts().noBanner === true;
+        printBanner(skipBanner);
         this.log.debug(`Starting ${this.program.name()} v${VERSION}`);
         addFabricToPath(process.env[EnvVars.FABRIC_BIN_FOLDER]);
       });
