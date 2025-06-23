@@ -27,4 +27,5 @@ export enum FabricBinaries {
   ORDERER = "orderer",
   PEER = "peer",
   CONFIGTXGEN = "configtxgen",
+  OSNADMIN = "osnadmin",
 }
