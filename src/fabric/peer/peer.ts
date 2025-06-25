@@ -1,0 +1,394 @@
+import { Logging } from "@decaf-ts/logging";
+import { FabricBinaries } from "../general/constants";
+import { runCommand } from "../../utils/child-process";
+import { PeerCommands, PeerSubcommands } from "./constants";
+
+export class PeerCommandBuilder {
+  private log = Logging.for(PeerCommandBuilder);
+  private binName: FabricBinaries = FabricBinaries.OSNADMIN;
+  private command: PeerCommands = PeerCommands.VERSION;
+  private subcommand: PeerSubcommands = undefined;
+  private args: Map<string, string | boolean | number | string[]> = new Map();
+
+  setCommand(command?: PeerCommands): PeerCommandBuilder {
+    if (command !== undefined) {
+      this.command = command;
+      this.log.debug(`Setting command to ${command}`);
+    }
+    return this;
+  }
+
+  setSubCommand(subcommand?: PeerSubcommands): PeerCommandBuilder {
+    if (subcommand !== undefined) {
+      this.subcommand = subcommand;
+      this.log.debug(`Setting subcommand to ${subcommand}`);
+    }
+    return this;
+  }
+
+  getCommand(): string {
+    return this.command;
+  }
+
+  getSubCommand(): string | undefined {
+    return this.subcommand;
+  }
+
+  setHelp(help?: boolean): PeerCommandBuilder {
+    if (help !== undefined) {
+      this.log.debug(`Setting help flag to ${help}`);
+      this.args.set("help", true);
+    }
+
+    return this;
+  }
+
+  setConnectionProfile(profilePath?: string): PeerCommandBuilder {
+    if (profilePath !== undefined) {
+      this.log.debug(`Setting connection profile to ${profilePath}`);
+      this.args.set("connectionProfile", profilePath);
+    }
+    return this;
+  }
+
+  setCtor(ctor?: string): PeerCommandBuilder {
+    if (ctor !== undefined) {
+      this.log.debug(`Setting constructor string to ${ctor}`);
+      this.args.set("ctor", ctor);
+    }
+    return this;
+  }
+  setLang(lang?: string): PeerCommandBuilder {
+    if (lang !== undefined) {
+      this.log.debug(`Setting language to ${lang}`);
+      this.args.set("lang", lang);
+    }
+    return this;
+  }
+
+  setName(name?: string): PeerCommandBuilder {
+    if (name !== undefined) {
+      this.log.debug(`Setting name to ${name}`);
+      this.args.set("name", name);
+    }
+    return this;
+  }
+
+  setPath(path?: string): PeerCommandBuilder {
+    if (path !== undefined) {
+      this.log.debug(`Setting path to ${path}`);
+      this.args.set("path", path);
+    }
+    return this;
+  }
+
+  setPeerAddresses(addresses?: string[]): PeerCommandBuilder {
+    if (addresses !== undefined && addresses.length > 0) {
+      this.log.debug(`Setting peer addresses to ${addresses.join(", ")}`);
+      this.args.set("peerAddresses", addresses);
+    }
+    return this;
+  }
+
+  setTLSRootCertFiles(certFiles?: string[]): PeerCommandBuilder {
+    if (certFiles !== undefined && certFiles.length > 0) {
+      this.log.debug(`Setting TLS root cert files to ${certFiles.join(", ")}`);
+      this.args.set("tlsRootCertFiles", certFiles);
+    }
+    return this;
+  }
+
+  setVersion(show?: boolean): PeerCommandBuilder {
+    if (show !== undefined) {
+      this.log.debug(`Setting version flag to ${show}`);
+      this.args.set("version", show);
+    }
+    return this;
+  }
+
+  setBlockNumber(blockNumber?: number): PeerCommandBuilder {
+    if (blockNumber !== undefined) {
+      this.log.debug(`Setting block number to ${blockNumber}`);
+      this.args.set("blockNumber", blockNumber);
+    }
+    return this;
+  }
+
+  setCAFile(caFile?: string): PeerCommandBuilder {
+    if (caFile !== undefined) {
+      this.log.debug(`Setting CA file to ${caFile}`);
+      this.args.set("cafile", caFile);
+    }
+    return this;
+  }
+
+  setChannelConfigPolicy(policy?: string): PeerCommandBuilder {
+    if (policy !== undefined) {
+      this.log.debug(`Setting channel config policy to ${policy}`);
+      this.args.set("channel-config-policy", policy);
+    }
+    return this;
+  }
+
+  setChannelID(channelID?: string): PeerCommandBuilder {
+    if (channelID !== undefined) {
+      this.log.debug(`Setting channel ID to ${channelID}`);
+      this.args.set("channelID", channelID);
+    }
+    return this;
+  }
+
+  setCertFile(certFile?: string): PeerCommandBuilder {
+    if (certFile !== undefined) {
+      this.log.debug(`Setting cert file to ${certFile}`);
+      this.args.set("certfile", certFile);
+    }
+    return this;
+  }
+
+  setClientAuth(clientAuth?: boolean): PeerCommandBuilder {
+    if (clientAuth !== undefined) {
+      this.log.debug(`Setting client authentication to ${clientAuth}`);
+      this.args.set("clientauth", clientAuth);
+    }
+    return this;
+  }
+
+  setCollectionsConfig(collectionsConfig?: string): PeerCommandBuilder {
+    if (collectionsConfig !== undefined) {
+      this.log.debug(`Setting collections config to ${collectionsConfig}`);
+      this.args.set("collections-config", collectionsConfig);
+    }
+    return this;
+  }
+
+  setConnTimeout(timeout?: string): PeerCommandBuilder {
+    if (timeout !== undefined) {
+      this.log.debug(`Setting connection timeout to ${timeout}`);
+      this.args.set("connTimeout", timeout);
+    }
+    return this;
+  }
+
+  setFile(file?: string): PeerCommandBuilder {
+    if (file !== undefined) {
+      this.log.debug(`Setting file to ${file}`);
+      this.args.set("file", file);
+    }
+    return this;
+  }
+
+  setKeyFile(keyfile?: string): PeerCommandBuilder {
+    if (keyfile !== undefined) {
+      this.log.debug(`Setting key file to ${keyfile}`);
+      this.args.set("keyfile", keyfile);
+    }
+    return this;
+  }
+
+  setOutput(output?: string): PeerCommandBuilder {
+    if (output !== undefined) {
+      this.log.debug(`Setting output to ${output}`);
+      this.args.set("output", output);
+    }
+    return this;
+  }
+
+  setOutputBlock(outputBlock?: string): PeerCommandBuilder {
+    if (outputBlock !== undefined) {
+      this.log.debug(`Setting output block to ${outputBlock}`);
+      this.args.set("outputBlock", outputBlock);
+    }
+    return this;
+  }
+
+  setInitRequired(initRequired?: boolean): PeerCommandBuilder {
+    if (initRequired !== undefined) {
+      this.log.debug(`Setting init-required flag to ${initRequired}`);
+      this.args.set("init-required", initRequired);
+    }
+    return this;
+  }
+  setOrderer(orderer?: string): PeerCommandBuilder {
+    if (orderer !== undefined) {
+      this.log.debug(`Setting orderer to ${orderer}`);
+      this.args.set("orderer", orderer);
+    }
+
+    return this;
+  }
+
+  setSequence(sequence?: number): PeerCommandBuilder {
+    if (sequence !== undefined) {
+      this.log.debug(`Setting sequence to ${sequence}`);
+      this.args.set("sequence", sequence);
+    }
+    return this;
+  }
+
+  setTls(tls?: boolean): PeerCommandBuilder {
+    if (tls !== undefined) {
+      this.log.debug(`Setting TLS flag to ${tls}`);
+      this.args.set("tls", tls);
+    }
+    return this;
+  }
+
+  setTLSRootCertFile(certFile?: string): PeerCommandBuilder {
+    if (certFile !== undefined) {
+      this.log.debug(`Setting TLS root cert file to ${certFile}`);
+      this.args.set("tlsRootCertFile", certFile);
+    }
+    return this;
+  }
+
+  setTlsHandshakeTimeShift(duration?: string): PeerCommandBuilder {
+    if (duration !== undefined) {
+      this.log.debug(`Setting TLS handshake time shift to ${duration}`);
+      this.args.set("tlsHandshakeTimeShift", duration);
+    }
+    return this;
+  }
+
+  setSnapshotPath(snapshotPath?: string): PeerCommandBuilder {
+    if (snapshotPath !== undefined) {
+      this.log.debug(`Setting snapshot path to ${snapshotPath}`);
+      this.args.set("snapshotPath", snapshotPath);
+    }
+    return this;
+  }
+
+  setSignaturePolicy(policy?: string): PeerCommandBuilder {
+    if (policy !== undefined) {
+      this.log.debug(`Setting signature policy to ${policy}`);
+      this.args.set("signature-policy", policy);
+    }
+    return this;
+  }
+
+  setPeerAddress(address?: string): PeerCommandBuilder {
+    if (address !== undefined) {
+      this.log.debug(`Setting peer address to ${address}`);
+      this.args.set("peerAddress", address);
+    }
+    return this;
+  }
+
+  setValidationPlugin(plugin?: string): PeerCommandBuilder {
+    if (plugin !== undefined) {
+      this.log.debug(`Setting validation plugin to ${plugin}`);
+      this.args.set("validation-plugin", plugin);
+    }
+    return this;
+  }
+
+  setWaitForEvent(waitForEvent?: boolean): PeerCommandBuilder {
+    if (waitForEvent !== undefined) {
+      this.log.debug(`Setting wait for event flag to ${waitForEvent}`);
+      this.args.set("waitForEvent", waitForEvent);
+    }
+    return this;
+  }
+
+  setWaitForEventTimeout(duration?: string): PeerCommandBuilder {
+    if (duration !== undefined) {
+      this.log.debug(`Setting wait for event timeout to ${duration}`);
+      this.args.set("waitForEventTimeout", duration);
+    }
+    return this;
+  }
+
+  setBestEffort(bestEffort?: boolean): PeerCommandBuilder {
+    if (bestEffort !== undefined) {
+      this.log.debug(`Setting BestEffort flag to ${bestEffort}`);
+      this.args.set("bestEffort", bestEffort);
+    }
+    return this;
+  }
+
+  setTrustRootCertFiles(certFile?: string[]): PeerCommandBuilder {
+    if (certFile !== undefined) {
+      this.log.debug(`Setting trust root cert files to ${certFile}`);
+      this.args.set("trustRootCertFiles", certFile);
+    }
+    return this;
+  }
+
+  setTimeout(timeout?: string): PeerCommandBuilder {
+    if (timeout !== undefined) {
+      this.log.debug(`Setting timeout to ${timeout}`);
+      this.args.set("timeout", timeout);
+    }
+    return this;
+  }
+
+  setOrdererTLSHostnameOverride(hostname?: string): PeerCommandBuilder {
+    if (hostname !== undefined) {
+      this.log.debug(`Setting OrdererTLSHostnameOverride to ${hostname}`);
+      this.args.set("ordererTLSHostnameOverride", hostname);
+    }
+    return this;
+  }
+
+  setEndowmentPlugin(plugin?: string): PeerCommandBuilder {
+    if (plugin !== undefined) {
+      this.log.debug(`Setting endowment plugin to ${plugin}`);
+      this.args.set("endowment-plugin", plugin);
+    }
+    return this;
+  }
+
+  getBinary(): string {
+    return this.binName;
+  }
+
+  getArgs(): string[] {
+    const argsArray: string[] = [];
+
+    this.args.forEach((value, key) => {
+      if (typeof value === "boolean") {
+        if (value) argsArray.push(`--${key}`);
+      } else if (Array.isArray(value)) {
+        argsArray.push(`--${key}`, value.join(","));
+      } else {
+        argsArray.push(`--${key}`, value.toString());
+      }
+    });
+
+    return argsArray;
+  }
+
+  build(): string[] | Array<Array<string>> {
+    const commandArray: string[] = [
+      this.getBinary(),
+      this.getCommand(),
+      this.getSubCommand(),
+    ].filter((el) => el !== undefined);
+
+    this.args.forEach((value, key) => {
+      if (typeof value === "boolean") {
+        if (value) commandArray.push(`--${key}`);
+      } else if (Array.isArray(value)) {
+        commandArray.push(`--${key}`, value.join(","));
+      } else {
+        commandArray.push(`--${key}`, value.toString());
+      }
+    });
+
+    const commandStr = commandArray.join(" ");
+
+    this.log.debug(`Built command: ${commandStr}`);
+    return [commandStr];
+  }
+
+  async execute(): Promise<void> {
+    const bin = this.getBinary();
+    const argz = [
+      this.getCommand(),
+      this.getSubCommand(),
+      ...this.getArgs(),
+    ].filter((el) => el !== undefined);
+
+    await runCommand(bin, argz);
+  }
+}
