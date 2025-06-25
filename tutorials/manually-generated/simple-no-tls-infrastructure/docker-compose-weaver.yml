@@ -70,7 +70,7 @@ services:
     command: >
       bash -c "
       if [ -f /boot/boot-orgs.lock ]; then
-        echo 'boot-tls has already run. Exiting.';
+        echo 'boot-orgs has already run. Exiting...';
         exit 0;
       fi;
       apt-get update &&
@@ -78,20 +78,32 @@ services:
 
       docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-1:7010' --mspdir '/weaver/client/admin/msp' &&
 
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d  --url 'http://org-1:7010' --id-name 'orderer-admin-org1' --id-secret 'orderer-admin-org1-pw' --id-type 'admin'  --mspdir '/weaver/client/admin/msp' --id-attrs "hf.Registrar.Roles=*,hf.Registrar.DelegateRoles=*,hf.IntermediateCA=true,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" &&
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-admin-org1:orderer-admin-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/client/msp' --home '/weaver/client/orderer1/client' --csr-hosts '0.0.0.0,localhost,org-1-orderer' --change-keyname &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d -s --url 'http://org-1:7010' --id-name 'orderer-admin-org1' --id-secret 'orderer-admin-org1-pw' --id-type 'admin'  --mspdir '/weaver/client/admin/msp' --id-attrs "hf.Registrar.Roles=*,hf.Registrar.DelegateRoles=*,hf.IntermediateCA=true,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-admin-org1:orderer-admin-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/client/msp' --home '/weaver/client/orderer1/client' --csr-hosts '0.0.0.0,localhost,org-1-orderer' --change-keyname -s &&
 
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d --url 'http://org-1:7010' --id-name 'orderer-org1' --id-secret 'orderer-org1-pw' --id-type 'orderer' --mspdir '/weaver/client/orderer1/client/msp' &&
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-org1:orderer-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/msp' --home '/weaver/client/orderer1' --change-keyname &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d --url 'http://org-1:7010' --id-name 'orderer-org1' --id-secret 'orderer-org1-pw' --id-type 'orderer' --mspdir '/weaver/client/orderer1/client/msp' -s &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-org1:orderer-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/msp' --home '/weaver/client/orderer1' --change-keyname -s &&
 
-      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-2:7011' --mspdir '/weaver/client/admin/msp' &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d  --url 'http://org-1:7010' --id-name 'peer-admin-org1' --id-secret 'peer-admin-org1-pw' --id-type 'admin'  --mspdir '/weaver/client/admin/msp' --id-attrs "hf.Registrar.Roles=*,hf.Registrar.DelegateRoles=*,hf.IntermediateCA=true,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -s &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://peer-admin-org1:peer-admin-org1-pw@org-1:7010' --mspdir '/weaver/client/peer1/client/msp' --home '/weaver/client/peer1/client' --csr-hosts '0.0.0.0,localhost,org-1-peer' --change-keyname -s &&
 
-      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/msp' &&
-      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/client/msp' &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d --url 'http://org-1:7010' --id-name 'peer-org1' --id-secret 'peer-org1-pw' --id-type 'peer' --mspdir '/weaver/client/peer1/client/msp' -s &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://peer-org1:peer-org1-pw@org-1:7010' --mspdir '/weaver/client/peer1/msp' --home '/weaver/client/peer1' --change-keyname -s &&
 
-      node ./weaver/lib/core/cli.cjs docker:create-genesis-block --config-path '/weaver/genesis' --profile 'SampleAppChannelEtcdRaft' --channel-id 'simple-channel' --output-block '/weaver/orderer/genesisblock' &&
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-2:7011' --mspdir '/weaver/client/admin/msp' -s &&
 
-      touch /boot/boot-tls.lock
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-register -d  --url 'http://org-2:7011' --id-name 'peer-admin-org2' --id-secret 'peer-admin-org2-pw' --id-type 'admin'  --mspdir '/weaver/client/admin/msp' --id-attrs "hf.Registrar.Roles=*,hf.Registrar.DelegateRoles=*,hf.IntermediateCA=true,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -s &&
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://peer-admin-org2:peer-admin-org2-pw@org-2:7011' --mspdir '/weaver/client/peer1/client/msp' --home '/weaver/client/peer1/client' --csr-hosts '0.0.0.0,localhost,org-2-peer' --change-keyname -s &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-register -d --url 'http://org-2:7011' --id-name 'peer-org2' --id-secret 'peer-org2-pw' --id-type 'peer' --mspdir '/weaver/client/peer1/client/msp' -s &&
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://peer-org2:peer-org2-pw@org-2:7011' --mspdir '/weaver/client/peer1/msp' --home '/weaver/client/peer1' --change-keyname -s &&
+
+      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/msp' -s &&
+      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/client/msp' -s &&
+
+      node ./weaver/lib/core/cli.cjs docker:create-genesis-block --config-path '/weaver/genesis' --profile 'SampleAppChannelEtcdRaft' --channel-id 'simple-channel' --output-block '/weaver/orderer/genesisblock' -s &&
+
+      touch /boot/boot-orgs.lock
       "
 
   orderer-org-1:
@@ -124,6 +136,32 @@ services:
         --consensus-snapdir '/weaver/orderer/production/orderer/etcdraft/snapshot'
         --consensus-waldir  '/weaver/orderer/production/orderer/etcdraft/wal'
         --operations-address '127.0.0.1:8010'
+
+  # boot-orderer:
+  #   container_name: boot-orderer
+  #   hostname: boot-orderer
+  #   image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+  #   restart: no
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:rw
+  #     - boot-lock:/boot:rw
+  #     - orderer-org-1-vol:/weaver/orderer:rw
+  #   depends_on:
+  #     orderer-org-1:
+  #       condition: service_healthy
+  #   command: >
+  #     bash -c "
+  #     if [ -f /boot/boot-orderer.lock ]; then
+  #       echo 'boot-orderer has already run. Exiting...';
+  #       exit 0;
+  #     fi;
+  #     apt-get update &&
+  #     apt-get install -y docker.io &&
+
+  #     node ./weaver/lib/core/cli.cjs docker:osn-admin-join --channel-id 'simple-channel' --config-block '/weaver/orderer/genesisblock'  --admin-address 'orderer-org-1:9000' &&
+
+  #     touch /boot/boot-orderer.lock
+  #     "
 
 volumes:
   boot-lock:
