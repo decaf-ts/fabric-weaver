@@ -110,7 +110,11 @@ export class OSNAdminCommandBuilder {
   }
 
   build(): string[] | Array<Array<string>> {
-    const commandArray: string[] = [this.getBinary(), this.command];
+    const commandArray: string[] = [
+      this.getBinary(),
+      this.getCommand(),
+      this.getSubCommand(),
+    ];
 
     this.args.forEach((value, key) => {
       if (typeof value === "boolean") {

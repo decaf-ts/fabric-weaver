@@ -5,7 +5,7 @@ import { safeParseInt } from "../../utils/parsers";
 import { processEnrollmentRequest } from "../scripts/ca-client";
 import { bootCAServer, issueCA } from "../scripts/ca-server";
 import { BaseCLI } from "./base-cli";
-import { bootOrderer, issueOrderer } from "../scripts/orderer";
+import { bootOrderer, issueOrderer, osnAdminJoin } from "../scripts/orderer";
 import { createGenesisBlock } from "../scripts/configtxgen";
 import { createNodeOU } from "../../fabric/general/node-ou";
 
@@ -23,6 +23,7 @@ export class CoreCLI extends BaseCLI {
     this.dockerBootOrderer();
     this.dockerIssueOrderer();
     this.createGenesisBlock();
+    this.ordererChannelJoin();
 
     this.createNodeOu();
   }
@@ -465,6 +466,29 @@ export class CoreCLI extends BaseCLI {
           options.path,
           options.mspdir,
           options.cert
+        );
+      });
+  }
+
+  private ordererChannelJoin() {
+    this.program
+      .command("docker:osn-admin-join")
+      .option("--channel-id <string>", "Channel id")
+      .option("--config-block <string>", "Path to config block file")
+      .option("--admin-address <string>", "Address of the OSN admin")
+      .option("--tls-ca <string>", "Path to TLS CA certificate")
+      .option("--tls-cert <string>", "Path to TLS certificate")
+      .option("--tls-key <string>", "Path to TLS key")
+      .option("--no-status", "Do not print status messages")
+      .action(async (options: any) => {
+        osnAdminJoin(
+          options.channelId,
+          options.configBlock,
+          options.adminAddress,
+          options.tlsCa,
+          options.tlsCert,
+          options.tlsKey,
+          options.noStatus
         );
       });
   }
