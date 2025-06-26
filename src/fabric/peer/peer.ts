@@ -8,7 +8,7 @@ import { PeerConfig } from "./peer-config";
 import fs from "fs";
 export class PeerCommandBuilder {
   private log = Logging.for(PeerCommandBuilder);
-  private binName: FabricBinaries = FabricBinaries.OSNADMIN;
+  private binName: FabricBinaries = FabricBinaries.PEER;
   private command: PeerCommands = PeerCommands.VERSION;
   private subcommand: PeerSubcommands = undefined;
   private args: Map<string, string | boolean | number | string[]> = new Map();
@@ -314,6 +314,14 @@ export class PeerCommandBuilder {
       }
     }
 
+    return this;
+  }
+
+  setLocalMSPDir(dir?: string): PeerCommandBuilder {
+    if (dir !== undefined) {
+      this.log.debug(`Setting local MSP directory to ${dir}`);
+      this.config.peer!.mspConfigPath = dir;
+    }
     return this;
   }
 

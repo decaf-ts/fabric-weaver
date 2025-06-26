@@ -8,6 +8,7 @@ import { BaseCLI } from "./base-cli";
 import { bootOrderer, issueOrderer, osnAdminJoin } from "../scripts/orderer";
 import { createGenesisBlock } from "../scripts/configtxgen";
 import { createNodeOU } from "../../fabric/general/node-ou";
+import { bootPeer } from "../scripts/peer";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -24,6 +25,7 @@ export class CoreCLI extends BaseCLI {
     this.dockerIssueOrderer();
     this.createGenesisBlock();
     this.ordererChannelJoin();
+    this.dockerBootPeer();
 
     this.createNodeOu();
   }
@@ -490,6 +492,59 @@ export class CoreCLI extends BaseCLI {
           options.tlsKey,
           options.noStatus
         );
+      });
+  }
+
+  private dockerBootPeer() {
+    this.program
+      .command("docker:boot-peer")
+      .option("-d, --debug", "Enables debug mode")
+      .option(
+        "--config-location <string>",
+        "Path to the orderer configuration file"
+      )
+      .option("--database <string>", "Database type for the ledger")
+      .option(
+        "--peer-address <DOMAIN:PORT>",
+        "Address for the peer to listen on"
+      )
+      .option("--couchdb-address <string>", "Address for CouchDB")
+      .option("--couchdb-username <string>", "Username for CouchDB")
+      .option("--couchdb-password <string>", "Password for CouchDB")
+      .option(
+        "--operations-address <string>",
+        "Address for the operations server to listen on"
+      )
+      .option("--local-mspid <string>", "Local MSP ID")
+      .option("--local-mspdir <string>", "Local MSP DIR")
+      .option("--network-id <string>", "Network ID")
+      .action(async (options: any) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Issueing Peer...");
+        await bootPeer(options.configLocation, {
+          peer: {
+            address: options.peerAddress,
+            localMspId: options.localMspid,
+            networkId: options.networkId,
+            mspConfigPath: options.localMspdir,
+          },
+          ledger: {
+            state: {
+              stateDatabase: options.database,
+              couchDBConfig: {
+                couchDBAddress: options.couchdbAddress,
+                username: options.couchdbUsername,
+                password: options.couchdbPassword,
+              },
+            },
+          },
+          operations: {
+            listenAddress: options.operationsAddress,
+          },
+        });
+        this.log.info("Peer issued successfully!");
       });
   }
 }
