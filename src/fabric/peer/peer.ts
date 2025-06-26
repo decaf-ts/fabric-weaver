@@ -2,13 +2,19 @@ import { Logging } from "@decaf-ts/logging";
 import { FabricBinaries } from "../general/constants";
 import { runCommand } from "../../utils/child-process";
 import { PeerCommands, PeerSubcommands } from "./constants";
-
+import { readFileYaml, writeFileYaml } from "../../utils/yaml";
+import path from "path";
+import { PeerConfig } from "./peer-config";
+import fs from "fs";
 export class PeerCommandBuilder {
   private log = Logging.for(PeerCommandBuilder);
   private binName: FabricBinaries = FabricBinaries.OSNADMIN;
   private command: PeerCommands = PeerCommands.VERSION;
   private subcommand: PeerSubcommands = undefined;
   private args: Map<string, string | boolean | number | string[]> = new Map();
+  private config: PeerConfig = readFileYaml(
+    path.join(__dirname, "../../../config/core.yaml")
+  ) as PeerConfig;
 
   setCommand(command?: PeerCommands): PeerCommandBuilder {
     if (command !== undefined) {
@@ -66,7 +72,7 @@ export class PeerCommandBuilder {
     return this;
   }
 
-  setName(name?: string): PeerCommandBuilder {
+  setChaincodeName(name?: string): PeerCommandBuilder {
     if (name !== undefined) {
       this.log.debug(`Setting name to ${name}`);
       this.args.set("name", name);
@@ -270,6 +276,16 @@ export class PeerCommandBuilder {
     if (address !== undefined) {
       this.log.debug(`Setting peer address to ${address}`);
       this.args.set("peerAddress", address);
+
+      const [domain, port] = address.split(":");
+      this.log.debug(`Extracted domain: ${domain}, port: ${port}`);
+
+      this.config.peer!.id = domain;
+      this.config.peer!.address = address;
+      this.config.peer!.listenAddress = `0.0.0.0:${port}`;
+      // For now it is set here but needs to be changed later in the implementation.
+      this.config.peer!.gossip!.bootstrap = `127.0.0.1:${port}`;
+      this.config.peer!.gossip!.externalEndpoint = address;
     }
     return this;
   }
@@ -379,6 +395,21 @@ export class PeerCommandBuilder {
 
     this.log.debug(`Built command: ${commandStr}`);
     return [commandStr];
+  }
+
+  saveConfig(cpath: string): this {
+    if (cpath === undefined) return this;
+
+    if (!fs.existsSync(path.join(cpath)))
+      fs.mkdirSync(path.join(cpath), { recursive: true });
+
+    if (!cpath.endsWith(".yaml")) cpath = path.join(cpath, "core.yaml");
+
+    this.log.debug(`Writing configuration to ${cpath}`);
+    this.log.verbose(`Config file: ${JSON.stringify(this.config)}`, 3);
+    writeFileYaml(cpath, this.config);
+
+    return this;
   }
 
   async execute(): Promise<void> {
