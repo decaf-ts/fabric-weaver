@@ -231,6 +231,7 @@ services:
       - "7013:7013"
     volumes:
       - peer-org-1-vol:/weaver/peer:rw
+      - /var/run/docker.sock:/var/run/docker.sock:rw
     networks:
       simple_network:
     healthcheck:
@@ -269,6 +270,7 @@ services:
       - "7014:7014"
     volumes:
       - peer-org-2-vol:/weaver/peer:rw
+      - /var/run/docker.sock:/var/run/docker.sock:rw
     networks:
       simple_network:
     healthcheck:
