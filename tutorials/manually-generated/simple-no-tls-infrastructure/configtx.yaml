@@ -64,6 +64,84 @@ Organizations:
     OrdererEndpoints:
       - "orderer-org-1:7012"
 
+  - &PeerOrg1
+    # Name is the key by which this org will be referenced in channel
+    # configuration transactions.
+    # Name can include alphanumeric characters as well as dots and dashes.
+    Name: PeerOrg1MSP
+
+    # ID is the key by which this org's MSP definition will be referenced.
+    # ID can include alphanumeric characters as well as dots and dashes.
+    ID: PeerOrg1MSP
+
+    # MSPDir is the filesystem path which contains the MSP configuration.
+    MSPDir: /weaver/peer1/client/msp
+
+    # Policies defines the set of policies at this level of the config tree
+    # For organization policies, their canonical path is usually
+    #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+    Policies: &PeerOrg1Policies
+      Readers:
+        Type: Signature
+        Rule: "OR('PeerOrg1MSP.member')"
+        # If your MSP is configured with the new NodeOUs, you might
+        # want to use a more specific rule like the following:
+        # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererOrg1MSP.member')"
+      # If your MSP is configured with the new NodeOUs, you might
+      # want to use a more specific rule like the following:
+      # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererOrg1MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('OrdererOrg1MSP.member')"
+    AnchorPeers:
+      - Host: peer-org-1
+        Port: 7013
+
+  - &PeerOrg2
+    # Name is the key by which this org will be referenced in channel
+    # configuration transactions.
+    # Name can include alphanumeric characters as well as dots and dashes.
+    Name: PeerOrg2MSP
+
+    # ID is the key by which this org's MSP definition will be referenced.
+    # ID can include alphanumeric characters as well as dots and dashes.
+    ID: PeerOrg2MSP
+
+    # MSPDir is the filesystem path which contains the MSP configuration.
+    MSPDir: /weaver/peer2/client/msp
+
+    # Policies defines the set of policies at this level of the config tree
+    # For organization policies, their canonical path is usually
+    #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+    Policies: &PeerOrg2Policies
+      Readers:
+        Type: Signature
+        Rule: "OR('PeerOrg2MSP.member')"
+        # If your MSP is configured with the new NodeOUs, you might
+        # want to use a more specific rule like the following:
+        # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
+      Writers:
+        Type: Signature
+        Rule: "OR('OrdererOrg2MSP.member')"
+      # If your MSP is configured with the new NodeOUs, you might
+      # want to use a more specific rule like the following:
+      # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
+      Admins:
+        Type: Signature
+        Rule: "OR('OrdererOrg2MSP.admin')"
+      Endorsement:
+        Type: Signature
+        Rule: "OR('OrdererOrg2MSP.member')"
+    AnchorPeers:
+      - Host: peer-org-2
+        Port: 7014
+
 ################################################################################
 #
 #   CAPABILITIES
@@ -440,7 +518,11 @@ Profiles:
             Admins:
               Type: Signature
               Rule: "OR('OrdererOrg1MSP.member')"
+        - <<: *PeerOrg1
+        - <<: *PeerOrg2
     Consortiums:
       SampleConsortium:
         Organizations:
           - <<: *OrdererOrg1
+          - <<: *PeerOrg1
+          - <<: *PeerOrg2
