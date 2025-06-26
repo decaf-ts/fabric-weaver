@@ -290,6 +290,56 @@ export class PeerCommandBuilder {
     return this;
   }
 
+  setDatabase(
+    database?: string,
+    config?: { uri?: string; user?: string; pass?: string }
+  ): PeerCommandBuilder {
+    if (database !== undefined) {
+      this.log.debug(`Setting database to ${database}`);
+      this.config.ledger!.state!.stateDatabase = database;
+
+      if (database === "CouchDB") {
+        if (config !== undefined && config.uri !== undefined) {
+          this.log.debug(`Setting CouchDB URI to ${config.uri}`);
+          this.config.ledger!.state!.couchDBConfig!.couchDBAddress = config.uri;
+        }
+        if (config !== undefined && config.user !== undefined) {
+          this.log.debug(`Setting CouchDB user to ${config.user}`);
+          this.config.ledger!.state!.couchDBConfig!.username = config.user;
+        }
+        if (config !== undefined && config.pass !== undefined) {
+          this.log.debug(`Setting CouchDB password to ${config.pass}`);
+          this.config.ledger!.state!.couchDBConfig!.password = config.pass;
+        }
+      }
+    }
+
+    return this;
+  }
+
+  setOperationsAddress(address?: string): PeerCommandBuilder {
+    if (address !== undefined) {
+      this.log.debug(`Setting operations address to ${address}`);
+      this.config.operations!.listenAddress = address;
+    }
+    return this;
+  }
+
+  setNetworkID(networkID?: string): PeerCommandBuilder {
+    if (networkID !== undefined) {
+      this.log.debug(`Setting network ID to ${networkID}`);
+      this.config.peer!.networkId = networkID;
+    }
+    return this;
+  }
+  setLocalMSPID(mspID?: string): PeerCommandBuilder {
+    if (mspID !== undefined) {
+      this.log.debug(`Setting local MSP ID to ${mspID}`);
+      this.config.peer!.localMspId = mspID;
+    }
+    return this;
+  }
+
   setValidationPlugin(plugin?: string): PeerCommandBuilder {
     if (plugin !== undefined) {
       this.log.debug(`Setting validation plugin to ${plugin}`);
