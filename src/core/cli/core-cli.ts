@@ -8,7 +8,11 @@ import { BaseCLI } from "./base-cli";
 import { bootOrderer, issueOrderer, osnAdminJoin } from "../scripts/orderer";
 import { createGenesisBlock } from "../scripts/configtxgen";
 import { createNodeOU } from "../../fabric/general/node-ou";
-import { bootPeer } from "../scripts/peer";
+import {
+  bootPeer,
+  peerFetchGenesisBlock,
+  peerJoinChannel,
+} from "../scripts/peer";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -26,7 +30,8 @@ export class CoreCLI extends BaseCLI {
     this.createGenesisBlock();
     this.ordererChannelJoin();
     this.dockerBootPeer();
-
+    this.dockerPeerJoinChannel();
+    this.dockerFetchConfigBlock();
     this.createNodeOu();
   }
 
@@ -545,6 +550,43 @@ export class CoreCLI extends BaseCLI {
           },
         });
         this.log.info("Peer issued successfully!");
+      });
+  }
+
+  private dockerFetchConfigBlock() {
+    this.program
+      .command("docker:fetch-block")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--output-file <string>", "Path to output file for fetched block")
+      .option("--channel-id <string>", "Channel ID")
+      .option("--orderer-address <string>", "Address of the orderer")
+      .option("--block-number <number>", "Block number")
+      .action(async (options: any) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Fetching Config Block...");
+        peerFetchGenesisBlock(
+          options.channelId,
+          options.ordererAddress,
+          options.blockNumber,
+          options.outputFile
+        );
+        this.log.info("Config Block fetched successfully!");
+      });
+  }
+  private dockerPeerJoinChannel() {
+    this.program
+      .command("docker:peer-join-channel")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--block-path <string>", "Path to the block file")
+      .action(async (options: any) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Joining Channel...");
+        peerJoinChannel(options.blockPath);
+        this.log.info("Channel joined successfully!");
       });
   }
 }

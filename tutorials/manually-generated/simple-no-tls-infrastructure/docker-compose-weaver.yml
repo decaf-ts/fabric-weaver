@@ -232,6 +232,9 @@ services:
     volumes:
       - peer-org-1-vol:/weaver/peer:rw
       - /var/run/docker.sock:/var/run/docker.sock:rw
+    environment:
+      - FABRIC_CFG_PATH=/weaver/peer
+      - PEER_CORE_YAML_FILE=/weaver/peer/core.yaml
     networks:
       simple_network:
     healthcheck:
@@ -258,7 +261,7 @@ services:
         --couchdb-password '${ORG1_PEER_COUCHDB_PASSWORD}'
         --local-mspdir '/weaver/peer/client/msp'
         --operations-address '127.0.0.1:8010'
-        --local-mspid 'Org1PeerMSP'
+        --local-mspid 'PeerOrg1MSP'
         --network-id 'simple_network'
 
   peer-org-2:
@@ -271,6 +274,9 @@ services:
     volumes:
       - peer-org-2-vol:/weaver/peer:rw
       - /var/run/docker.sock:/var/run/docker.sock:rw
+    environment:
+      - FABRIC_CFG_PATH=/weaver/peer
+      - PEER_CORE_YAML_FILE=/weaver/peer/core.yaml
     networks:
       simple_network:
     healthcheck:
@@ -297,9 +303,41 @@ services:
         --couchdb-password '${ORG2_PEER_COUCHDB_PASSWORD}'
         --local-mspdir '/weaver/peer/client/msp'
         --operations-address '127.0.0.1:8010'
-        --local-mspid 'Org2PeerMSP'
+        --local-mspid 'PeerOrg2MSP'
         --network-id 'simple_network'
 
+  boot-peers:
+    container_name: boot-peers
+    hostname: boot-peers
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-lock:/boot:rw
+    networks:
+      simple_network:
+    depends_on:
+      peer-org-1:
+        condition: service_healthy
+      peer-org-2:
+        condition: service_healthy
+    command: >
+      bash -c "
+      if [ -f /boot/boot-peers.lock ]; then
+        echo 'boot-peers has already run. Exiting...';
+        exit 0;
+      fi;
+      apt-get update &&
+      apt-get install -y docker.io &&
+
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:fetch-block -d --output-file './weaver/peer/genesisblock' --channel-id 'simple-channel' --orderer-address 'orderer-org-1:7012' --block-number '0' &&
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:peer-join-channel -d --block-path '/weaver/peer/genesisblock' -s &&
+
+      docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:fetch-block -d --output-file './weaver/peer/genesisblock' --channel-id 'simple-channel' --orderer-address 'orderer-org-1:7012' --block-number '0' -s &&
+      docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:peer-join-channel -d --block-path '/weaver/peer/genesisblock' -s &&
+
+      touch /boot/boot-peers.lock
+      "
 volumes:
   boot-lock:
     name: boot-lock

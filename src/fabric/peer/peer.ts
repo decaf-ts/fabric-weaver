@@ -10,7 +10,7 @@ export class PeerCommandBuilder {
   private log = Logging.for(PeerCommandBuilder);
   private binName: FabricBinaries = FabricBinaries.PEER;
   private command: PeerCommands = PeerCommands.VERSION;
-  private subcommand: PeerSubcommands = undefined;
+  private subcommand: PeerSubcommands | string = undefined;
   private args: Map<string, string | boolean | number | string[]> = new Map();
   private config: PeerConfig = readFileYaml(
     path.join(__dirname, "../../../config/core.yaml")
@@ -24,7 +24,7 @@ export class PeerCommandBuilder {
     return this;
   }
 
-  setSubCommand(subcommand?: PeerSubcommands): PeerCommandBuilder {
+  setSubCommand(subcommand?: PeerSubcommands | string): PeerCommandBuilder {
     if (subcommand !== undefined) {
       this.subcommand = subcommand;
       this.log.debug(`Setting subcommand to ${subcommand}`);
@@ -84,6 +84,14 @@ export class PeerCommandBuilder {
     if (path !== undefined) {
       this.log.debug(`Setting path to ${path}`);
       this.args.set("path", path);
+    }
+    return this;
+  }
+
+  setBlockPath(blockPath?: string): PeerCommandBuilder {
+    if (blockPath !== undefined) {
+      this.log.debug(`Setting block path to ${blockPath}`);
+      this.args.set("blockpath", blockPath);
     }
     return this;
   }

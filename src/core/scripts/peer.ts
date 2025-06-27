@@ -2,9 +2,14 @@ import { Logger, Logging } from "@decaf-ts/logging";
 import { PeerConfig } from "../../fabric/peer/peer-config";
 import { PeerCommandBuilder } from "../../fabric/peer";
 import { setPeerEnvironment } from "../../utils/environment";
-import { PeerCommands, PeerNodeCommands } from "../../fabric/peer/constants";
+import {
+  PeerChannelCommands,
+  PeerCommands,
+  PeerNodeCommands,
+} from "../../fabric/peer/constants";
 import path from "path";
 import fs from "fs";
+import { execSync } from "child_process";
 
 export function issuePeer(cpath: string, peerConfig: Partial<PeerConfig>) {
   const log: Logger = Logging.for(issuePeer);
@@ -69,4 +74,44 @@ export function hasPeerInitialized(fileLocation?: string): boolean {
   log.debug(`Orderer has been booted: ${booted}`);
 
   return booted;
+}
+
+export async function peerFetchGenesisBlock(
+  channelID?: string,
+  ordererAddress?: string,
+  blockNumber?: string,
+  outputFile?: string
+) {
+  const log: Logger = Logging.for(peerFetchGenesisBlock);
+  log.debug(`Fetching Genesis Block`);
+
+  const builder = new PeerCommandBuilder();
+
+  const command = builder
+    .setCommand(PeerCommands.CHANNEL)
+    .setSubCommand(
+      `${PeerChannelCommands.FETCH} ${blockNumber || "--help"} ${outputFile || ""}`
+    )
+    .setChannelID(channelID)
+    .setOrderer(ordererAddress)
+    .build();
+
+  log.info(`Executing command: ${command.join(" ")}`);
+
+  execSync(command.join(" "), { stdio: "inherit" });
+  //  `peer channel fetch ${isExternal ? '0' : 'config'} ./genesis.block \
+  //         --tls \
+  //         --cafile ${cfg.channel.ordererCaFile}`],
+}
+
+export async function peerJoinChannel(blockLocation?: string) {
+  const log: Logger = Logging.for(peerJoinChannel);
+  log.debug(`Joining Channel`);
+  const builder = new PeerCommandBuilder();
+
+  builder
+    .setCommand(PeerCommands.CHANNEL)
+    .setSubCommand(PeerChannelCommands.JOIN)
+    .setBlockPath(blockLocation)
+    .execute();
 }
