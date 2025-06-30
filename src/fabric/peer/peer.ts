@@ -16,6 +16,18 @@ export class PeerCommandBuilder {
     path.join(__dirname, "../../../config/core.yaml")
   ) as PeerConfig;
 
+  setBasicConfig(): PeerCommandBuilder {
+    if (this.config.chaincode) delete this.config.chaincode;
+
+    this.config.chaincode = {};
+    this.config.chaincode = {
+      externalBuilders: [],
+      mode: "net",
+      keepalive: 0,
+    };
+    return this;
+  }
+
   setCommand(command?: PeerCommands): PeerCommandBuilder {
     if (command !== undefined) {
       this.command = command;
@@ -96,6 +108,22 @@ export class PeerCommandBuilder {
     return this;
   }
 
+  setPackageID(packageID?: string): PeerCommandBuilder {
+    if (packageID !== undefined) {
+      this.log.debug(`Setting package ID to ${packageID}`);
+      this.args.set("package-id", packageID);
+    }
+    return this;
+  }
+
+  setLabel(label?: string): PeerCommandBuilder {
+    if (label !== undefined) {
+      this.log.debug(`Setting label to ${label}`);
+      this.args.set("label", label);
+    }
+    return this;
+  }
+
   setPeerAddresses(addresses?: string[]): PeerCommandBuilder {
     if (addresses !== undefined && addresses.length > 0) {
       this.log.debug(`Setting peer addresses to ${addresses.join(", ")}`);
@@ -116,6 +144,14 @@ export class PeerCommandBuilder {
     if (show !== undefined) {
       this.log.debug(`Setting version flag to ${show}`);
       this.args.set("version", show);
+    }
+    return this;
+  }
+
+  setCustom(key?: string, value?: string): PeerCommandBuilder {
+    if (key !== undefined && value !== undefined) {
+      this.log.debug(`Setting custom flag ${key} to ${value}`);
+      this.args.set(key, value);
     }
     return this;
   }
@@ -232,7 +268,7 @@ export class PeerCommandBuilder {
     return this;
   }
 
-  setSequence(sequence?: number): PeerCommandBuilder {
+  setSequence(sequence?: string): PeerCommandBuilder {
     if (sequence !== undefined) {
       this.log.debug(`Setting sequence to ${sequence}`);
       this.args.set("sequence", sequence);
@@ -440,7 +476,7 @@ export class PeerCommandBuilder {
     return argsArray;
   }
 
-  build(): string[] | Array<Array<string>> {
+  build(): string[] {
     const commandArray: string[] = [
       this.getBinary(),
       this.getCommand(),

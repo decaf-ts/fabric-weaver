@@ -5,6 +5,7 @@ import { setPeerEnvironment } from "../../utils/environment";
 import {
   PeerChannelCommands,
   PeerCommands,
+  PeerLifecycleChaincodeCommands,
   PeerNodeCommands,
 } from "../../fabric/peer/constants";
 import path from "path";
@@ -19,6 +20,7 @@ export function issuePeer(cpath: string, peerConfig: Partial<PeerConfig>) {
   const builder = new PeerCommandBuilder();
 
   builder
+    // .setBasicConfig()
     .setPeerAddress(peerConfig?.peer?.address)
     .setDatabase(peerConfig.ledger?.state?.stateDatabase, {
       uri: peerConfig.ledger?.state?.couchDBConfig?.couchDBAddress,
@@ -115,3 +117,184 @@ export async function peerJoinChannel(blockLocation?: string) {
     .setBlockPath(blockLocation)
     .execute();
 }
+
+export async function packageChaincode(
+  outputFile?: string,
+  contractPath?: string,
+  lang?: string,
+  contractName?: string,
+  contractVersion?: string
+) {
+  const log: Logger = Logging.for(packageChaincode);
+  log.debug(`Packaging Chaincode`);
+
+  const builder = new PeerCommandBuilder();
+
+  const cmd = builder
+    .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
+    .setSubCommand(
+      `${PeerLifecycleChaincodeCommands.PACKAGE} ${outputFile || ""}`
+    )
+    .setPath(contractPath)
+    .setLang(lang)
+    .setLabel(`${contractName}_${contractVersion}`)
+    .build();
+
+  execSync(cmd.join(" "), { stdio: "inherit" });
+}
+
+export async function installChaincode(chaincodePath?: string) {
+  const log: Logger = Logging.for(installChaincode);
+  log.debug(`Installing Chaincode`);
+
+  const builder = new PeerCommandBuilder();
+
+  const cmd = builder
+    .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
+    .setSubCommand(`${PeerLifecycleChaincodeCommands.INSTALL} ${chaincodePath}`)
+    .build();
+
+  execSync(cmd.join(" "), { stdio: "inherit" });
+}
+
+export async function aproveChainCode(
+  orderer?: string,
+  channelID?: string,
+  chaincodeName?: string,
+  version?: string,
+  sequence?: string
+) {
+  const log: Logger = Logging.for(aproveChainCode);
+  log.info(`Approving Chaincode`);
+
+  const idBuilder = new PeerCommandBuilder();
+  const builder = new PeerCommandBuilder();
+
+  const id = execSync(
+    idBuilder
+      .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
+      .setSubCommand(PeerLifecycleChaincodeCommands.QUERYINSTALLED)
+      .build()
+      .join(" ")
+  )
+    .toString()
+    .split(",")[0]
+    .split("\n")[1]
+    .split(":")
+    .slice(1)
+    .map((s) => s.trim())
+    .join(":");
+
+  log.info(`Chaincode ID: ${id}`);
+
+  const cmd = builder
+    .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
+    .setSubCommand(`${PeerLifecycleChaincodeCommands.APPROVEFORMYORG}`)
+    .setOrderer(orderer)
+    .setChannelID(channelID)
+    .setChaincodeName(chaincodeName)
+    .setCustom("version", version)
+    .setPackageID(id)
+    .setSequence(sequence)
+    .build();
+
+  execSync(cmd.join(" "), { stdio: "inherit" });
+}
+
+export async function commitChainCode(
+  orderer?: string,
+  channelID?: string,
+  chaincodeName?: string,
+  version?: string,
+  sequence?: string,
+  peerAddress?: string
+) {
+  const log: Logger = Logging.for(commitChainCode);
+
+  const readinessCheck = function () {
+    log.info(`Checking Chaincode Readiness`);
+    const builder = new PeerCommandBuilder();
+    const cmd = builder
+      .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
+      .setSubCommand(PeerLifecycleChaincodeCommands.CHECKCOMMITREADINESS)
+      .setChannelID(channelID)
+      .setChaincodeName(chaincodeName)
+      .setCustom("version", version)
+      .setSequence(sequence)
+      .setOutput("json")
+      .build();
+
+    const approvalData = execSync(cmd.join(" ")).toString();
+
+    const approvalJSON = JSON.parse(approvalData);
+    const isReady =
+      Object.keys(approvalJSON.approvals).filter(
+        (key) => approvalJSON.approvals[key] == true
+      ).length >
+      Object.keys(approvalJSON.approvals).length / 2;
+
+    log.info(
+      `Chaincode Readiness: ${isReady} with ${
+        Object.keys(approvalJSON.approvals).filter(
+          (key) => approvalJSON.approvals[key] == true
+        ).length
+      }/${Object.keys(approvalJSON.approvals).length}`
+    );
+
+    return isReady;
+  };
+
+  const commitCode = function () {
+    log.info(`Committing Chaincode`);
+    const builder = new PeerCommandBuilder();
+
+    const cmd = builder
+      .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
+      .setSubCommand(`${PeerLifecycleChaincodeCommands.COMMIT}`)
+      .setOrderer(orderer)
+      .setChannelID(channelID)
+      .setChaincodeName(chaincodeName)
+      .setCustom("version", version)
+      .setSequence(sequence)
+      // .setCustom("peer-addresses", peerAddresses)
+      .build();
+
+    peerAddress
+      ?.split(",")
+      .map((address) => cmd.push(`--peerAddresses ${address}`));
+
+    execSync(cmd.join(" "), { stdio: "inherit" });
+  };
+
+  if (readinessCheck()) {
+    commitCode();
+  } else {
+    log.info("Chaincode not ready, waiting for approval...");
+    await new Promise((resolve) => setTimeout(resolve, 15000));
+    commitChainCode(
+      orderer,
+      channelID,
+      chaincodeName,
+      version,
+      sequence,
+      peerAddress
+    );
+  }
+}
+
+// export function commitChainCode(contract: ChainCodeRequest, channel: Pick<peerBootConfig, 'channel' | 'port' | 'peerName'>, skipReadyCheck: boolean, skipCommit: boolean, collectionPath: string){
+
+//         runCommand(`peer lifecycle chaincode commit \
+
+//
+//                 --tls \
+//                 --cafile ${channel.channel.ordererCaFile} \
+//                 --peerAddresses ${channel.peerName}:${channel.port} \
+//                 --tlsRootCertFiles ${channel.channel.ordererCaFile} \
+//                 --collections-config ${collectionPath}`)
+//     }
+
+//     if(skipCommit) return;
+
+//     verifyAndCommit(contract, channel, skipReadyCheck);
+// }
