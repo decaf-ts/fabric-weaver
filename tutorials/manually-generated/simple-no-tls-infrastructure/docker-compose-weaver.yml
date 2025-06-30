@@ -232,9 +232,11 @@ services:
     volumes:
       - peer-org-1-vol:/weaver/peer:rw
       - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ./chaincode:/weaver/chaincode:rw
     environment:
       - FABRIC_CFG_PATH=/weaver/peer
       - PEER_CORE_YAML_FILE=/weaver/peer/core.yaml
+      - CORE_PEER_ADDRESS=peer-org-1:7013
     networks:
       simple_network:
     healthcheck:
@@ -274,7 +276,9 @@ services:
     volumes:
       - peer-org-2-vol:/weaver/peer:rw
       - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ./chaincode:/weaver/chaincode:rw
     environment:
+      - CORE_PEER_ADDRESS=peer-org-2:7014
       - FABRIC_CFG_PATH=/weaver/peer
       - PEER_CORE_YAML_FILE=/weaver/peer/core.yaml
     networks:
@@ -336,8 +340,20 @@ services:
       docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:fetch-block -d --output-file './weaver/peer/genesisblock' --channel-id 'simple-channel' --orderer-address 'orderer-org-1:7012' --block-number '0' -s &&
       docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:peer-join-channel -d --block-path '/weaver/peer/genesisblock' -s &&
 
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:chaincode-package -d --chaincode-path './weaver/chaincode' --lang 'node' --chaincode-output '/weaver/peer/simple.tar.gz' --chaincode-name 'simple' --chaincode-version '1.0' -s &&
+      docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:chaincode-package -d --chaincode-path './weaver/chaincode' --lang  'node' --chaincode-output '/weaver/peer/simple.tar.gz' --chaincode-name 'simple' --chaincode-version '1.0' -s &&
+
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:chaincode-install -d --chaincode-path '/weaver/peer/simple.tar.gz' -s &&
+      docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:chaincode-install -d --chaincode-path '/weaver/peer/simple.tar.gz' -s &&
+
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:aprove-chaincode -d --chaincode-name 'simple' --sequence '1' --chaincode-version '1.0' --channel-id 'simple-channel' --orderer 'orderer-org-1:7012' -s &&
+      docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:aprove-chaincode -d --chaincode-name 'simple' --sequence '1' --chaincode-version '1.0' --channel-id 'simple-channel' --orderer 'orderer-org-1:7012' -s &&
+
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:commit-chaincode -d --chaincode-name 'simple' --sequence '1' --chaincode-version '1.0' --channel-id 'simple-channel' --orderer 'orderer-org-1:7012' --peer-addresses 'peer-org-1:7013,peer-org-2:7014' -s &&
+
       touch /boot/boot-peers.lock
       "
+#
 volumes:
   boot-lock:
     name: boot-lock

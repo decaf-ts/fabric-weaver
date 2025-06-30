@@ -128,16 +128,16 @@ Organizations:
         # Rule: "OR('SampleOrg.admin', 'SampleOrg.peer', 'SampleOrg.client')"
       Writers:
         Type: Signature
-        Rule: "OR('OrdererOrg2MSP.member')"
+        Rule: "OR('PeerOrg2MSP.member')"
       # If your MSP is configured with the new NodeOUs, you might
       # want to use a more specific rule like the following:
       # Rule: "OR('SampleOrg.admin', 'SampleOrg.client')"
       Admins:
         Type: Signature
-        Rule: "OR('OrdererOrg2MSP.admin')"
+        Rule: "OR('PeerOrg2MSP.admin')"
       Endorsement:
         Type: Signature
-        Rule: "OR('OrdererOrg2MSP.member')"
+        Rule: "OR('PeerOrg2MSP.member')"
     AnchorPeers:
       - Host: peer-org-2
         Port: 7014
@@ -512,17 +512,10 @@ Profiles:
     Application:
       <<: *ApplicationDefaults
       Organizations:
-        - <<: *OrdererOrg1
-          Policies:
-            <<: *SampleOrgPolicies
-            Admins:
-              Type: Signature
-              Rule: "OR('OrdererOrg1MSP.member')"
         - <<: *PeerOrg1
         - <<: *PeerOrg2
     Consortiums:
       SampleConsortium:
         Organizations:
-          - <<: *OrdererOrg1
           - <<: *PeerOrg1
           - <<: *PeerOrg2
