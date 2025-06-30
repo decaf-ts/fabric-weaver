@@ -1,6 +1,6 @@
 import { Logging } from "@decaf-ts/logging";
 import { readFileYaml, writeFileYaml } from "../../utils/yaml";
-import { FabricBinaries, FabricLogLevel } from "../general/constants";
+import { FabricBinaries, FabricLogLevel } from "../general-utils/constants";
 import {
   FabricCAServerCommand,
   FabricCAServerCurveName,

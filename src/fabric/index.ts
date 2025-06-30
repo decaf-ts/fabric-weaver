@@ -20,4 +20,4 @@
  */
 
 export * from "./fabric-ca-server";
-export * from "./general";
+export * from "./general-utils";

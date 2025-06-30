@@ -7,7 +7,7 @@ import { bootCAServer, issueCA } from "../scripts/ca-server";
 import { BaseCLI } from "./base-cli";
 import { bootOrderer, issueOrderer, osnAdminJoin } from "../scripts/orderer";
 import { createGenesisBlock } from "../scripts/configtxgen";
-import { createNodeOU } from "../../fabric/general/node-ou";
+import { createNodeOU } from "../../fabric/general-utils/node-ou";
 import {
   aproveChainCode,
   bootPeer,

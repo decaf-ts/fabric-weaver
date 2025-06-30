@@ -1,8 +1,8 @@
 import { Logger, Logging } from "@decaf-ts/logging";
-import { FabricBinaries } from "../general/constants";
+import { FabricBinaries } from "../general-utils/constants";
 import { FabricCAClientCommand } from "./constants";
 import { runCommand } from "../../utils/child-process";
-import { getAccountType } from "../general/fabric-account-types";
+import { getAccountType } from "../general-utils/fabric-account-types";
 import fs from "fs";
 
 //TODO: Implement the subcommands for each Fabric CA Client commands

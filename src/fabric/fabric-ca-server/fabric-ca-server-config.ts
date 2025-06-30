@@ -1,4 +1,4 @@
-import { FabricLogLevel } from "../general/constants";
+import { FabricLogLevel } from "../general-utils/constants";
 
 /**
  * @description Configuration interface for Fabric CA Server.

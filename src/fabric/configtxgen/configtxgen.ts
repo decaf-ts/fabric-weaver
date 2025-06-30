@@ -1,5 +1,5 @@
 import { Logging } from "@decaf-ts/logging";
-import { FabricBinaries } from "../general/constants";
+import { FabricBinaries } from "../general-utils/constants";
 import { runCommand } from "../../utils/child-process";
 
 export class ConfigtxgenCommandBuilder {
