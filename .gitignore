@@ -23,7 +23,7 @@
 /fabric-samples
 /builders
 /config
-/bin
+/bin/*
 !/bin/build-scripts.cjs
 !/bin/update-scripts.cjs
 !/bin/fabric.sh
