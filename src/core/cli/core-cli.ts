@@ -1,6 +1,6 @@
 import { LogLevel } from "@decaf-ts/logging";
 import { FabricCAClientCommand } from "../../fabric/fabric-ca-client/constants";
-import { CAConfig } from "../../fabric/fabric-ca-server/fabric-ca-server-config";
+import { CAConfig } from "../../fabric/fabric-ca-server-old/fabric-ca-server-config";
 import { safeParseInt } from "../../utils/parsers";
 import { processEnrollmentRequest } from "../scripts/ca-client";
 import { bootCAServer, issueCA } from "../scripts/ca-server";

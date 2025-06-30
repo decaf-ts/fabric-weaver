@@ -19,5 +19,5 @@
  * const logLevel = FabricLogLevel.INFO;
  */
 
-export * from "./fabric-ca-server";
+export * from "./fabric-ca-server-old";
 export * from "./general-utils";

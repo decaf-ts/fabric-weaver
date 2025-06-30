@@ -1,9 +1,9 @@
 import path from "path";
 import fs from "fs";
 import { Logger, Logging } from "@decaf-ts/logging";
-import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server";
-import { FabricCAServerCommand } from "../../fabric/fabric-ca-server/constants";
-import { CAConfig } from "../../fabric/fabric-ca-server/fabric-ca-server-config";
+import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server-old/fabric-ca-server";
+import { FabricCAServerCommand } from "../../fabric/fabric-ca-server-old/constants";
+import { CAConfig } from "../../fabric/fabric-ca-server-old/fabric-ca-server-config";
 
 export async function bootCAServer(
   homeDir: string,
