@@ -1,7 +1,7 @@
 import { Command } from "commander";
 import { VERSION } from "../index";
 import { generateDockerComposeFile } from "./docker-compose-generator";
-import { safeParseJSON } from "../utils-old/parsers";
+import { safeParseJSON } from "../utils/parsers";
 
 const program: Command = new Command();
 

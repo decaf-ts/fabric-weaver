@@ -4,9 +4,9 @@ import { Logger, Logging } from "@decaf-ts/logging";
 import { addFabricToPath } from "../../utils-old/path";
 import { EnvVars } from "../constants/env-vars";
 import { printBanner, printBorder } from "../../utils-old/banner";
-import { safeParseInt } from "../../utils-old/parsers";
 import fs from "fs";
 import path from "path";
+import { safeParseInt } from "../../utils/parsers";
 
 /**
  * @class BaseCLI

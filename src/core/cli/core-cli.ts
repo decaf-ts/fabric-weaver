@@ -1,7 +1,6 @@
 import { LogLevel } from "@decaf-ts/logging";
 import { FabricCAClientCommand } from "../../fabric/fabric-ca-client/constants";
 import { CAConfig } from "../../fabric/fabric-ca-server-old/fabric-ca-server-config";
-import { safeParseInt } from "../../utils-old/parsers";
 import { processEnrollmentRequest } from "../scripts/ca-client";
 import { bootCAServer, issueCA } from "../scripts/ca-server";
 import { BaseCLI } from "./base-cli";
@@ -17,6 +16,7 @@ import {
   peerFetchGenesisBlock,
   peerJoinChannel,
 } from "../scripts/peer";
+import { safeParseInt } from "../../utils/parsers";
 
 export class CoreCLI extends BaseCLI {
   constructor() {

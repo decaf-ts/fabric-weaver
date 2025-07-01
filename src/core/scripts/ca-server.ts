@@ -79,3 +79,13 @@ export function hasCAInitialized(fileLocation?: string): boolean {
 
   return booted;
 }
+
+export function issueCAServerConfig(
+  logger: Logger,
+  version?: string,
+  port?: number
+) {
+  const builder = new FabricCAServerConfigBuilder(logger);
+
+  builder.setVersion(version).setPort(port);
+}
