@@ -1,3 +1,5 @@
+import { COMMA_SEPARATOR } from "../core/constants/constants";
+
 export function safeParseJSON(v: string): unknown {
   try {
     return JSON.parse(v);
@@ -16,4 +18,10 @@ export function safeParseInt(v: string | number): number {
   }
 
   return value;
+}
+
+export function safeParseCSV(csv: string): string[] {
+  if (!csv.trim()) return [];
+
+  return csv.split(COMMA_SEPARATOR).map((item) => item.trim());
 }

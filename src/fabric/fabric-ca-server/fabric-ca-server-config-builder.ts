@@ -55,7 +55,7 @@ export class FabricCAServerConfigBuilder {
     return this;
   }
 
-  setCors(cors: CorsConfig) {
+  setCors(cors?: CorsConfig) {
     if (cors === undefined) return this;
 
     if (cors.enabled !== undefined) {
@@ -128,7 +128,7 @@ export class FabricCAServerConfigBuilder {
     return this;
   }
 
-  setCA(config: CAConfig): this {
+  setCA(config?: CAConfig): this {
     if (!config) return this;
 
     if (config.name !== undefined) {

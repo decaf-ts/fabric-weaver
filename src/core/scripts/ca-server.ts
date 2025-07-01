@@ -3,13 +3,22 @@ import fs from "fs";
 import { Logger, Logging } from "@decaf-ts/logging";
 import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server-old/fabric-ca-server";
 import { FabricCAServerCommand } from "../../fabric/fabric-ca-server-old/constants";
-import { CAConfig } from "../../fabric/fabric-ca-server-old/fabric-ca-server-config";
+import { CAConfig as cfg } from "../../fabric/fabric-ca-server-old/fabric-ca-server-config";
 import { FabricCAServerConfigBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server-config-builder";
+import {
+  CAConfig,
+  CorsConfig,
+  CSRConfig,
+  Identity,
+  MetricsConfig,
+  OperationsConfig,
+  ServerTLSConfig,
+} from "../../fabric/interfaces/fabric/fabric-ca-server-config";
 
 export async function bootCAServer(
   logger: Logger,
   homeDir: string,
-  caConfig: CAConfig,
+  caConfig: cfg,
   bootFileLocation?: string
 ) {
   if (hasCAInitialized(bootFileLocation))
@@ -19,7 +28,7 @@ export async function bootCAServer(
   await startCAServer(homeDir, caConfig);
 }
 
-export async function startCAServer(homeDir: string, caConfig: CAConfig) {
+export async function startCAServer(homeDir: string, caConfig: cfg) {
   const builder: FabricCAServerCommandBuilder =
     new FabricCAServerCommandBuilder();
 
@@ -37,7 +46,7 @@ export async function startCAServer(homeDir: string, caConfig: CAConfig) {
   await command.execute();
 }
 
-export function issueCA(logger: Logger, homeDir: string, caConfig: CAConfig) {
+export function issueCA(logger: Logger, homeDir: string, caConfig: cfg) {
   const builder = new FabricCAServerConfigBuilder(logger);
 
   builder.setPort(caConfig.port).enableDebug(caConfig.debug).save(homeDir);
@@ -82,10 +91,35 @@ export function hasCAInitialized(fileLocation?: string): boolean {
 
 export function issueCAServerConfig(
   logger: Logger,
+  caDir: string,
   version?: string,
-  port?: number
+  port?: number,
+  cors?: CorsConfig,
+  debug?: boolean,
+  crlSizeLimit?: number,
+  serverTLS?: ServerTLSConfig,
+  caConfig?: CAConfig,
+  identities?: Identity[],
+  noTLS?: boolean,
+  noCA?: boolean,
+  csrConfig?: CSRConfig,
+  operations?: OperationsConfig,
+  metrics?: MetricsConfig
 ) {
   const builder = new FabricCAServerConfigBuilder(logger);
 
-  builder.setVersion(version).setPort(port);
+  builder
+    .setVersion(version)
+    .setPort(port)
+    .setCors(cors)
+    .enableDebug(debug)
+    .setCrlSizeLimit(crlSizeLimit)
+    .setServerTLS(serverTLS)
+    .setCA(caConfig)
+    .setIdentities(identities)
+    .removeUnusedProfiles(noTLS, noCA)
+    .setCSR(csrConfig)
+    .setOperations(operations)
+    .setMetrics(metrics)
+    .save(caDir);
 }

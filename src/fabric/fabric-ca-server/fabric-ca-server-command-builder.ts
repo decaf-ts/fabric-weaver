@@ -5,7 +5,7 @@ import {
   CAConfig,
   ServerTLSConfig,
 } from "../interfaces/fabric/fabric-ca-server-config";
-import { COMMA_SEPARATOR } from "../constants/constants";
+import { COMMA_SEPARATOR } from "../../core/constants/constants";
 
 export class FabricCAServerCommandBuilder {
   private log: Logger;
