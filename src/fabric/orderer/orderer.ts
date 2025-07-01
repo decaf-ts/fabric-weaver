@@ -4,8 +4,8 @@ import { OrdererCommand } from "./constants";
 import { OrdererConfig } from "./orderer-config";
 import path from "path";
 import fs from "fs";
-import { readFileYaml, writeFileYaml } from "../../utils/yaml";
-import { runCommand } from "../../utils/child-process";
+import { readFileYaml, writeFileYaml } from "../../utils-old/yaml";
+import { runCommand } from "../../utils-old/child-process";
 
 export class OrdererCommandBuilder {
   private log = Logging.for(OrdererCommandBuilder);

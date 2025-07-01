@@ -1,7 +1,7 @@
 import { LogLevel } from "@decaf-ts/logging";
 import { FabricCAClientCommand } from "../../fabric/fabric-ca-client/constants";
 import { CAConfig } from "../../fabric/fabric-ca-server-old/fabric-ca-server-config";
-import { safeParseInt } from "../../utils/parsers";
+import { safeParseInt } from "../../utils-old/parsers";
 import { processEnrollmentRequest } from "../scripts/ca-client";
 import { bootCAServer, issueCA } from "../scripts/ca-server";
 import { BaseCLI } from "./base-cli";
@@ -109,7 +109,7 @@ export class CoreCLI extends BaseCLI {
           },
         };
 
-        bootCAServer(options.home, config, options.bootFile);
+        bootCAServer(this.log, options.home, config, options.bootFile);
       });
 
     // .option('--working-dir <string>', 'Working directory inside docker container. Defaults to "aeon"', 'aeon')
@@ -210,7 +210,7 @@ export class CoreCLI extends BaseCLI {
           },
         };
 
-        issueCA(options.home, config);
+        issueCA(this.log, options.home, config);
         this.log.info("CA server issued successfully!");
       });
   }

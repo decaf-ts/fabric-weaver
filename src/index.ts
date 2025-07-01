@@ -21,7 +21,7 @@
  * allowing developers to easily set up, manage, and interact with Fabric networks and components.
  */
 
-export * from "./utils";
+export * from "./utils-old";
 export * from "./fabric";
 
 /**

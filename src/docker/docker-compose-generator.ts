@@ -3,7 +3,7 @@ import {
   WeaverGlobalConfig,
   WeaverOrgConfig,
 } from "../core/interfaces";
-import { writeFileYaml } from "../utils/yaml";
+import { writeFileYaml } from "../utils-old/yaml";
 import { DockerRestartPolicy } from "./constants";
 import { DockerCompose, DockerService } from "./types";
 import fs from "fs";

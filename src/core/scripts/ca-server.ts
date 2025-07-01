@@ -4,8 +4,10 @@ import { Logger, Logging } from "@decaf-ts/logging";
 import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server-old/fabric-ca-server";
 import { FabricCAServerCommand } from "../../fabric/fabric-ca-server-old/constants";
 import { CAConfig } from "../../fabric/fabric-ca-server-old/fabric-ca-server-config";
+import { FabricCAServerConfigBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server-config-builder";
 
 export async function bootCAServer(
+  logger: Logger,
   homeDir: string,
   caConfig: CAConfig,
   bootFileLocation?: string
@@ -13,7 +15,7 @@ export async function bootCAServer(
   if (hasCAInitialized(bootFileLocation))
     return startCAServer(homeDir, caConfig);
 
-  issueCA(homeDir, caConfig);
+  issueCA(logger, homeDir, caConfig);
   await startCAServer(homeDir, caConfig);
 }
 
@@ -35,14 +37,16 @@ export async function startCAServer(homeDir: string, caConfig: CAConfig) {
   await command.execute();
 }
 
-export function issueCA(homeDir: string, caConfig: CAConfig) {
-  const builder: FabricCAServerCommandBuilder =
-    new FabricCAServerCommandBuilder();
+export function issueCA(logger: Logger, homeDir: string, caConfig: CAConfig) {
+  const builder = new FabricCAServerConfigBuilder(logger);
 
-  builder
-    .setCommand(FabricCAServerCommand.START)
-    .setHomeDirectory(homeDir)
-    .setPort(caConfig.port)
+  builder.setPort(caConfig.port).enableDebug(caConfig.debug).save(homeDir);
+
+  const builder1 = new FabricCAServerCommandBuilder();
+  builder1
+    // .setCommand(FabricCAServerCommand.START)
+    // .setHomeDirectory(homeDir)
+    // .setPort(caConfig.port)
     .enableDebug(caConfig.debug)
     .setLogLevel(caConfig.logLevel)
     .setBootstrapAdmin(caConfig.bootstrapUser)

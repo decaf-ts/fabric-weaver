@@ -1,5 +1,5 @@
 import { Logging } from "@decaf-ts/logging";
-import { readFileYaml, writeFileYaml } from "../../utils/yaml";
+import { readFileYaml, writeFileYaml } from "../../utils-old/yaml";
 import { FabricBinaries, FabricLogLevel } from "../general-utils/constants";
 import {
   FabricCAServerCommand,
@@ -10,7 +10,7 @@ import {
 import { FabricCAServerConfig } from "./fabric-ca-server-config";
 import path from "path";
 import fs from "fs";
-import { runCommand } from "../../utils/child-process";
+import { runCommand } from "../../utils-old/child-process";
 
 /**
  * @class FabricCAServerCommandBuilder
@@ -48,7 +48,7 @@ import { runCommand } from "../../utils/child-process";
  *   Builder-->>Client: Fabric CA Server command string
  */
 export class FabricCAServerCommandBuilder {
-  private log = Logging.for(FabricCAServerCommandBuilder);
+  private log = Logging.for(FabricCAServerCommandBuilder); // done
 
   private binName: FabricBinaries = FabricBinaries.SERVER;
 

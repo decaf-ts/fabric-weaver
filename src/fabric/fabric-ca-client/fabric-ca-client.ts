@@ -1,7 +1,7 @@
 import { Logger, Logging } from "@decaf-ts/logging";
 import { FabricBinaries } from "../general-utils/constants";
 import { FabricCAClientCommand } from "./constants";
-import { runCommand } from "../../utils/child-process";
+import { runCommand } from "../../utils-old/child-process";
 import { getAccountType } from "../general-utils/fabric-account-types";
 import fs from "fs";
 

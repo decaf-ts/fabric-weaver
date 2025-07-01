@@ -1,5 +1,5 @@
 import { Logging } from "@decaf-ts/logging";
-import { writeFileYaml } from "../../utils/yaml";
+import { writeFileYaml } from "../../utils-old/yaml";
 import { NodeOUConfig } from "./node-ou-config";
 import path from "path";
 import fs from "fs";

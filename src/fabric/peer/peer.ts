@@ -1,8 +1,8 @@
 import { Logging } from "@decaf-ts/logging";
 import { FabricBinaries } from "../general-utils/constants";
-import { runCommand } from "../../utils/child-process";
+import { runCommand } from "../../utils-old/child-process";
 import { PeerCommands, PeerSubcommands } from "./constants";
-import { readFileYaml, writeFileYaml } from "../../utils/yaml";
+import { readFileYaml, writeFileYaml } from "../../utils-old/yaml";
 import path from "path";
 import { PeerConfig } from "./peer-config";
 import fs from "fs";
@@ -381,6 +381,7 @@ export class PeerCommandBuilder {
     if (networkID !== undefined) {
       this.log.debug(`Setting network ID to ${networkID}`);
       this.config.peer!.networkId = networkID;
+      this.config.vm!.docker!.hostConfig!.NetworkMode = networkID;
     }
     return this;
   }

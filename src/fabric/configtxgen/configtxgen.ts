@@ -1,6 +1,6 @@
 import { Logging } from "@decaf-ts/logging";
 import { FabricBinaries } from "../general-utils/constants";
-import { runCommand } from "../../utils/child-process";
+import { runCommand } from "../../utils-old/child-process";
 
 export class ConfigtxgenCommandBuilder {
   private log = Logging.for(ConfigtxgenCommandBuilder);
