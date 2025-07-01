@@ -10,6 +10,9 @@ services:
       - "7010:7010"
     volumes:
       - orderer-org-1-vol:/weaver/client/orderer1:rw
+      - peer-org-1-vol:/weaver/client/peer1:rw
+    networks:
+      simple_network:
     healthcheck:
       test: bash -c "[ -f /weaver/server/ca-cert.pem ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
       interval: 10s
@@ -34,6 +37,10 @@ services:
     restart: no
     ports:
       - "7011:7011"
+    volumes:
+      - peer-org-2-vol:/weaver/client/peer1:rw
+    networks:
+      simple_network:
     healthcheck:
       test: bash -c "[ -f /weaver/server/ca-cert.pem ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
       interval: 10s
@@ -62,6 +69,10 @@ services:
       - boot-lock:/boot:rw
       - ../simple-no-tls-infrastructure:/weaver/genesis:ro
       - orderer-org-1-vol:/weaver/orderer:rw
+      - peer-org-1-vol:/weaver/peer1:rw
+      - peer-org-2-vol:/weaver/peer2:rw
+    networks:
+      simple_network:
     depends_on:
       org-1:
         condition: service_healthy
@@ -70,7 +81,7 @@ services:
     command: >
       bash -c "
       if [ -f /boot/boot-orgs.lock ]; then
-        echo 'boot-tls has already run. Exiting.';
+        echo 'boot-orgs has already run. Exiting...';
         exit 0;
       fi;
       apt-get update &&
@@ -78,20 +89,38 @@ services:
 
       docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-1:7010' --mspdir '/weaver/client/admin/msp' &&
 
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d  --url 'http://org-1:7010' --id-name 'orderer-admin-org1' --id-secret 'orderer-admin-org1-pw' --id-type 'admin'  --mspdir '/weaver/client/admin/msp' --id-attrs "hf.Registrar.Roles=*,hf.Registrar.DelegateRoles=*,hf.IntermediateCA=true,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" &&
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-admin-org1:orderer-admin-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/client/msp' --home '/weaver/client/orderer1/client' --csr-hosts '0.0.0.0,localhost,org-1-orderer' --change-keyname &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d -s --url 'http://org-1:7010' --id-name 'orderer-admin-org1' --id-secret 'orderer-admin-org1-pw' --id-type 'admin'  --mspdir '/weaver/client/admin/msp' --id-attrs "hf.Registrar.Roles=*,hf.Registrar.DelegateRoles=*,hf.IntermediateCA=true,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-admin-org1:orderer-admin-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/client/msp' --home '/weaver/client/orderer1/client' --csr-hosts '0.0.0.0,localhost,org-1-orderer' --change-keyname -s &&
 
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d --url 'http://org-1:7010' --id-name 'orderer-org1' --id-secret 'orderer-org1-pw' --id-type 'orderer' --mspdir '/weaver/client/orderer1/client/msp' &&
-      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-org1:orderer-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/msp' --home '/weaver/client/orderer1' --change-keyname &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d --url 'http://org-1:7010' --id-name 'orderer-org1' --id-secret 'orderer-org1-pw' --id-type 'orderer' --mspdir '/weaver/client/orderer1/client/msp' -s &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://orderer-org1:orderer-org1-pw@org-1:7010' --mspdir '/weaver/client/orderer1/msp' --home '/weaver/client/orderer1' --change-keyname -s &&
 
-      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-2:7011' --mspdir '/weaver/client/admin/msp' &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d  --url 'http://org-1:7010' --id-name 'peer-admin-org1' --id-secret 'peer-admin-org1-pw' --id-type 'admin'  --mspdir '/weaver/client/admin/msp' --id-attrs "hf.Registrar.Roles=*,hf.Registrar.DelegateRoles=*,hf.IntermediateCA=true,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -s &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://peer-admin-org1:peer-admin-org1-pw@org-1:7010' --mspdir '/weaver/client/peer1/client/msp' --home '/weaver/client/peer1/client' --csr-hosts '0.0.0.0,localhost,org-1-peer' --change-keyname -s &&
 
-      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/msp' &&
-      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/client/msp' &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-register -d --url 'http://org-1:7010' --id-name 'peer-org1' --id-secret 'peer-org1-pw' --id-type 'peer' --mspdir '/weaver/client/peer1/client/msp' -s &&
+      docker exec org-1 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://peer-org1:peer-org1-pw@org-1:7010' --mspdir '/weaver/client/peer1/msp' --home '/weaver/client/peer1' --change-keyname -s &&
 
-      node ./weaver/lib/core/cli.cjs docker:create-genesis-block --config-path '/weaver/genesis' --profile 'SampleAppChannelEtcdRaft' --channel-id 'simple-channel' --output-block '/weaver/orderer/genesisblock' &&
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://admin:adminpw@org-2:7011' --mspdir '/weaver/client/admin/msp' -s &&
 
-      touch /boot/boot-tls.lock
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-register -d  --url 'http://org-2:7011' --id-name 'peer-admin-org2' --id-secret 'peer-admin-org2-pw' --id-type 'admin'  --mspdir '/weaver/client/admin/msp' --id-attrs "hf.Registrar.Roles=*,hf.Registrar.DelegateRoles=*,hf.IntermediateCA=true,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -s &&
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://peer-admin-org2:peer-admin-org2-pw@org-2:7011' --mspdir '/weaver/client/peer1/client/msp' --home '/weaver/client/peer1/client' --csr-hosts '0.0.0.0,localhost,org-2-peer' --change-keyname -s &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-register -d --url 'http://org-2:7011' --id-name 'peer-org2' --id-secret 'peer-org2-pw' --id-type 'peer' --mspdir '/weaver/client/peer1/client/msp' -s &&
+      docker exec org-2 node ./weaver/lib/core/cli.cjs docker:client-enroll -d --url 'http://peer-org2:peer-org2-pw@org-2:7011' --mspdir '/weaver/client/peer1/msp' --home '/weaver/client/peer1' --change-keyname -s &&
+
+      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/msp' -s &&
+      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/orderer/client/msp' -s &&
+
+      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/peer1/msp' -s &&
+      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/peer1/client/msp' -s &&
+
+      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/peer2/msp' -s &&
+      node ./weaver/lib/core/cli.cjs docker:create-node-ou --enable --mspdir 'weaver/peer2/client/msp' -s &&
+
+      node ./weaver/lib/core/cli.cjs docker:create-genesis-block --config-path '/weaver/genesis' --profile 'SampleAppChannelEtcdRaft' --channel-id 'simple-channel' --output-block '/weaver/orderer/genesisblock' -s &&
+
+      touch /boot/boot-orgs.lock
       "
 
   orderer-org-1:
@@ -103,6 +132,8 @@ services:
       - "7012:7012"
     volumes:
       - orderer-org-1-vol:/weaver/orderer:rw
+    networks:
+      simple_network:
     healthcheck:
       test: bash -c "[ -f /weaver/orderer/orderer.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
       interval: 10s
@@ -125,9 +156,224 @@ services:
         --consensus-waldir  '/weaver/orderer/production/orderer/etcdraft/wal'
         --operations-address '127.0.0.1:8010'
 
+  # boot-orderer:
+  #   container_name: boot-orderer
+  #   hostname: boot-orderer
+  #   image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+  #   restart: no
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock:rw
+  #     - boot-lock:/boot:rw
+  #     - orderer-org-1-vol:/weaver/orderer:rw
+  #   depends_on:
+  #     orderer-org-1:
+  #       condition: service_healthy
+  #   command: >
+  #     bash -c "
+  #     if [ -f /boot/boot-orderer.lock ]; then
+  #       echo 'boot-orderer has already run. Exiting...';
+  #       exit 0;
+  #     fi;
+  #     apt-get update &&
+  #     apt-get install -y docker.io &&
+
+  #     node ./weaver/lib/core/cli.cjs docker:osn-admin-join --channel-id 'simple-channel' --config-block '/weaver/orderer/genesisblock'  --admin-address 'orderer-org-1:9000' &&
+
+  #     touch /boot/boot-orderer.lock
+  #     "
+
+  couchdb-org1-peer:
+    container_name: couchdb-org1-peer
+    hostname: couchdb-org1-peer
+    restart: ${RESTART_POLICY:-unless-stopped}
+    image: couchdb:${COUCHDB_VERSION:-latest}
+    environment:
+      COUCHDB_USER: ${ORG1_PEER_COUCHDB_USER}
+      COUCHDB_PASSWORD: ${ORG1_PEER_COUCHDB_PASSWORD}
+    volumes:
+      - org1-peer-couchdb-vol:/opt/couchdb/data
+    networks:
+      simple_network:
+    ports:
+      - 5984:5984
+    healthcheck:
+      test: curl -f http://localhost:5984/ || exit 1
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  couchdb-org2-peer:
+    container_name: couchdb-org2-peer
+    hostname: couchdb-org2-peer
+    restart: ${RESTART_POLICY:-unless-stopped}
+    image: couchdb:${COUCHDB_VERSION:-latest}
+    environment:
+      COUCHDB_USER: ${ORG2_PEER_COUCHDB_USER}
+      COUCHDB_PASSWORD: ${ORG2_PEER_COUCHDB_PASSWORD}
+    volumes:
+      - org2-peer-couchdb-vol:/opt/couchdb/data
+    networks:
+      simple_network:
+    ports:
+      - 5985:5984
+    healthcheck:
+      test: curl -f http://localhost:5984/ || exit 1
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  peer-org-1:
+    container_name: peer-org-1
+    hostname: peer-org-1
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    ports:
+      - "7013:7013"
+    volumes:
+      - peer-org-1-vol:/weaver/peer:rw
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ./chaincode:/weaver/chaincode:rw
+    environment:
+      - FABRIC_CFG_PATH=/weaver/peer
+      - PEER_CORE_YAML_FILE=/weaver/peer/core.yaml
+      - CORE_PEER_ADDRESS=peer-org-1:7013
+    networks:
+      simple_network:
+    healthcheck:
+      test: bash -c "[ -f /weaver/peer/core.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      orderer-org-1:
+        condition: service_healthy
+      couchdb-org1-peer:
+        condition: service_healthy
+      couchdb-org2-peer:
+        condition: service_healthy
+    command: >
+      node ./weaver/lib/core/cli.cjs docker:boot-peer
+        -d
+        --config-location '/weaver/peer'
+        --database 'CouchDB'
+        --peer-address 'peer-org-1:7013'
+        --couchdb-address 'couchdb-org1-peer:5984'
+        --couchdb-username '${ORG1_PEER_COUCHDB_USER}'
+        --couchdb-password '${ORG1_PEER_COUCHDB_PASSWORD}'
+        --local-mspdir '/weaver/peer/client/msp'
+        --operations-address '127.0.0.1:8010'
+        --local-mspid 'PeerOrg1MSP'
+        --network-id 'simple_network'
+
+  peer-org-2:
+    container_name: peer-org-2
+    hostname: peer-org-2
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    ports:
+      - "7014:7014"
+    volumes:
+      - peer-org-2-vol:/weaver/peer:rw
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ./chaincode:/weaver/chaincode:rw
+    environment:
+      - CORE_PEER_ADDRESS=peer-org-2:7014
+      - FABRIC_CFG_PATH=/weaver/peer
+      - PEER_CORE_YAML_FILE=/weaver/peer/core.yaml
+    networks:
+      simple_network:
+    healthcheck:
+      test: bash -c "[ -f /weaver/peer/core.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      orderer-org-1:
+        condition: service_healthy
+      couchdb-org1-peer:
+        condition: service_healthy
+      couchdb-org2-peer:
+        condition: service_healthy
+    command: >
+      node ./weaver/lib/core/cli.cjs docker:boot-peer
+        -d
+        --config-location '/weaver/peer'
+        --database 'CouchDB'
+        --peer-address 'peer-org-2:7014'
+        --couchdb-address 'couchdb-org2-peer:5984'
+        --couchdb-username '${ORG2_PEER_COUCHDB_USER}'
+        --couchdb-password '${ORG2_PEER_COUCHDB_PASSWORD}'
+        --local-mspdir '/weaver/peer/client/msp'
+        --operations-address '127.0.0.1:8010'
+        --local-mspid 'PeerOrg2MSP'
+        --network-id 'simple_network'
+
+  boot-peers:
+    container_name: boot-peers
+    hostname: boot-peers
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-lock:/boot:rw
+    networks:
+      simple_network:
+    depends_on:
+      peer-org-1:
+        condition: service_healthy
+      peer-org-2:
+        condition: service_healthy
+    command: >
+      bash -c "
+      if [ -f /boot/boot-peers.lock ]; then
+        echo 'boot-peers has already run. Exiting...';
+        exit 0;
+      fi;
+      apt-get update &&
+      apt-get install -y docker.io &&
+
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:fetch-block -d --output-file './weaver/peer/genesisblock' --channel-id 'simple-channel' --orderer-address 'orderer-org-1:7012' --block-number '0' &&
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:peer-join-channel -d --block-path '/weaver/peer/genesisblock' -s &&
+
+      docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:fetch-block -d --output-file './weaver/peer/genesisblock' --channel-id 'simple-channel' --orderer-address 'orderer-org-1:7012' --block-number '0' -s &&
+      docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:peer-join-channel -d --block-path '/weaver/peer/genesisblock' -s &&
+
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:chaincode-package -d --chaincode-path './weaver/chaincode' --lang 'node' --chaincode-output '/weaver/peer/simple.tar.gz' --chaincode-name 'simple' --chaincode-version '1.0' -s &&
+      docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:chaincode-package -d --chaincode-path './weaver/chaincode' --lang  'node' --chaincode-output '/weaver/peer/simple.tar.gz' --chaincode-name 'simple' --chaincode-version '1.0' -s &&
+
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:chaincode-install -d --chaincode-path '/weaver/peer/simple.tar.gz' -s &&
+      docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:chaincode-install -d --chaincode-path '/weaver/peer/simple.tar.gz' -s &&
+
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:aprove-chaincode -d --chaincode-name 'simple' --sequence '1' --chaincode-version '1.0' --channel-id 'simple-channel' --orderer 'orderer-org-1:7012' -s &&
+      docker exec peer-org-2 node ./weaver/lib/core/cli.cjs docker:aprove-chaincode -d --chaincode-name 'simple' --sequence '1' --chaincode-version '1.0' --channel-id 'simple-channel' --orderer 'orderer-org-1:7012' -s &&
+
+      docker exec peer-org-1 node ./weaver/lib/core/cli.cjs docker:commit-chaincode -d --chaincode-name 'simple' --sequence '1' --chaincode-version '1.0' --channel-id 'simple-channel' --orderer 'orderer-org-1:7012' --peer-addresses 'peer-org-1:7013,peer-org-2:7014' -s &&
+
+      touch /boot/boot-peers.lock
+      "
+#
 volumes:
   boot-lock:
     name: boot-lock
 
   orderer-org-1-vol:
     name: orderer-org-1-vol
+
+  peer-org-1-vol:
+    name: peer-org-1-vol
+
+  org1-peer-couchdb-vol:
+    name: org1-peer-couchdb-vol
+
+  peer-org-2-vol:
+    name: peer-org-2-vol
+
+  org2-peer-couchdb-vol:
+    name: org2-peer-couchdb-vol
+
+networks:
+  simple_network:
+    name: simple_network
+    driver: bridge

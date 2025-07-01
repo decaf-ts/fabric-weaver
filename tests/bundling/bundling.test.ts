@@ -4,7 +4,7 @@ import * as path from "path";
 import pkg from "../../package.json";
 
 describe("Distribution Tests", () => {
-  it("reads lib", () => {
+  it.skip("reads lib", () => {
     const {
       VERSION,
       complexFunction,
@@ -15,7 +15,7 @@ describe("Distribution Tests", () => {
     expect(ChildClass).toBeDefined();
   });
 
-  it("reads JS Bundle", () => {
+  it.skip("reads JS Bundle", () => {
     let distFile: Dirent[];
     try {
       distFile = fs

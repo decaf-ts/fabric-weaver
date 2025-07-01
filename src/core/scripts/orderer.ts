@@ -66,6 +66,8 @@ export function hasOrdererInitialized(fileLocation?: string): boolean {
     );
     fileLocation = defaultFileLocation;
   } else {
+    if (!fileLocation.endsWith(".yaml"))
+      fileLocation = path.join(fileLocation, "orderer.yaml");
     log.debug(`Using provided file location: ${fileLocation}`);
   }
 

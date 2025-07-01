@@ -1,9 +1,9 @@
-name: 'Test Coverage'
+name: "Test Coverage"
 
 on:
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [ master, main ]
+    branches: [master, main]
   workflow_dispatch:
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [ 20.x ]
+        node-version: [20.x]
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     steps:
       - name: Checkout
@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
+      - run: npm run setup
       - run: npm run build:prod
       - run: npm run coverage
       - name: Tests ✅
