@@ -1,5 +1,5 @@
-import { FabricCAServerCommandBuilder } from "../../src/fabric/fabric-ca-server/fabric-ca-server";
-import { FabricCAServerCommand } from "../../src/fabric/fabric-ca-server/constants";
+import { FabricCAServerCommandBuilder } from "../../src/fabric/fabric-ca-server-old/fabric-ca-server";
+import { FabricCAServerCommand } from "../../src/fabric/fabric-ca-server-old/constants";
 import { Logger } from "@decaf-ts/logging";
 
 describe("FabricCAServerCommandBuilder", () => {
