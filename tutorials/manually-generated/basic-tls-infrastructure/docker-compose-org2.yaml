@@ -1,10 +1,10 @@
 services:
-  issue-orgs:
-    container_name: issue-orgs
+  issue-org2:
+    container_name: issue-org2
     image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
     restart: no
     volumes:
-      - boot-files:/boot:rw
+      - boot-files2:/boot:rw
       - org-2-tls-server-vol:/weaver/tls/server:rw
       - org-2-server-vol:/weaver/ca/server:rw
 
@@ -31,11 +31,11 @@ services:
       - FABRIC_CA_CLIENT_HOME=/weaver/client/admin
       - FABRIC_CA_SERVER_HOME=/weaver/server
     ports:
-      - "7010:7010"
+      - "7001:7001"
     networks:
-      org1_network:
+      org2_network:
     depends_on:
-      issue-orgs:
+      issue-org2:
         condition: service_completed_successfully
     healthcheck:
       test: bash -c "[ -f /weaver/server/ca-cert.pem ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
@@ -68,8 +68,8 @@ services:
   #       --no-tls
 
 volumes:
-  boot-files:
-    name: boot-files
+  boot-files2:
+    name: boot-files2
 
   org-2-tls-server-vol:
     name: org-2-tls-server-vol
