@@ -8,12 +8,17 @@ export class FabricCAServerCLI extends BaseCLI {
   constructor() {
     super("weaver-fabric-ca-server", "CLI for Fabric CA Server functionality");
 
+    this.setup();
+  }
+
+  private setup() {
     const methodNames = Object.getOwnPropertyNames(
       Object.getPrototypeOf(this)
     ).filter(
       (name) =>
         name !== "constructor" &&
-        typeof this[name as keyof FabricCAServerCLI] === "function"
+        typeof this[name as keyof FabricCAServerCLI] === "function" &&
+        name !== "setup"
     );
 
     for (const methodName of methodNames) {
