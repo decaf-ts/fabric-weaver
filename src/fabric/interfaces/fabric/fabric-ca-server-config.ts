@@ -1,6 +1,8 @@
 import {
   ClientAuthType,
+  FabricCAServerCurveName,
   FabricCAServerDBTypes,
+  FabricCAServerEnrollmentType,
 } from "../../constants/fabric-ca-server";
 
 /**
@@ -149,6 +151,14 @@ export interface Identity {
     [key: string]: string | boolean;
   };
 }
+export type CommadCSRConfig = Pick<CSRConfig, "cn" | "hosts"> & {
+  keyrequest?: {
+    algo?: string;
+    size?: number;
+    reusekey?: boolean;
+  };
+  serialnumber?: string;
+};
 
 export interface CSRConfig {
   cn?: string;
@@ -254,6 +264,11 @@ export interface DBConfig {
   };
 }
 
+export type CommandLDAPConfig = Pick<LDAPConfig, "enabled" | "url" | "tls"> & {
+  attribute?: Pick<NonNullable<LDAPConfig["attribute"]>, "names">;
+  groupfilter?: string;
+  userfilter?: string;
+};
 export interface LDAPConfig {
   /**
    * @description Whether LDAP is enabled.
@@ -316,7 +331,7 @@ export interface IdemixConfig {
   rhpoolsize?: number;
   nonceexpiration?: string;
   noncesweepinterval?: string;
-  curve?: string;
+  curve?: FabricCAServerCurveName;
 }
 
 export interface BCCSPConfig {
@@ -348,6 +363,17 @@ export interface IntermediateCAConfig {
     };
   };
 }
+
+export type CommandIntermediateCAConfig = Pick<
+  IntermediateCAConfig,
+  "parentserver" | "tls"
+> & {
+  enrollment?: {
+    profile?: string;
+    label?: string;
+    type?: FabricCAServerEnrollmentType;
+  };
+};
 
 export interface OperationsConfig {
   listenAddress?: string;

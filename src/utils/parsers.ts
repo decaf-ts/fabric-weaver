@@ -25,3 +25,17 @@ export function safeParseCSV(csv: string): string[] {
 
   return csv.split(COMMA_SEPARATOR).map((item) => item.trim());
 }
+
+export function mapParser(
+  map: Map<string, string | number | boolean | string[]>
+): string[] {
+  return Object.entries(map).flatMap(([key, value]) => {
+    if (typeof value === "boolean") {
+      return value ? [`--${key}`] : [];
+    }
+    if (Array.isArray(value)) {
+      return [`--${key}`, value.join(",")];
+    }
+    return [`--${key}`, value.toString()];
+  });
+}
