@@ -7,7 +7,7 @@ import {
 } from "../../fabric/orderer/";
 import path from "path";
 import fs from "fs";
-import { setOrdererEnvironment } from "../../utils/environment";
+import { setOrdererEnvironment } from "../../utils-old/environment";
 
 export function issueOrderer(
   cpath: string,

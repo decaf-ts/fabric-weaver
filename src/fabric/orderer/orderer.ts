@@ -1,10 +1,10 @@
 import { Logging } from "@decaf-ts/logging";
-import { FabricBinaries } from "../general/constants";
+import { FabricBinaries } from "../general-utils/constants";
 import { OrdererCommand } from "./constants";
 import { OrdererConfig } from "./orderer-config";
 import path from "path";
 import fs from "fs";
-import { readFileYaml, writeFileYaml } from "../../utils/yaml";
+import { readFileYaml, writeFileYaml } from "../../utils-old/yaml";
 import { runCommand } from "../../utils/child-process";
 
 export class OrdererCommandBuilder {

@@ -33,7 +33,7 @@
  * @memberOf module:fabric-weaver
  */
 
-import { BuildScriptsCustom } from "../utils/build-scripts";
+import { BuildScriptsCustom } from "../utils-old/build-scripts";
 
 new BuildScriptsCustom()
   .execute()

@@ -1,5 +1,5 @@
 import { Logging } from "@decaf-ts/logging";
-import { FabricBinaries } from "../general/constants";
+import { FabricBinaries } from "../general-utils/constants";
 import { OSN_ADMIN_SUBCOMMANDS, OSN_ADMIN_BASE_COMMAND } from "./constants";
 import { runCommand } from "../../utils/child-process";
 

@@ -1,4 +1,4 @@
-import { spawn } from "child_process";
+import { spawn, ChildProcess } from "child_process";
 import { Logger, Logging } from "@decaf-ts/logging";
 
 export async function runCommand(
@@ -6,37 +6,49 @@ export async function runCommand(
   args: string[] = [],
   options: { [indexer: string]: string } = {},
   logMatch?: RegExp
-) {
+): Promise<ChildProcess> {
+  const log: Logger = Logging.for(runCommand);
+  log.info(`Running command: ${command} ${args.join(" ")}`);
+
   return new Promise((resolve, reject) => {
-    const log: Logger = Logging.for(runCommand);
-
-    log.info(`Running command: ${command} ${args.join(" ")}`);
     const child = spawn(command, args, options);
-    const regex = logMatch;
+    let stdoutData = "";
+    let stderrData = "";
 
-    child.stdout.on("data", (data: any) => {
-      console.log(`${data}`);
-      if (!regex) return resolve(child);
-
-      if (regex.test(data.toString())) {
+    const checkMatch = (data: string) => {
+      if (logMatch && logMatch.test(data)) {
         resolve(child);
       }
+    };
+
+    child.stdout.on("data", (data: Buffer) => {
+      const strData = data.toString();
+      console.log(strData);
+      stdoutData += strData;
+      checkMatch(strData);
     });
 
-    child.stderr.on("data", (data: any) => {
-      console.error(`${data}`);
-      if (!regex) return resolve(child);
-      if (regex.test(data.toString())) {
-        resolve(child);
-      }
+    child.stderr.on("data", (data: Buffer) => {
+      const strData = data.toString();
+      console.error(strData);
+      stderrData += strData;
+      checkMatch(strData);
     });
 
-    child.on("error", (err: any) => {
+    child.on("error", (err: Error) => {
       reject(err);
     });
 
-    child.on("close", (code: any) => {
-      reject(new Error(`Process exited with code ${code}`));
+    child.on("close", (code: number) => {
+      if (code === 0) {
+        resolve(child);
+      } else {
+        reject(
+          new Error(
+            `Process exited with code ${code}\nStdout: ${stdoutData}\nStderr: ${stderrData}`
+          )
+        );
+      }
     });
   });
 }

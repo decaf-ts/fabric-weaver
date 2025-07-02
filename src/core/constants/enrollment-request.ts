@@ -1,5 +1,5 @@
 import { FabricCAClientCommand } from "../../fabric/fabric-ca-client/constants";
-import { FabricAccountType } from "../../fabric/general/fabric-account-types";
+import { FabricAccountType } from "../../fabric/general-utils/fabric-account-types";
 
 export type EnrollmentType =
   | FabricCAClientCommand.ENROLL

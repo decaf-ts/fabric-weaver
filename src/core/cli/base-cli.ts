@@ -1,12 +1,12 @@
 import { Command } from "commander";
 import { VERSION } from "../../index";
 import { Logger, Logging } from "@decaf-ts/logging";
-import { addFabricToPath } from "../../utils/path";
+import { addFabricToPath } from "../../utils-old/path";
 import { EnvVars } from "../constants/env-vars";
-import { printBanner, printBorder } from "../../utils/banner";
-import { safeParseInt } from "../../utils/parsers";
+import { printBanner, printBorder } from "../../utils-old/banner";
 import fs from "fs";
 import path from "path";
+import { safeParseInt } from "../../utils/parsers";
 
 /**
  * @class BaseCLI
