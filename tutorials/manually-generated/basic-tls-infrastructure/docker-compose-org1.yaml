@@ -5,9 +5,7 @@ services:
     restart: no
     volumes:
       - boot-files1:/boot:rw
-      - org-1-tls-server-vol:/weaver/tls/server:rw
       - org-1-server-vol:/weaver/ca/server:rw
-
     command: >
       bash -c "
       if [ -f /boot/boot-issuer.lock ]; then
@@ -44,26 +42,18 @@ services:
     volumes:
       - org-1-tls-server-vol:/weaver/server:rw
     command: >
-      node ./weaver/lib/core/cli.cjs boot-ca -d -s --home /weaver/server --port 7000 --tls-enabled --ca-name org-1-tls --bootstrap-users org-1-tls:org-1-tls-pw --no-ca-profile --csr-cn org-1-tls --csr-hosts 0.0.0.0,localhost,org-1-tls --operations-listen-address 127.0.0.1:8001
-
-  # org-1:
-  #   # environment:
-  # process.env["FABRIC_CA_CLIENT_TLS_CERTFILES"]=`/${targetFolderName}/server/ca-cert.pem`;
-  #   #
-  #   volumes:
-  #     - orderer-org-1-vol:/weaver/client/orderer1:rw
-  #     - peer-org-1-vol:/weaver/client/peer1:rw
-
-  #   command: >
-  #     node ./weaver/lib/core/cli.cjs docker:boot-ca
-  #       --home /weaver/server
-  #       --port 7010
-  #       --debug
-  #       --bootstrap-user admin:adminpw
-  #       --ca-name org-1
-  #       --operations-address 127.0.0.1:8010
-  #       --metrics-address 127.0.0.1:9010
-  #       --no-tls
+      node ./weaver/lib/core/cli.cjs boot-ca 
+      -d 
+      -s 
+      --home /weaver/server 
+      --port 7000 
+      --tls-enabled 
+      --ca-name org-1-tls 
+      --bootstrap-users org-1-tls:org-1-tls-pw 
+      --no-ca-profile 
+      --csr-cn org-1-tls 
+      --csr-hosts 0.0.0.0,localhost,org-1-tls 
+      --operations-listen-address 127.0.0.1:8010
 
 volumes:
   boot-files1:
