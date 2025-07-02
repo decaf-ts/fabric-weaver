@@ -1,9 +1,6 @@
 import path from "path";
 import fs from "fs";
 import { Logger, Logging } from "@decaf-ts/logging";
-import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server-old/fabric-ca-server";
-import { FabricCAServerCommand } from "../../fabric/fabric-ca-server-old/constants";
-import { CAConfig as cfg } from "../../fabric/fabric-ca-server-old/fabric-ca-server-config";
 import { FabricCAServerConfigBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server-config-builder";
 import {
   CAConfig,
@@ -15,55 +12,36 @@ import {
   ServerTLSConfig,
 } from "../../fabric/interfaces/fabric/fabric-ca-server-config";
 
-export async function bootCAServer(
-  logger: Logger,
-  homeDir: string,
-  caConfig: cfg,
-  bootFileLocation?: string
-) {
-  if (hasCAInitialized(bootFileLocation))
-    return startCAServer(homeDir, caConfig);
+// export async function bootCAServer(
+//   logger: Logger,
+//   homeDir: string,
+//   caConfig: any,
+//   bootFileLocation?: string
+// ) {
+//   if (hasCAInitialized(bootFileLocation))
+//     return startCAServer(homeDir, caConfig);
 
-  issueCA(logger, homeDir, caConfig);
-  await startCAServer(homeDir, caConfig);
-}
+//   issueCA(logger, homeDir, caConfig);
+//   await startCAServer(homeDir, caConfig);
+// }
 
-export async function startCAServer(homeDir: string, caConfig: cfg) {
-  const builder: FabricCAServerCommandBuilder =
-    new FabricCAServerCommandBuilder();
+// export async function startCAServer(homeDir: string, caConfig: cfg) {
+//   const builder: FabricCAServerCommandBuilder =
+//     new FabricCAServerCommandBuilder();
 
-  const command = builder
-    .setCommand(FabricCAServerCommand.START)
-    .setHomeDirectory(homeDir)
-    .setPort(caConfig.port)
-    .enableDebug(caConfig.debug)
-    .setLogLevel(caConfig.logLevel)
-    .setBootstrapAdmin(caConfig.bootstrapUser)
-    .setCAName(caConfig.ca?.name)
-    .setOperationsListenAddress(caConfig.operations?.listenAddress)
-    .setMetricsListenAddress(caConfig.metrics?.statsd?.address);
+//   const command = builder
+//     .setCommand(FabricCAServerCommand.START)
+//     .setHomeDirectory(homeDir)
+//     .setPort(caConfig.port)
+//     .enableDebug(caConfig.debug)
+//     .setLogLevel(caConfig.logLevel)
+//     .setBootstrapAdmin(caConfig.bootstrapUser)
+//     .setCAName(caConfig.ca?.name)
+//     .setOperationsListenAddress(caConfig.operations?.listenAddress)
+//     .setMetricsListenAddress(caConfig.metrics?.statsd?.address);
 
-  await command.execute();
-}
-
-export function issueCA(logger: Logger, homeDir: string, caConfig: cfg) {
-  const builder = new FabricCAServerConfigBuilder(logger);
-
-  builder.setPort(caConfig.port).enableDebug(caConfig.debug).save(homeDir);
-
-  const builder1 = new FabricCAServerCommandBuilder();
-  builder1
-    // .setCommand(FabricCAServerCommand.START)
-    // .setHomeDirectory(homeDir)
-    // .setPort(caConfig.port)
-    .enableDebug(caConfig.debug)
-    .setLogLevel(caConfig.logLevel)
-    .setBootstrapAdmin(caConfig.bootstrapUser)
-    .setCAName(caConfig.ca?.name)
-    .setOperationsListenAddress(caConfig.operations?.listenAddress)
-    .setMetricsListenAddress(caConfig.metrics?.statsd?.address)
-    .saveConfig(homeDir);
-}
+//   await command.execute();
+// }
 
 export function hasCAInitialized(fileLocation?: string): boolean {
   const log: Logger = Logging.for(hasCAInitialized);
@@ -89,7 +67,7 @@ export function hasCAInitialized(fileLocation?: string): boolean {
   return booted;
 }
 
-export function issueCAServerConfig(
+export function issueCA(
   logger: Logger,
   caDir: string,
   version?: string,

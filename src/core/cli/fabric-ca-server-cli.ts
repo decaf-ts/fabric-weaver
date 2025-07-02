@@ -1,6 +1,6 @@
 import { LogLevel } from "@decaf-ts/logging";
 import { BaseCLI } from "./base-cli";
-import { issueCAServerConfig } from "../scripts/ca-server";
+import { issueCA } from "../scripts/ca-server";
 import { safeParseCSV, safeParseInt } from "../../utils/parsers";
 import { COLON_SEPARATOR } from "../constants/constants";
 
@@ -132,7 +132,7 @@ export class FabricCAServerCLI extends BaseCLI {
         this.log.info(`Bootstrap users: ${user}:${password}`);
 
         try {
-          issueCAServerConfig(
+          issueCA(
             this.log,
             options.home,
             options.configVersion,

@@ -1,8 +1,6 @@
 import { LogLevel } from "@decaf-ts/logging";
 import { FabricCAClientCommand } from "../../fabric/fabric-ca-client/constants";
-import { CAConfig } from "../../fabric/fabric-ca-server-old/fabric-ca-server-config";
 import { processEnrollmentRequest } from "../scripts/ca-client";
-import { bootCAServer, issueCA } from "../scripts/ca-server";
 import { BaseCLI } from "./base-cli";
 import { bootOrderer, issueOrderer, osnAdminJoin } from "../scripts/orderer";
 import { createGenesisBlock } from "../scripts/configtxgen";
@@ -89,27 +87,27 @@ export class CoreCLI extends BaseCLI {
           `Boot file location: ${options.bootFile ? options.bootFile : "{workdir}/server/ca-cert.pem"}`
         );
 
-        const config: CAConfig = {
-          port: options.port,
-          debug: options.debug,
-          bootstrapUser: options.bootstrapUser,
-          logLevel: options.logLevel,
-          noCA: options.noCa,
-          noTLS: options.noTls,
-          ca: {
-            name: options.caName,
-          },
-          operations: {
-            listenAddress: options.operationsAddress,
-          },
-          metrics: {
-            statsd: {
-              address: options.metricsAddress,
-            },
-          },
-        };
+        // const config: CAConfig = {
+        //   port: options.port,
+        //   debug: options.debug,
+        //   bootstrapUser: options.bootstrapUser,
+        //   logLevel: options.logLevel,
+        //   noCA: options.noCa,
+        //   noTLS: options.noTls,
+        //   ca: {
+        //     name: options.caName,
+        //   },
+        //   operations: {
+        //     listenAddress: options.operationsAddress,
+        //   },
+        //   metrics: {
+        //     statsd: {
+        //       address: options.metricsAddress,
+        //     },
+        //   },
+        // };
 
-        bootCAServer(this.log, options.home, config, options.bootFile);
+        // bootCAServer(this.log, options.home, config, options.bootFile);
       });
 
     // .option('--working-dir <string>', 'Working directory inside docker container. Defaults to "aeon"', 'aeon')
@@ -190,27 +188,27 @@ export class CoreCLI extends BaseCLI {
           `Boot file location: ${options.bootFile ? options.bootFile : "{workdir}/server/ca-cert.pem"}`
         );
 
-        const config: CAConfig = {
-          port: options.port,
-          debug: options.debug,
-          bootstrapUser: options.bootstrapUser,
-          logLevel: options.logLevel,
-          noCA: options.noCa,
-          noTLS: options.noTls,
-          ca: {
-            name: options.caName,
-          },
-          operations: {
-            listenAddress: options.operationsAddress,
-          },
-          metrics: {
-            statsd: {
-              address: options.metricsAddress,
-            },
-          },
-        };
+        // const config: CAConfig = {
+        //   port: options.port,
+        //   debug: options.debug,
+        //   bootstrapUser: options.bootstrapUser,
+        //   logLevel: options.logLevel,
+        //   noCA: options.noCa,
+        //   noTLS: options.noTls,
+        //   ca: {
+        //     name: options.caName,
+        //   },
+        //   operations: {
+        //     listenAddress: options.operationsAddress,
+        //   },
+        //   metrics: {
+        //     statsd: {
+        //       address: options.metricsAddress,
+        //     },
+        //   },
+        // };
 
-        issueCA(this.log, options.home, config);
+        // issueCA(this.log, options.home, config);
         this.log.info("CA server issued successfully!");
       });
   }
