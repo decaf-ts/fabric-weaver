@@ -1,0 +1,83 @@
+services:
+  issue-org2:
+    container_name: issue-org2
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - boot-files2:/boot:rw
+      - org-2-tls-server-vol:/weaver/tls/server:rw
+      - org-2-server-vol:/weaver/ca/server:rw
+
+    command: >
+      bash -c "
+      if [ -f /boot/boot-issuer.lock ]; then
+        echo 'Org1 TLS boot is already complete. Skipping...';
+        exit 0;
+      fi;
+
+      node ./weaver/lib/core/cli.cjs issue-ca -d -s --home /weaver/tls/server --port 7001 --tls-enabled --ca-name org-2-tls --bootstrap-users org-2-tls:org-2-tls-pw --no-ca-profile --csr-cn org-2-tls --csr-hosts 0.0.0.0,localhost,org-2-tls --operations-listen-address 127.0.0.1:8001 &&
+
+      node ./weaver/lib/core/cli.cjs issue-ca -d -s --home /weaver/ca/server --port 7011 --tls-enabled --ca-name org-2 --bootstrap-users org-2:org-2-pw --no-tls-profile --csr-cn org-2 --csr-hosts 0.0.0.0,localhost,org-2 --operations-listen-address 127.0.0.1:8001 --tls-certfile /weaver/client/admin/tls-msp/signcerts/cert.pem --tls-keyfile /weaver/client/admin/tls-msp/signcerts/cert.pem &&
+
+      touch /boot/boot-issuer.lock 
+      "
+
+  org-2-tls:
+    container_name: org-2-tls
+    hostname: org-2-tls
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    environment:
+      - FABRIC_CA_CLIENT_HOME=/weaver/client/admin
+      - FABRIC_CA_SERVER_HOME=/weaver/server
+    ports:
+      - "7001:7001"
+    networks:
+      org2_network:
+    depends_on:
+      issue-org2:
+        condition: service_completed_successfully
+    healthcheck:
+      test: bash -c "[ -f /weaver/server/ca-cert.pem ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - org-2-tls-server-vol:/weaver/server:rw
+    command: >
+      node ./weaver/lib/core/cli.cjs sleep --time 300
+
+  # org-1:
+  #   # environment:
+  # process.env["FABRIC_CA_CLIENT_TLS_CERTFILES"]=`/${targetFolderName}/server/ca-cert.pem`;
+  #   #
+  #   volumes:
+  #     - orderer-org-1-vol:/weaver/client/orderer1:rw
+  #     - peer-org-1-vol:/weaver/client/peer1:rw
+
+  #   command: >
+  #     node ./weaver/lib/core/cli.cjs docker:boot-ca
+  #       --home /weaver/server
+  #       --port 7010
+  #       --debug
+  #       --bootstrap-user admin:adminpw
+  #       --ca-name org-1
+  #       --operations-address 127.0.0.1:8010
+  #       --metrics-address 127.0.0.1:9010
+  #       --no-tls
+
+volumes:
+  boot-files2:
+    name: boot-files2
+
+  org-2-tls-server-vol:
+    name: org-2-tls-server-vol
+
+  org-2-server-vol:
+    name: org-2-server-vol
+
+networks:
+  org2_network:
+    name: org2_network
+    driver: bridge

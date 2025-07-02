@@ -1,7 +1,7 @@
 import { Logger, Logging } from "@decaf-ts/logging";
 import { PeerConfig } from "../../fabric/peer/peer-config";
 import { PeerCommandBuilder } from "../../fabric/peer";
-import { setPeerEnvironment } from "../../utils/environment";
+import { setPeerEnvironment } from "../../utils-old/environment";
 import {
   PeerChannelCommands,
   PeerCommands,
