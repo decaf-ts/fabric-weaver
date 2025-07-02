@@ -1,14 +1,17 @@
-import { spawn, ChildProcess } from "child_process";
+import { spawn, ChildProcess, execSync } from "child_process";
 import { Logger, Logging } from "@decaf-ts/logging";
 
 export async function runCommand(
   command: string,
   args: string[] = [],
-  options: { [indexer: string]: string } = {},
+  options: { [indexer: string]: string } = { stdio: "inherit" },
   logMatch?: RegExp
-): Promise<ChildProcess> {
+): Promise<ChildProcess | void | Buffer> {
   const log: Logger = Logging.for(runCommand);
   log.info(`Running command: ${command} ${args.join(" ")}`);
+
+  if (!logMatch)
+    return execSync([command, ...args].join(" "), { stdio: "inherit" });
 
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, options);

@@ -585,8 +585,8 @@ export class FabricCAServerCommandBuilder {
     const bin = this.getBinary();
     const argz = [this.getCommand(), ...this.getArgs()];
 
-    const regex = /\[\s*INFO\s*\] Listening on http/;
-
-    await runCommand(bin, argz, {}, regex);
+    // const regex = /\[\s*INFO\s*\] Listening on http/;
+    // can be used as a promise but to lock the logs running as execsync
+    await runCommand(bin, argz);
   }
 }
