@@ -1,3 +1,4 @@
+import path from "path";
 /**
  * @description Fabric CA Server command options.
  * @summary Enumeration of available commands for the Fabric CA Server.
@@ -93,3 +94,8 @@ export enum FabricCAServerEnrollmentType {
   /** Identity Mixer (Idemix) credential-based enrollment */
   IDEMIX = "idemix",
 }
+
+export const DEFAULT_CA_CERT_PATH = path.join(
+  __dirname,
+  "../../../server/ca-cert.pem"
+);
