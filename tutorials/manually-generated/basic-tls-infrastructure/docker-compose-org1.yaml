@@ -15,8 +15,6 @@ services:
         exit 0;
       fi;
 
-      node ./weaver/lib/core/cli.cjs issue-ca -d -s --home /weaver/tls/server --port 7000 --tls-enabled --ca-name org-1-tls --bootstrap-users org-1-tls:org-1-tls-pw --no-ca-profile --csr-cn org-1-tls --csr-hosts 0.0.0.0,localhost,org-1-tls --operations-listen-address 127.0.0.1:8001 &&
-
       node ./weaver/lib/core/cli.cjs issue-ca -d -s --home /weaver/ca/server --port 7010 --tls-enabled --ca-name org-1 --bootstrap-users org-1:org-1-pw --no-tls-profile --csr-cn org-1 --csr-hosts 0.0.0.0,localhost,org-1 --operations-listen-address 127.0.0.1:8001 --tls-certfile /weaver/client/admin/tls-msp/signcerts/cert.pem --tls-keyfile /weaver/client/admin/tls-msp/signcerts/cert.pem &&
 
       touch /boot/boot-issuer.lock 
@@ -46,7 +44,7 @@ services:
     volumes:
       - org-1-tls-server-vol:/weaver/server:rw
     command: >
-      node ./weaver/lib/core/cli.cjs sleep --time 300
+      node ./weaver/lib/core/cli.cjs boot-ca -d -s --home /weaver/server --port 7000 --tls-enabled --ca-name org-1-tls --bootstrap-users org-1-tls:org-1-tls-pw --no-ca-profile --csr-cn org-1-tls --csr-hosts 0.0.0.0,localhost,org-1-tls --operations-listen-address 127.0.0.1:8001
 
   # org-1:
   #   # environment:
