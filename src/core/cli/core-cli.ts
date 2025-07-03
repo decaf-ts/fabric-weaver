@@ -6,7 +6,7 @@ import { COLON_SEPARATOR } from "../constants/constants";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
-    super("weaver-core", "CLI for Fabric CA Server functionality");
+    super("weaver-core", "CLI for core fabric functionality");
 
     this.setup();
   }
