@@ -3,6 +3,7 @@ import { BaseCLI } from "./base-cli";
 import { bootCA, issueCA, startCA } from "../scripts/ca-server";
 import { safeParseCSV, safeParseInt } from "../../utils/parsers";
 import { COLON_SEPARATOR } from "../constants/constants";
+import { clientEnrollment } from "../scripts/ca-client";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -424,6 +425,96 @@ export class CoreCLI extends BaseCLI {
         }
 
         this.log.info("Fabric CA Server config issued successfully!");
+      });
+  }
+
+  private clientEnrollment() {
+    this.program
+      .command("client-enrollment")
+      .description("Command to handle identities register and enroll")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--command <string>", "Command to execute (enroll or register)")
+      .option("--csr-cn <string>", "CSR Common Name")
+      .option("--csr-hosts <CSV>", "CSR Hosts", safeParseCSV)
+      .option("--csr-keyrequest-algo <string>", "CSR Key Request Algo")
+      .option(
+        "--csr-keyrequest-size <number>",
+        "CSR Key Request Size",
+        safeParseInt
+      )
+      .option("--csr-keyrequest-reusekey", "CSR Key Request Reuse Key")
+      .option("--csr-names <CSV>", "CSR Names", safeParseCSV)
+      .option("--csr-serialnumber <string>", "CSR Serial Number")
+      .option("--home <string>", "Home directory for the client")
+      .option("--ca-name <string>", "CA Name")
+      .option("--url <string>", "URL for the Fabric CA Server")
+      .option("--enrollment-attrs <CSV>", "Enrollment Attributes", safeParseCSV)
+      .option("--enrollment-profile <string>", "Enrollment Profile")
+      .option("--enrollment-label <string>", "Enrollment Label")
+      .option("--enrollment-type <string>", "Enrollment Type")
+      .option("--id-affiliation <string>", "ID Affiliation")
+      .option("--id-maxenrollments <number>", "ID Maximum Enrollments")
+      .option("--id-name <string>", "ID Name")
+      .option("--id-secret <string>", "ID Secret")
+      .option("--id-type <string>", "ID Type")
+      .option("--id-attrs <CSV>", "ID Attributes", safeParseCSV)
+      .option("--mspdir <string>", "MSP Directory")
+      .option("--my-host <string>", "My Host")
+      .option("--tls-certfiles <CSV>", "TLS Certfile location", safeParseCSV)
+      .option("--tls-client-certfile <string>", "TLS Client Certfile")
+      .option("--tls-client-keyfile <string>", "TLS Client Keyfile")
+      .option("--idemix-curve <string>", "IDMix Curve")
+      .action(async (options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+
+        this.log.info("Running fabric CA client enrollment command...");
+
+        clientEnrollment(
+          this.log,
+          options.command,
+          {
+            cn: options.csrCn,
+            hosts: options.csrHosts,
+            keyrequest: {
+              algo: options.csrKeyrequestAlgo,
+              size: options.csrKeyrequestSize,
+              reusekey: options.csrKeyrequestReusekey,
+            },
+            serialnumber: options.csrSerialnumber,
+            names: options.csrNames,
+          },
+          options.home,
+          options.caName,
+          options.url,
+          {
+            attrs: options.enrollmentAttrs,
+            profile: options.enrollmentProfile,
+            label: options.enrollmentLabel,
+            type: options.enrollmentType,
+          },
+          {
+            affiliation: options.idAffiliation,
+            maxenrollments: options.idMaxenrollments,
+            name: options.idName,
+            secret: options.idSecret,
+            type: options.idType,
+            attrs: options.idAttrs,
+          },
+          options.idemixCurve,
+          options.mspdir,
+          options.myHost,
+          {
+            certfiles: options.tlsCertfiles,
+            client: {
+              certfile: options.tlsClientCertfile,
+              keyfile: options.tlsClientKeyfile,
+            },
+          }
+        );
+
+        this.log.info("Command completed successfully!");
       });
   }
 }

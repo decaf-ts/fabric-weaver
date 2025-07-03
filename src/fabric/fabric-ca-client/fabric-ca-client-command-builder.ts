@@ -138,7 +138,7 @@ export class FabricCAClientCommandBuilder {
     return this;
   }
 
-  setidentity(identity?: IdentityConfig): this {
+  setIdentity(identity?: IdentityConfig): this {
     if (identity === undefined) return this;
 
     if (identity.affiliation !== undefined) {
@@ -235,7 +235,7 @@ export class FabricCAClientCommandBuilder {
     return this;
   }
 
-  setTLS(tls: TLSConfig): this {
+  setTLS(tls?: TLSConfig): this {
     if (tls === undefined) return this;
 
     if (tls.certfiles !== undefined) {
