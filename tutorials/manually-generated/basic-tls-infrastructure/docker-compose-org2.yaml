@@ -6,17 +6,14 @@ services:
     volumes:
       - boot-files2:/boot:rw
       - org-2-server-vol:/weaver/ca/server:rw
-
     command: >
       bash -c "
       if [ -f /boot/boot-issuer.lock ]; then
-        echo 'Org1 TLS boot is already complete. Skipping...';
+        echo 'Org2 TLS boot is already complete. Skipping...';
         exit 0;
       fi;
 
-
-
-      node ./weaver/lib/core/cli.cjs issue-ca -d -s --home /weaver/ca/server --port 7011 --tls-enabled --ca-name org-2 --bootstrap-users org-2:org-2-pw --no-tls-profile --csr-cn org-2 --csr-hosts 0.0.0.0,localhost,org-2 --operations-listen-address 127.0.0.1:8001 --tls-certfile /weaver/client/admin/tls-msp/signcerts/cert.pem --tls-keyfile /weaver/client/admin/tls-msp/signcerts/cert.pem &&
+      node ./weaver/lib/core/cli.cjs issue-ca -d -s --home /weaver/ca/server --port 7010 --tls-enabled --ca-name org-2 --bootstrap-users org-2:org-2-pw --no-tls-profile --csr-cn org-2 --csr-hosts 0.0.0.0,localhost,org-2 --operations-listen-address 127.0.0.1:8010 --tls-certfile /weaver/client/admin/tls-msp/signcerts/cert.pem --tls-keyfile /weaver/client/admin/tls-msp/signcerts/cert.pem &&
 
       touch /boot/boot-issuer.lock 
       "
@@ -29,8 +26,9 @@ services:
     environment:
       - FABRIC_CA_CLIENT_HOME=/weaver/client/admin
       - FABRIC_CA_SERVER_HOME=/weaver/server
+      - FABRIC_CA_CLIENT_TLS_CERTFILES=/weaver/server/ca-cert.pem
     ports:
-      - "7001:7001"
+      - "7002:7002"
     networks:
       org2_network:
     depends_on:
@@ -44,19 +42,87 @@ services:
       start_period: 30s
     volumes:
       - org-2-tls-server-vol:/weaver/server:rw
+      - org-2-tls-client-vol:/weaver/server:rw
     command: >
       node ./weaver/lib/core/cli.cjs boot-ca 
       -d 
       -s 
       --home /weaver/server 
-      --port 7001 
+      --port 7002 
       --tls-enabled 
       --ca-name org-2-tls 
-      --bootstrap-users org-2-tls:org-2-tls-pw 
+      --bootstrap-users org-2-tls-admin:org-2-tls-admin-pw 
       --no-ca-profile 
       --csr-cn org-2-tls 
       --csr-hosts 0.0.0.0,localhost,org-2-tls 
       --operations-listen-address 127.0.0.1:8010
+
+  boot-org-2-tls:
+    container_name: boot-org-2-tls
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files2:/boot:rw
+    depends_on:
+      org-2-tls:
+        condition: service_healthy
+    command: >
+      bash -c "
+      if [ -f /boot/boot-org-2-tls.lock ]; then
+        echo 'Org 2 TLS already booted. Skipping...';
+        exit 0;
+      fi;
+
+      apt-get update &&
+      apt-get install -y docker.io &&
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d --url https://org-2-tls-admin:org-2-tls-admin-pw@org-2-tls:7002 \
+      --command enroll && 
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2-tls:7002 \
+      --id-name org-2-admin \
+      --id-secret org-2-admin-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2-tls:7002 \
+      --id-name org-2-orderer-0-admin \
+      --id-secret org-2-orderer-0-admin-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2-tls:7002 \
+      --id-name org-2-orderer-0 \
+      --id-secret org-2-orderer-0 \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2-tls:7002 \
+      --id-name org-2-peer-0-admin \
+      --id-secret org-2-peer-0-admin-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2-tls:7002 \
+      --id-name org-2-peer-0 \
+      --id-secret org-2-peer-0 \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      touch /boot/boot-org-2-tls.lock 
+      "
 
 volumes:
   boot-files2:
@@ -64,6 +130,8 @@ volumes:
 
   org-2-tls-server-vol:
     name: org-2-tls-server-vol
+  org-2-tls-client-vol:
+    name: org-2-tls-client-vol
 
   org-2-server-vol:
     name: org-2-server-vol

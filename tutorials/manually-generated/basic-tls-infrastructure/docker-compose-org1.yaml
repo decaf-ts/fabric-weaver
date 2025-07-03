@@ -51,7 +51,7 @@ services:
       --port 7001 
       --tls-enabled 
       --ca-name org-1-tls 
-      --bootstrap-users org-1-tls:org-1-tls-pw 
+      --bootstrap-users org-1-tls-admin:org-1-tls-admin-pw 
       --no-ca-profile 
       --csr-cn org-1-tls 
       --csr-hosts 0.0.0.0,localhost,org-1-tls 
@@ -78,8 +78,48 @@ services:
       apt-get install -y docker.io &&
 
       docker exec org-1-tls node ./weaver/lib/core/cli.cjs client-enrollment \
-      -d --url https://org-1-tls:org-1-tls-pw@org-1-tls:7001 \
-      --command enroll 
+      -d --url https://org-1-tls-admin:org-1-tls-admin-pw@org-1-tls:7001 \
+      --command enroll && 
+
+      docker exec org-1-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-1-tls:7001 \
+      --id-name org-1-admin \
+      --id-secret org-1-admin-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-1-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-1-tls:7001 \
+      --id-name org-1-orderer-0-admin \
+      --id-secret org-1-orderer-0-admin-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-1-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-1-tls:7001 \
+      --id-name org-1-orderer-0 \
+      --id-secret org-1-orderer-0 \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-1-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-1-tls:7001 \
+      --id-name org-1-peer-0-admin \
+      --id-secret org-1-peer-0-admin-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-1-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-1-tls:7001 \
+      --id-name org-1-peer-0 \
+      --id-secret org-1-peer-0 \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
 
       touch /boot/boot-org-1-tls.lock 
       "
