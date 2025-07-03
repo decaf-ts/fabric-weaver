@@ -464,6 +464,12 @@ export class CoreCLI extends BaseCLI {
       .option("--tls-client-certfile <string>", "TLS Client Certfile")
       .option("--tls-client-keyfile <string>", "TLS Client Keyfile")
       .option("--idemix-curve <string>", "IDMix Curve")
+      .option(
+        "--key-destination-dir <string>",
+        "Copy Key to the server MSP Directory"
+      )
+      .option("--rename-key", "Rename Key in MSP Directory")
+
       .action(async (options) => {
         this.log.setConfig({
           level: options.debug ? LogLevel.debug : LogLevel.info,
@@ -511,7 +517,9 @@ export class CoreCLI extends BaseCLI {
               certfile: options.tlsClientCertfile,
               keyfile: options.tlsClientKeyfile,
             },
-          }
+          },
+          options.keyDestinationDir,
+          options.renameKey
         );
 
         this.log.info("Command completed successfully!");

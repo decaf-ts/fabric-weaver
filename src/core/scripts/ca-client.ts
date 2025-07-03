@@ -86,7 +86,9 @@ export function clientEnrollment(
   idemixCurve?: string,
   mspdir?: string,
   myHost?: string,
-  tls?: TLSConfig
+  tls?: TLSConfig,
+  destinationDir?: string,
+  changeKeyName?: boolean
 ) {
   const builder = new FabricCAClientCommandBuilder(logger);
 
@@ -107,5 +109,7 @@ export function clientEnrollment(
     .setMspdir(mspdir)
     .setMyHost(myHost)
     .setTLS(tls)
+    .copyKey(mspdir, destinationDir)
+    .changeKeyName(mspdir, changeKeyName)
     .execute();
 }

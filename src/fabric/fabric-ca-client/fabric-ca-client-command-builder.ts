@@ -4,6 +4,8 @@ import { mapParser } from "../../utils/parsers";
 import { runCommand } from "../../utils/child-process";
 import { FabricCAClientCommand } from "../constants/fabric-ca-client";
 import { COMMA_SEPARATOR } from "../../core/constants/constants";
+import path from "path";
+import fs from "fs";
 import {
   CommadCSRConfig,
   EnrollmentConfig,
@@ -251,6 +253,58 @@ export class FabricCAClientCommandBuilder {
       if (tls.client.keyfile !== undefined) {
         this.log.debug(`Setting TLS client keyfile: ${tls.client.keyfile}`);
         this.args.set("tls.client.keyfile", tls.client.keyfile);
+      }
+    }
+
+    return this;
+  }
+
+  copyKey(pathToMSPDir?: string, destinationDir?: string): this {
+    if (pathToMSPDir !== undefined && destinationDir !== undefined) {
+      try {
+        const pathToKeystore = pathToMSPDir + "/keystore";
+        const fileList = fs.readdirSync(pathToKeystore);
+
+        if (fileList.length === 0) {
+          this.log.error("No key file found in the keystore directory.");
+          return this;
+        }
+
+        const sourcePath = path.join(pathToKeystore, fileList[0]);
+        const destinationPath = path.join(destinationDir, fileList[0]);
+
+        // Create the destination directory if it doesn't exist
+        fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+
+        // Copy the file
+        fs.copyFileSync(sourcePath, destinationPath);
+
+        this.log.debug(
+          `Key file copied from ${sourcePath} to ${destinationPath}`
+        );
+      } catch (error: unknown) {
+        this.log.error(
+          `Error: Failed to copy the key file to the destination directory: ${error}`
+        );
+      }
+    }
+
+    return this;
+  }
+  changeKeyName(pathToMSPDir?: string, changeKeyName?: boolean): this {
+    if (!changeKeyName) return this;
+
+    if (pathToMSPDir !== undefined) {
+      try {
+        const pathToKeystore = pathToMSPDir + "/keystore";
+        const fileList = fs.readdirSync(pathToKeystore);
+        const currentName = `${pathToKeystore}/${fileList[0]}`;
+        const finalName = `${pathToKeystore}/key.pem`;
+        fs.renameSync(currentName, finalName);
+      } catch (error: unknown) {
+        this.log.error(
+          `Error: Failed to rename the key file in the MSP directory: ${error}`
+        );
       }
     }
 
