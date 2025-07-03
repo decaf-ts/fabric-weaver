@@ -53,15 +53,16 @@ export abstract class BaseCLI {
       .option("-l, --limiter", "Supress the line after the command output")
       .hook("preAction", (cmd) => {
         const skipBanner = cmd.opts().skipBanner === true;
+        const skipLimiter = cmd.opts().limiter === true;
         printBanner(skipBanner);
         this.log.debug(`Skip banner: ${skipBanner}`);
+        this.log.debug(`Skip Limiter: ${skipLimiter}`);
         this.log.debug(`Starting ${this.program.name()} v${VERSION}`);
         addFabricToPath(process.env[EnvVars.FABRIC_BIN_FOLDER]);
       })
       .hook("postAction", (cmd) => {
         const skipLimiter = cmd.opts().limiter === true;
         printBorder(skipLimiter);
-        this.log.debug(`Skip Limiter: ${skipLimiter}`);
       });
 
     this.sleep();

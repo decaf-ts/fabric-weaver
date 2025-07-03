@@ -476,6 +476,7 @@ export class CoreCLI extends BaseCLI {
         });
 
         this.log.info("Running fabric CA client enrollment command...");
+        this.log.debug(`Options: ${JSON.stringify(options, null, 2)}`);
 
         clientEnrollment(
           this.log,

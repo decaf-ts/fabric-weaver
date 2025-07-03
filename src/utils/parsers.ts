@@ -29,7 +29,7 @@ export function safeParseCSV(csv: string): string[] {
 export function mapParser(
   map: Map<string, string | number | boolean | string[]>
 ): string[] {
-  return Object.entries(map).flatMap(([key, value]) => {
+  const argz = Array.from(map, ([key, value]) => {
     if (typeof value === "boolean") {
       return value ? [`--${key}`] : [];
     }
@@ -38,4 +38,6 @@ export function mapParser(
     }
     return [`--${key}`, value.toString()];
   });
+
+  return argz.map((el) => el.join(" "));
 }

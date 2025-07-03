@@ -26,8 +26,9 @@ services:
     environment:
       - FABRIC_CA_CLIENT_HOME=/weaver/client/admin
       - FABRIC_CA_SERVER_HOME=/weaver/server
+      - FABRIC_CA_CLIENT_TLS_CERTFILES=/weaver/server/ca-cert.pem
     ports:
-      - "7000:7000"
+      - "7001:7001"
     networks:
       org1_network:
     depends_on:
@@ -41,12 +42,13 @@ services:
       start_period: 30s
     volumes:
       - org-1-tls-server-vol:/weaver/server:rw
+      - org-1-tls-client-vol:/weaver/server:rw
     command: >
       node ./weaver/lib/core/cli.cjs boot-ca 
       -d 
       -s 
       --home /weaver/server 
-      --port 7000 
+      --port 7001 
       --tls-enabled 
       --ca-name org-1-tls 
       --bootstrap-users org-1-tls:org-1-tls-pw 
@@ -55,12 +57,41 @@ services:
       --csr-hosts 0.0.0.0,localhost,org-1-tls 
       --operations-listen-address 127.0.0.1:8010
 
+  boot-org-1-tls:
+    container_name: boot-org-1-tls
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files1:/boot:rw
+    depends_on:
+      org-1-tls:
+        condition: service_healthy
+    command: >
+      bash -c "
+      if [ -f /boot/boot-org-1-tls.lock ]; then
+        echo 'Org 1 TLS already booted. Skipping...';
+        exit 0;
+      fi;
+
+      apt-get update &&
+      apt-get install -y docker.io &&
+
+      docker exec org-1-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d --url https://org-1-tls:org-1-tls-pw@org-1-tls:7001 \
+      --command enroll 
+
+      touch /boot/boot-org-1-tls.lock 
+      "
+
 volumes:
   boot-files1:
     name: boot-files1
 
   org-1-tls-server-vol:
     name: org-1-tls-server-vol
+  org-1-tls-client-vol:
+    name: org-1-tls-client-vol
 
   org-1-server-vol:
     name: org-1-server-vol

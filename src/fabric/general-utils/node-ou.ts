@@ -3,7 +3,7 @@ import { writeFileYaml } from "../../utils-old/yaml";
 import { NodeOUConfig } from "./node-ou-config";
 import path from "path";
 import fs from "fs";
-import { FabricAccountType } from "./fabric-account-types";
+import { FabricAccountType } from "../constants/fabric-general";
 
 // const getCertName = () => {
 
