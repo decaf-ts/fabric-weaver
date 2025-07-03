@@ -1,9 +1,9 @@
 import { Logger, Logging } from "@decaf-ts/logging";
 import { FabricBinaries } from "../general-utils/constants";
-import { FabricCAClientCommand } from "./constants";
-import { getAccountType } from "../general-utils/fabric-account-types";
+// import { getAccountType } from "../general-utils/fabric-account-types";
 import fs from "fs";
 import { runCommand } from "../../utils/child-process";
+import { FabricCAClientCommand } from "../constants/fabric-ca-client";
 
 //TODO: Implement the subcommands for each Fabric CA Client commands
 // reference page https://hyperledger-fabric-ca.readthedocs.io/en/latest/clientcli.html
@@ -168,15 +168,15 @@ export class FabricCAClientCommandBuilder {
    * @param {string} type - The type of identity (e.g. 'peer', 'app', 'user').
    * @returns {FabricCAClientCommandBuilder} The current instance for method chaining.
    */
-  setIdType(type?: string): FabricCAClientCommandBuilder {
-    if (type !== undefined) {
-      type = getAccountType(type);
-      this.log.debug(`Setting ID Type: ${type}`);
-      this.flags.set("id.type", type);
-    }
+  // setIdType(type?: string): FabricCAClientCommandBuilder {
+  //   if (type !== undefined) {
+  //     type = getAccountType(type);
+  //     this.log.debug(`Setting ID Type: ${type}`);
+  //     this.flags.set("id.type", type);
+  //   }
 
-    return this;
-  }
+  //   return this;
+  // }
 
   /**
    * @description Sets the identity mixer curve ID to use.

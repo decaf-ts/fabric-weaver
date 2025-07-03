@@ -1,5 +1,5 @@
 export enum FabricBinaries {
-  //   CLIENT = "fabric-ca-client",
+  CLIENT = "fabric-ca-client",
   SERVER = "fabric-ca-server",
   //   ORDERER = "orderer",
   //   PEER = "peer",
