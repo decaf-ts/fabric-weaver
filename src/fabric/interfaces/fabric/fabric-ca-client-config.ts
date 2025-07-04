@@ -24,7 +24,7 @@ export type IdentityConfig = {
   name?: string;
   secret?: string;
   type?: FabricAccountType;
-  attrs?: string[];
+  attrs?: string;
 };
 
 export type RevokeConfig = {

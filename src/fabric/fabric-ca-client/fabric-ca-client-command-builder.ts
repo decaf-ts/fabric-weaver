@@ -171,10 +171,8 @@ export class FabricCAClientCommandBuilder {
     }
 
     if (identity.attrs !== undefined) {
-      this.log.debug(
-        `Setting identity attributes: ${identity.attrs.join(", ")}`
-      );
-      this.args.set("id.attrs", identity.attrs.join(COMMA_SEPARATOR));
+      this.log.debug(`Setting identity attributes: ${identity.attrs}`);
+      this.args.set("id.attrs", identity.attrs);
     }
 
     return this;
@@ -339,6 +337,7 @@ export class FabricCAClientCommandBuilder {
       await runCommand(bin, argz);
     } catch (error: unknown) {
       this.log.error(`Error: Failed to execute the command: ${error}`);
+      process.exit(1);
     }
   }
 }

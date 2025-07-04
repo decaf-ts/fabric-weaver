@@ -67,6 +67,8 @@ export function clientEnrollment(
     .setMyHost(myHost)
     .setTLS(tls)
     .copyKey(mspdir, destinationDir)
-    .changeKeyName(mspdir, changeKeyName)
     .execute();
+
+  // We need to change the key name after the command is executed so the files are present
+  builder.changeKeyName(mspdir, changeKeyName);
 }

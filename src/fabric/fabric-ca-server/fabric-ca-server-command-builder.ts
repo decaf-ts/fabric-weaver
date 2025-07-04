@@ -591,6 +591,7 @@ export class FabricCAServerCommandBuilder {
       await runCommand(bin, argz);
     } catch (error: unknown) {
       this.log.error(`Error: Failed to execute the command: ${error}`);
+      process.exit(1);
     }
   }
 }

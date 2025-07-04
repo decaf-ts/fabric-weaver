@@ -1,4 +1,4 @@
-import { COMMA_SEPARATOR } from "../core/constants/constants";
+import { COMMA_SEPARATOR, SLASH_SEPARATOR } from "../core/constants/constants";
 
 export function safeParseJSON(v: string): unknown {
   try {
@@ -24,6 +24,13 @@ export function safeParseCSV(csv: string): string[] {
   if (!csv.trim()) return [];
 
   return csv.split(COMMA_SEPARATOR).map((item) => item.trim());
+}
+
+export function safeParseSSV(csv: string): string[] {
+  console.log(csv);
+  if (!csv.trim()) return [];
+
+  return csv.split(SLASH_SEPARATOR).map((item) => `"${item.trim()}"`);
 }
 
 export function mapParser(

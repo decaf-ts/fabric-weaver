@@ -457,7 +457,8 @@ export class CoreCLI extends BaseCLI {
       .option("--id-name <string>", "ID Name")
       .option("--id-secret <string>", "ID Secret")
       .option("--id-type <string>", "ID Type")
-      .option("--id-attrs <CSV>", "ID Attributes", safeParseCSV)
+      //TODO: This should be a list of csv strings but those strings might be csv strings need to find a way to handle that
+      .option("--id-attrs <string>", "ID Attributes")
       .option("--mspdir <string>", "MSP Directory")
       .option("--my-host <string>", "My Host")
       .option("--tls-certfiles <CSV>", "TLS Certfile location", safeParseCSV)

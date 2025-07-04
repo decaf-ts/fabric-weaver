@@ -1,23 +1,4 @@
 services:
-  issue-org1:
-    container_name: issue-org1
-    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
-    restart: no
-    volumes:
-      - boot-files1:/boot:rw
-      - org-1-server-vol:/weaver/ca/server:rw
-    command: >
-      bash -c "
-      if [ -f /boot/boot-issuer.lock ]; then
-        echo 'Org1 TLS boot is already complete. Skipping...';
-        exit 0;
-      fi;
-
-      node ./weaver/lib/core/cli.cjs issue-ca -d -s --home /weaver/ca/server --port 7010 --tls-enabled --ca-name org-1 --bootstrap-users org-1:org-1-pw --no-tls-profile --csr-cn org-1 --csr-hosts 0.0.0.0,localhost,org-1 --operations-listen-address 127.0.0.1:8001 --tls-certfile /weaver/client/admin/tls-msp/signcerts/cert.pem --tls-keyfile /weaver/client/admin/tls-msp/signcerts/cert.pem &&
-
-      touch /boot/boot-issuer.lock 
-      "
-
   org-1-tls:
     container_name: org-1-tls
     hostname: org-1-tls
@@ -31,9 +12,6 @@ services:
       - "7001:7001"
     networks:
       org1_network:
-    depends_on:
-      issue-org1:
-        condition: service_completed_successfully
     healthcheck:
       test: bash -c "[ -f /weaver/server/ca-cert.pem ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
       interval: 10s
@@ -42,7 +20,7 @@ services:
       start_period: 30s
     volumes:
       - org-1-tls-server-vol:/weaver/server:rw
-      - org-1-tls-client-vol:/weaver/server:rw
+      - org-1-tls-client-vol:/weaver/client:rw
     command: >
       node ./weaver/lib/core/cli.cjs boot-ca 
       -d 
@@ -64,9 +42,13 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - boot-files1:/boot:rw
+      - org-1-client-vol:/weaver/client:rw
+      - org-1-tls-server-vol:/weaver/server:rw
     depends_on:
       org-1-tls:
         condition: service_healthy
+    networks:
+      org1_network:
     command: >
       bash -c "
       if [ -f /boot/boot-org-1-tls.lock ]; then
@@ -121,7 +103,111 @@ services:
       --tls-certfiles /weaver/server/ca-cert.pem \
       --mspdir /weaver/client/admin/msp &&
 
+      node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/server/ca-cert.pem \
+      --dest ./weaver/client/tls.pem &&
+
+      node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-1-admin:org-1-admin-pw@org-1-tls:7001 \
+      --mspdir /weaver/client/admin/tls-msp \
+      --enrollment-profile tls  \
+      --csr-hosts 0.0.0.0,localhost,org-1 \
+      --tls-certfiles /weaver/client/tls.pem \
+      --rename-key
+
       touch /boot/boot-org-1-tls.lock 
+      "
+
+  org-1:
+    container_name: org-1
+    hostname: org-1
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    environment:
+      - FABRIC_CA_CLIENT_HOME=/weaver/client/admin
+      - FABRIC_CA_SERVER_HOME=/weaver/server
+      - FABRIC_CA_CLIENT_TLS_CERTFILES=/weaver/client/tls.pem
+    ports:
+      - "7011:7011"
+    networks:
+      org1_network:
+    depends_on:
+      boot-org-1-tls:
+        condition: service_completed_successfully
+    healthcheck:
+      test: bash -c "[ -f /weaver/server/ca-cert.pem ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - org-1-server-vol:/weaver/server:rw
+      - org-1-client-vol:/weaver/client:rw
+    command: >
+      node ./weaver/lib/core/cli.cjs boot-ca 
+      -d 
+      -s 
+      --home /weaver/server 
+      --port 7011 
+      --tls-enabled 
+      --ca-name org-1 
+      --bootstrap-users org-1-admin:org-1-admin-pw 
+      --no-tls-profile
+      --csr-cn org-1 
+      --csr-hosts 0.0.0.0,localhost,org-1 
+      --operations-listen-address 127.0.0.1:8010
+      --tls-certfile /weaver/client/admin/tls-msp/signcerts/cert.pem
+      --tls-keyfile /weaver/client/admin/tls-msp/keystore/key.pem
+
+  boot-org-1:
+    container_name: boot-org-1
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files1:/boot:rw
+    depends_on:
+      org-1:
+        condition: service_healthy
+    networks:
+      org1_network:
+    command: >
+      bash -c "
+      if [ -f /boot/boot-org-1.lock ]; then
+        echo 'Org 1 already booted. Skipping...';
+        exit 0;
+      fi;
+
+      apt-get update &&
+      apt-get install -y docker.io &&
+
+      docker exec org-1 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d --command enroll \
+      --url https://org-1-admin:org-1-admin-pw@org-1:7011 \
+      --tls-certfiles /weaver/client/tls.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-1 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-1:7011 \
+      --id-name org-1-orderer-0-admin \
+      --id-secret org-1-orderer-0-admin-pw \
+      --id-type admin \
+      --id-attrs "hf.Registrar.Roles=*,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert"
+      --tls-certfiles /weaver/client/tls.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-1 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-1:7011 \
+      --id-name org-1-orderer-0 \
+      --id-secret org-1-orderer-0 \
+      --id-type orderer \
+      --tls-certfiles /weaver/client/tls.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      touch /boot/boot-org-1.lock 
       "
 
 volumes:
@@ -135,6 +221,8 @@ volumes:
 
   org-1-server-vol:
     name: org-1-server-vol
+  org-1-client-vol:
+    name: org-1-client-vol
 
 networks:
   org1_network:
