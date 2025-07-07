@@ -4,6 +4,7 @@ import { bootCA, issueCA, startCA } from "../scripts/ca-server";
 import { safeParseCSV, safeParseInt } from "../../utils/parsers";
 import { COLON_SEPARATOR } from "../constants/constants";
 import { clientEnrollment } from "../scripts/ca-client";
+import { configtxgen } from "../scripts/configtxgen";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -522,6 +523,56 @@ export class CoreCLI extends BaseCLI {
           },
           options.keyDestinationDir,
           options.renameKey
+        );
+
+        this.log.info("Command completed successfully!");
+      });
+  }
+
+  private configtxgen() {
+    this.program
+      .command("configtxgen")
+      .description("Command to generate configuration transactions")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--as-org <string>", "Organization")
+      .option(
+        "--channel-create-txbase-profile <string>",
+        "Channel Create Tx Base Profile"
+      )
+      .option("--channel-id <string>", "Channel ID")
+      .option("--config-path <string>", "Config Path")
+      .option("--inspect-block <string>", "Inspect Block")
+      .option("--inspect-channel-create-tx <string>", "Channel Create Tx")
+      .option(
+        "--output-anchor-peers-update <string>",
+        "Inspect Anchor Peers Updated"
+      )
+      .option("--output-block <string>", "Output block")
+      .option("--output-create-channel-tx <string>", "Output Channel Tx")
+      .option("--print-org <string>", "Print Org")
+      .option("--profile <string>", "Profile")
+      .option("--configtxgen-version", "Configtxgen Version")
+      .action(async (options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+
+        this.log.info("Running configtxgen command...");
+        this.log.debug(`Options: ${JSON.stringify(options, null, 2)}`);
+
+        configtxgen(
+          options.asOrg,
+          options.channelCreateTxbaseProfile,
+          options.channelId,
+          options.configPath,
+          options.inspectBlock,
+          options.inspectChannelCreateTx,
+          options.outputAnchorPeersUpdate,
+          options.outputBlock,
+          options.outputCreateChannelTx,
+          options.printOrg,
+          options.profile,
+          options.configtxgenVersion
         );
 
         this.log.info("Command completed successfully!");
