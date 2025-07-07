@@ -3,6 +3,6 @@ export enum FabricBinaries {
   SERVER = "fabric-ca-server",
   //   ORDERER = "orderer",
   //   PEER = "peer",
-  //   CONFIGTXGEN = "configtxgen",
+  CONFIGTXGEN = "configtxgen",
   //   OSNADMIN = "osnadmin",
 }

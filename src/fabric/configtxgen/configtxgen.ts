@@ -1,13 +1,18 @@
-import { Logging } from "@decaf-ts/logging";
-import { FabricBinaries } from "../general-utils/constants";
+import { Logger, Logging } from "@decaf-ts/logging";
+import { FabricBinaries } from "../constants/fabric-binaries";
+import { mapParser } from "../../utils/parsers";
 import { runCommand } from "../../utils/child-process";
 
 export class ConfigtxgenCommandBuilder {
-  private log = Logging.for(ConfigtxgenCommandBuilder);
+  private log: Logger;
 
   private binName: FabricBinaries = FabricBinaries.CONFIGTXGEN;
-
   private args: Map<string, string | boolean | number | string[]> = new Map();
+
+  constructor(logger?: Logger) {
+    if (!logger) this.log = Logging.for(ConfigtxgenCommandBuilder);
+    else this.log = logger.for(ConfigtxgenCommandBuilder.name);
+  }
 
   /**
    * @description Sets the organization for config generation.
@@ -125,7 +130,6 @@ export class ConfigtxgenCommandBuilder {
     }
     return this;
   }
-
   /**
    * @description Sets the organization to print.
    * @param {string} org - The organization name.
@@ -163,49 +167,29 @@ export class ConfigtxgenCommandBuilder {
     return this;
   }
 
-  build(): string[] {
-    const commandArray: string[] = [this.getBinary()];
-
-    this.args.forEach((value, key) => {
-      if (typeof value === "boolean") {
-        if (value) commandArray.push(`--${key}`);
-      } else if (Array.isArray(value)) {
-        commandArray.push(`-${key}`, value.join(","));
-      } else {
-        commandArray.push(`-${key}`, value.toString());
-      }
-    });
-
-    const commandStr = commandArray.join(" ");
-
-    this.log.debug(`Built command: ${commandStr}`);
-    return commandArray;
+  build(): string {
+    const command: string = [this.getBinary(), ...mapParser(this.args)].join(
+      " "
+    );
+    this.log.debug(`Built command: ${command}`);
+    return command;
   }
-
   getBinary(): string {
     return this.binName;
   }
-
   getArgs(): string[] {
-    const argsArray: string[] = [];
-
-    this.args.forEach((value, key) => {
-      if (typeof value === "boolean") {
-        if (value) argsArray.push(`--${key}`);
-      } else if (Array.isArray(value)) {
-        argsArray.push(`--${key}`, value.join(","));
-      } else {
-        argsArray.push(`--${key}`, value.toString());
-      }
-    });
-
-    return argsArray;
+    return mapParser(this.args);
   }
-
   async execute(): Promise<void> {
     const bin = this.getBinary();
-    const argz = this.getArgs();
+    const argz = [...this.getArgs()];
 
-    await runCommand(bin, argz);
+    try {
+      // can be used as a promise but to lock the logs running as execsync
+      await runCommand(bin, argz);
+    } catch (error: unknown) {
+      this.log.error(`Error: Failed to execute the command: ${error}`);
+      process.exit(1);
+    }
   }
 }
