@@ -83,7 +83,7 @@ services:
       -d -s --command register \
       --url https://org-1-tls:7001 \
       --id-name org-1-orderer-0 \
-      --id-secret org-1-orderer-0 \
+      --id-secret org-1-orderer-0-pw \
       --tls-certfiles /weaver/server/ca-cert.pem \
       --mspdir /weaver/client/admin/msp &&
 
@@ -207,7 +207,7 @@ services:
 
       docker exec org-1 node ./weaver/lib/core/cli.cjs client-enrollment \
       -d -s --command enroll \
-      --url https://org-1-orderer-0-admin:org-1-orderer-0-admin-pw@org-1:7001 \
+      --url https://org-1-orderer-0-admin:org-1-orderer-0-admin-pw@org-1-tls:7001 \
       --enrollment-profile tls \
       --csr-hosts org-1-orderer-0,0.0.0.0,localhost \
       --tls-certfiles /weaver/client/tls.pem \
@@ -219,7 +219,7 @@ services:
       -d -s --command register \
       --url https://org-1:7011 \
       --id-name org-1-orderer-0 \
-      --id-secret org-1-orderer-0 \
+      --id-secret org-1-orderer-0-pw \
       --id-type orderer \
       --tls-certfiles /weaver/client/tls.pem \
       --mspdir /weaver/client/admin/msp &&
@@ -232,9 +232,9 @@ services:
       --csr-hosts org-1-orderer-0,0.0.0.0,localhost \
       --home /weaver/client/orderers/orderer-0 &&
 
-      docker exec org-1 node./weaver/lib/core/cli.cjs client-enrollment \
+      docker exec org-1 node ./weaver/lib/core/cli.cjs client-enrollment \
       -d -s --command enroll \
-      --url https://org-1-orderer-0:org-1-orderer-0-pw@org-1:7001 \
+      --url https://org-1-orderer-0:org-1-orderer-0-pw@org-1-tls:7001 \
       --enrollment-profile tls \
       --csr-hosts org-1-orderer-0,0.0.0.0,localhost \
       --tls-certfiles /weaver/client/tls.pem \

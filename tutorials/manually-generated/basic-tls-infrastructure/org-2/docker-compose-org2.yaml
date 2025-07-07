@@ -83,7 +83,7 @@ services:
       -d -s --command register \
       --url https://org-2-tls:7002 \
       --id-name org-2-orderer-0 \
-      --id-secret org-2-orderer-0 \
+      --id-secret org-2-orderer-0-pw \
       --tls-certfiles /weaver/server/ca-cert.pem \
       --mspdir /weaver/client/admin/msp &&
 
@@ -188,7 +188,7 @@ services:
       --tls-certfiles /weaver/client/tls.pem \
       --mspdir /weaver/client/admin/msp &&
 
-      docker exec org-1 node ./weaver/lib/core/cli.cjs client-enrollment \
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
       -d -s --command register \
       --url https://org-2:7012 \
       --id-name org-2-orderer-0-admin \
@@ -207,7 +207,7 @@ services:
 
       docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
       -d -s --command enroll \
-      --url https://org-2-orderer-0-admin:org-2-orderer-0-admin-pw@org-2:7002 \
+      --url https://org-2-orderer-0-admin:org-2-orderer-0-admin-pw@org-2-tls:7002 \
       --enrollment-profile tls \
       --csr-hosts org-2-orderer-0,0.0.0.0,localhost \
       --tls-certfiles /weaver/client/tls.pem \
@@ -219,7 +219,7 @@ services:
       -d -s --command register \
       --url https://org-2:7012 \
       --id-name org-2-orderer-0 \
-      --id-secret org-2-orderer-0 \
+      --id-secret org-2-orderer-0-pw \
       --id-type orderer \
       --tls-certfiles /weaver/client/tls.pem \
       --mspdir /weaver/client/admin/msp &&
@@ -232,9 +232,9 @@ services:
       --csr-hosts org-2-orderer-0,0.0.0.0,localhost \
       --home /weaver/client/orderers/orderer-0 &&
 
-      docker exec org-2 node./weaver/lib/core/cli.cjs client-enrollment \
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
       -d -s --command enroll \
-      --url https://org-2-orderer-0:org-2-orderer-0-pw@org-2:7002 \
+      --url https://org-2-orderer-0:org-2-orderer-0-pw@org-2-tls:7002 \
       --enrollment-profile tls \
       --csr-hosts org-2-orderer-0,0.0.0.0,localhost \
       --tls-certfiles /weaver/client/tls.pem \
@@ -244,6 +244,9 @@ services:
 
       touch /boot/boot-org-2.lock 
       "
+
+# orderer admin "id.attrs":"\"hf.Registrar.Roles=admin,client,user,orderer\",\"hf.Registrar.Attributes=*\",\"hf.Revoker=true\",\"hf.GenCRL=true\",\"admin=true:ecert\",\"abac.init=true:ecert\"",
+
 volumes:
   boot-files2:
     name: boot-files2
