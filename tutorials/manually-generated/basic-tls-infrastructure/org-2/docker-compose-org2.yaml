@@ -99,7 +99,7 @@ services:
       -d -s --command register \
       --url https://org-2-tls:7002 \
       --id-name org-2-peer-0 \
-      --id-secret org-2-peer-0 \
+      --id-secret org-2-peer-0-pw \
       --tls-certfiles /weaver/server/ca-cert.pem \
       --mspdir /weaver/client/admin/msp &&
 
@@ -240,6 +240,60 @@ services:
       --tls-certfiles /weaver/client/tls.pem \
       --mspdir /weaver/client/orderers/orderer-0/tls-msp \
       --home /weaver/client/orderers/orderer-0/tls-msp \
+      --rename-key &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --id-name org-2-peer-0-admin \
+      --id-secret org-2-peer-0-admin-pw \
+      --id-type admin \
+      --tls-certfiles /weaver/client/tls.pem \
+      --mspdir /weaver/client/admin/msp  \
+      --url https://org-2:7012 &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-peer-0-admin:org-2-peer-0-admin-pw@org-2:7012 \
+      --tls-certfiles /weaver/client/tls.pem \
+      --mspdir /weaver/client/peers/peer-0/client/msp \
+      --csr-hosts org-2-peer-0,0.0.0.0,localhost \
+      --home /weaver/client/peers/peer-0/client &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-peer-0-admin:org-2-peer-0-admin-pw@org-2-tls:7002 \
+      --enrollment-profile tls \
+      --csr-hosts org-2-peer-0,0.0.0.0,localhost \
+      --home /weaver/client/peers/peer-0/client/tls-msp \
+      --tls-certfiles /weaver/client/tls.pem \
+      --mspdir /weaver/client/peers/peer-0/client/tls-msp \
+      --rename-key &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --id-name org-2-peer-0 \
+      --id-secret org-2-peer-0-pw \
+      --id-type peer \
+      --url https://org-2:7012 \
+      --tls-certfiles /weaver/client/tls.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-peer-0:org-2-peer-0-pw@org-2:7012 \
+      --tls-certfiles /weaver/client/tls.pem \
+      --mspdir /weaver/client/peers/peer-0/msp \
+      --csr-hosts org-2-peer-0,0.0.0.0,localhost \
+      --home /weaver/client/peers/peer-0 &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-peer-0:org-2-peer-0-pw@org-2-tls:7002 \
+      --enrollment-profile tls \
+      --csr-hosts org-2-peer-0,0.0.0.0,localhost \
+      --home /weaver/client/peers/peer-0/tls-msp \
+      --tls-certfiles /weaver/client/tls.pem \
+      --mspdir /weaver/client/peers/peer-0/tls-msp \
       --rename-key &&
 
       touch /boot/boot-org-2.lock 
