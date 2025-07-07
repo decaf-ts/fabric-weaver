@@ -6,6 +6,10 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - boot-files:/boot:rw
+      - org-1-orderer-0-vol:/weaver/client/orderer:rw
+      - org-1-peer-0-vol:/weaver/client/peer-1:rw
+      - org-2-peer-0-vol:/weaver/client/peer-2:rw
+      - ./:/weaver/general:rw
     networks:
       org1_network:
       org2_network:
@@ -23,7 +27,7 @@ services:
       --config-path /weaver/general \
       --profile SimpleChannel \
       --channel-id simple-channel \
-      --output-block '/weaver/orderer/genesisblock' -s -d &&
+      --output-block '/weaver/client/orderer/genesisblock' -s -d &&
 
       touch /boot/boot-infrastructure.lock
       "
@@ -31,6 +35,18 @@ services:
 volumes:
   boot-files:
     name: boot-files
+
+  org-1-orderer-0-vol:
+    external: true
+
+  org-1-peer-0-vol:
+    external: true
+
+  org-2-orderer-0-vol:
+    external: true
+
+  org-2-peer-0-vol:
+    external: true
 
 networks:
   org1_network:

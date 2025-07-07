@@ -298,11 +298,39 @@ services:
       --mspdir /weaver/client/peers/peer-0/tls-msp \
       --rename-key &&
 
+      docker exec org-2 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/orderers/orderer-0/msp' -s &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/orderers/orderer-0/client/msp' -s &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/peers/peer-0/msp' -s &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/peers/peer-0/client/msp' -s &&
+
       touch /boot/boot-org-2.lock 
       "
 
+  ensure-boot-completion-2:
+    container_name: ensure-boot-completion-2
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    depends_on:
+      boot-org-2:
+        condition: service_completed_successfully
+    networks:
+      org2_network:
+    command: >
+      bash -c "
+      echo completed
+      "
 # orderer admin "id.attrs":"\"hf.Registrar.Roles=admin,client,user,orderer\",\"hf.Registrar.Attributes=*\",\"hf.Revoker=true\",\"hf.GenCRL=true\",\"admin=true:ecert\",\"abac.init=true:ecert\"",
-
 volumes:
   boot-files2:
     name: boot-files2

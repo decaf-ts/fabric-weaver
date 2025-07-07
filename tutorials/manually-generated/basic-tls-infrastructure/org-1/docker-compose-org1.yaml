@@ -300,6 +300,22 @@ services:
       --mspdir /weaver/client/peers/peer-0/tls-msp \
       --rename-key &&
 
+      docker exec org-1 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/orderers/orderer-0/msp' -s &&
+
+      docker exec org-1 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/orderers/orderer-0/client/msp' -s &&
+
+      docker exec org-1 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/peers/peer-0/msp' -s &&
+
+      docker exec org-1 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/peers/peer-0/client/msp' -s &&
+
       touch /boot/boot-org-1.lock 
       "
 

@@ -7,3 +7,5 @@ cd org-2
 docker compose -f docker-compose-org2.yaml up -d   
 
 cd ..
+
+docker compose -f docker-compose-infrastructure.yaml up -d
