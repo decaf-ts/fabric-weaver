@@ -144,6 +144,8 @@ services:
     volumes:
       - org-2-server-vol:/weaver/server:rw
       - org-2-client-vol:/weaver/client:rw
+      - org-2-orderer-0-vol:/weaver/client/orderers/orderer-0:rw
+      - org-2-peer-0-vol:/weaver/client/peers/peer-0:rw
     command: >
       node ./weaver/lib/core/cli.cjs boot-ca 
       -d 
@@ -314,6 +316,12 @@ volumes:
     name: org-2-server-vol
   org-2-client-vol:
     name: org-2-client-vol
+
+  org-2-orderer-0-vol:
+    name: org-2-orderer-0-vol
+
+  org-2-peer-0-vol:
+    name: org-2-peer-0-vol
 
 networks:
   org2_network:

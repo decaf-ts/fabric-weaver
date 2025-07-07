@@ -144,6 +144,8 @@ services:
     volumes:
       - org-1-server-vol:/weaver/server:rw
       - org-1-client-vol:/weaver/client:rw
+      - org-1-orderer-0-vol:/weaver/client/orderers/orderer-0:rw
+      - org-1-peer-0-vol:/weaver/client/peers/peer-0:rw
     command: >
       node ./weaver/lib/core/cli.cjs boot-ca 
       -d 
@@ -167,6 +169,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - boot-files1:/boot:rw
+      - ../../basic-tls-infrastructure:/weaver/general:rw
+      - org-1-share-vol:/weaver/share:rw
     depends_on:
       org-1:
         condition: service_healthy
@@ -305,6 +309,9 @@ volumes:
   boot-files1:
     name: boot-files1
 
+  org-1-share-vol:
+    name: org-1-share-vol
+
   org-1-tls-server-vol:
     name: org-1-tls-server-vol
   org-1-tls-client-vol:
@@ -314,6 +321,12 @@ volumes:
     name: org-1-server-vol
   org-1-client-vol:
     name: org-1-client-vol
+
+  org-1-orderer-0-vol:
+    name: org-1-orderer-0-vol
+
+  org-1-peer-0-vol:
+    name: org-1-peer-0-vol
 
 networks:
   org1_network:
