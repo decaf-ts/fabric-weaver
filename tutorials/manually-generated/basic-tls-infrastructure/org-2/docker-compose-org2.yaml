@@ -330,7 +330,7 @@ services:
       bash -c "
       echo completed
       "
-# orderer admin "id.attrs":"\"hf.Registrar.Roles=admin,client,user,orderer\",\"hf.Registrar.Attributes=*\",\"hf.Revoker=true\",\"hf.GenCRL=true\",\"admin=true:ecert\",\"abac.init=true:ecert\"",
+
 volumes:
   boot-files2:
     name: boot-files2

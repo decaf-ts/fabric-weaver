@@ -319,8 +319,6 @@ services:
       touch /boot/boot-org-1.lock 
       "
 
-# orderer admin "id.attrs":"\"hf.Registrar.Roles=admin,client,user,orderer\",\"hf.Registrar.Attributes=*\",\"hf.Revoker=true\",\"hf.GenCRL=true\",\"admin=true:ecert\",\"abac.init=true:ecert\"",
-
 volumes:
   boot-files1:
     name: boot-files1
