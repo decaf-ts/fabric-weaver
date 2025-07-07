@@ -5,6 +5,7 @@ import { safeParseCSV, safeParseInt } from "../../utils/parsers";
 import { COLON_SEPARATOR } from "../constants/constants";
 import { clientEnrollment } from "../scripts/ca-client";
 import { configtxgen } from "../scripts/configtxgen";
+import { createNodeOU } from "../../fabric/node-ou/node-ou";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -574,6 +575,34 @@ export class CoreCLI extends BaseCLI {
           options.profile,
           options.configtxgenVersion
         );
+
+        this.log.info("Command completed successfully!");
+      });
+  }
+
+  private nodeOu() {
+    this.program
+      .command("node-ou")
+      .description("Command to manage node organizations")
+      .option("--enable", "Enable node organizational unit")
+      .option("--path <string>", "Path to output directory", "cacerts")
+      .option("--mspdir <string>", "mspdirlocation")
+      .option("--cert <string>", "Cert file name")
+      .action(async (options) => {
+        this.log.info("Running node-ou command...");
+        this.log.debug(`Options: ${JSON.stringify(options, null, 2)}`);
+
+        try {
+          createNodeOU(
+            options.enable,
+            options.path,
+            options.mspdir,
+            options.cert
+          );
+        } catch (error) {
+          this.log.error(`Error: ${(error as Error).message}`);
+          process.exit(1);
+        }
 
         this.log.info("Command completed successfully!");
       });

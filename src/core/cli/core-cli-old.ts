@@ -168,40 +168,6 @@
 //       });
 //   }
 
-//   private createGenesisBlock() {
-//     this.program
-//       .command("docker:create-genesis-block")
-//       .option("--config-path <string>", "Path to configtx file")
-//       .option("--channel-id <string>", "Channel ID")
-//       .option("--output-block <string>", "Path to output block file")
-//       .option("--profile <string>", "Profile name")
-//       .action(async (options: any) => {
-//         await createGenesisBlock(
-//           options.configPath,
-//           options.profile,
-//           options.channelId,
-//           options.outputBlock
-//         );
-//       });
-//   }
-
-//   private createNodeOu() {
-//     this.program
-//       .command("docker:create-node-ou")
-//       .option("--enable", "Enable node organizational unit")
-//       .option("--path <string>", "Path to output directory", "cacerts")
-//       .option("--mspdir <string>", "mspdirlocation")
-//       .option("--cert <string>", "Cert file name", undefined)
-//       .action(async (options: any) => {
-//         createNodeOU(
-//           options.enable,
-//           options.path,
-//           options.mspdir,
-//           options.cert
-//         );
-//       });
-//   }
-
 //   private ordererChannelJoin() {
 //     this.program
 //       .command("docker:osn-admin-join")

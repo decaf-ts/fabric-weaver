@@ -1,13 +1,9 @@
 import { Logging } from "@decaf-ts/logging";
 import { writeFileYaml } from "../../utils-old/yaml";
-import { NodeOUConfig } from "./node-ou-config";
 import path from "path";
 import fs from "fs";
 import { FabricAccountType } from "../constants/fabric-general";
-
-// const getCertName = () => {
-
-// };
+import { NodeOUConfig } from "../interfaces/fabric/node-ou-config";
 
 export function getCertName(mspdir: string): string {
   const log = Logging.for(getCertName);
@@ -60,8 +56,13 @@ export function createNodeOU(
     },
   };
 
-  const location = path.join(mspdir, "config.yaml");
+  try {
+    const location = path.join(mspdir, "config.yaml");
 
-  log.info(`Writing node OU configuration to ${location}`);
-  writeFileYaml<NodeOUConfig>(location, nodeOU);
+    log.info(`Writing node OU configuration to ${location}`);
+    writeFileYaml<NodeOUConfig>(location, nodeOU);
+  } catch (e) {
+    log.error(`Error writing node OU configuration: ${e}`);
+    throw e;
+  }
 }
