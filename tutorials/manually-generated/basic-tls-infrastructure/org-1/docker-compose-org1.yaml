@@ -316,8 +316,50 @@ services:
       --enable \
       --mspdir 'weaver/client/peers/peer-0/client/msp' -s &&
 
+      node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/client/tls.pem \
+      --dest ./weaver/client/orderers/orderer-0/tls.pem &&
+
       touch /boot/boot-org-1.lock 
       "
+
+  org-1-orderer-0:
+    container_name: org-1-orderer-0
+    hostname: org-1-orderer-0
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    ports:
+      - "7021:7021"
+      - "9021:9021"
+    volumes:
+      - org-1-orderer-0-vol:/weaver/orderer:rw
+    networks:
+      org1_network:
+    healthcheck:
+      test: bash -c "[ -f /weaver/orderer/orderer.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      boot-org-1:
+        condition: service_completed_successfully
+    command: >
+      node ./weaver/lib/core/cli.cjs boot-orderer \
+      -d \
+      --listen-address 0.0.0.0 \
+      --port 7021 \
+      --msp-dir /weaver/orderer/client/msp \
+      --msp-id Orderer0Org1MSP \
+      --admin-listen-address 127.0.0.1:9000 \
+      --consensus-snapdir /weaver/orderer/production/orderer/etcdraft/snapshot \
+      --consensus-waldir /weaver/orderer/production/orderer/etcdraft/wal \
+      --operation-address 127.0.0.1:8010 \
+      --config-path /weaver/orderer \
+      --tls-enabled \
+      --tls-rootcas /weaver/orderer/tls.pem \
+      --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem \
+      --tls-key /weaver/orderer/client/tls-msp/keystore/key.pem
 
 volumes:
   boot-files1:
