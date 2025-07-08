@@ -4,7 +4,7 @@ import { OrdererCommand } from "../constants/fabric-orderer";
 import { runCommand } from "../../utils/child-process";
 import { mapParser } from "../../utils/parsers";
 
-export class FabricCAServerCommandBuilder {
+export class FabricOrdererCommandBuilder {
   private log: Logger;
 
   private binName: FabricBinaries = FabricBinaries.ORDERER;
@@ -13,8 +13,8 @@ export class FabricCAServerCommandBuilder {
   private args: Map<string, string | boolean | number | string[]> = new Map();
 
   constructor(logger?: Logger) {
-    if (!logger) this.log = Logging.for(FabricCAServerCommandBuilder);
-    else this.log = logger.for(FabricCAServerCommandBuilder.name);
+    if (!logger) this.log = Logging.for(FabricOrdererCommandBuilder);
+    else this.log = logger.for(FabricOrdererCommandBuilder.name);
   }
 
   /**
@@ -22,7 +22,7 @@ export class FabricCAServerCommandBuilder {
    * @param {OrdererCommand} command - The command to set.
    * @returns {OrdererCommandBuilder} The current instance for method chaining.
    */
-  setCommand(command: OrdererCommand): FabricCAServerCommandBuilder {
+  setCommand(command: OrdererCommand): FabricOrdererCommandBuilder {
     if (command === undefined)
       this.log.info(
         `Command not provided, defaulting to ${OrdererCommand.START}`

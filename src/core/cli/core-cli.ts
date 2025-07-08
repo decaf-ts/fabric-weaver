@@ -6,6 +6,7 @@ import { COLON_SEPARATOR } from "../constants/constants";
 import { clientEnrollment } from "../scripts/ca-client";
 import { configtxgen } from "../scripts/configtxgen";
 import { createNodeOU } from "../../fabric/node-ou/node-ou";
+import { bootOrderer } from "../scripts/orderer";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -603,6 +604,79 @@ export class CoreCLI extends BaseCLI {
           this.log.error(`Error: ${(error as Error).message}`);
           process.exit(1);
         }
+
+        this.log.info("Command completed successfully!");
+      });
+  }
+
+  private bootOrderer() {
+    this.program
+      .command("boot-orderer")
+      .description("Command to manage boot orderers")
+      .option("--listen-address <string>", "Listen Address")
+      .option("--port <number>", "Port", safeParseInt)
+      .option("--msp-dir <string>", "MSP Directory")
+      .option("--msp-id <string>", "MSP ID")
+      .option("--admin-listen-address <string>", "Admin Listen Address")
+      .option("--consensus-snapdir <string>", "Consensus Snapshot Directory")
+      .option(
+        "--consensus-waldir <string>",
+        "Consensus Write-Ahead Log Directory"
+      )
+      .option("--operations-address <string>", "Operations Address")
+      .option("--config-path <string>", "Config Path")
+      .option("--tls-enabled", "Enable TLS")
+      .option(
+        "--tls-rootcas <CSV>",
+        "Root CA Certificate location",
+        safeParseCSV
+      )
+      .option("--tls-cert <string>", "TLS Certificate")
+      .option("--tls-key <string>", "TLS Key")
+      .option("--tls-client-authrequired", "Enable TLS client authentication")
+      .option(
+        "--tls-client-rootcas <CSV>",
+        "Client Root CA Certificate location",
+        safeParseCSV
+      )
+      //TODO: Implement all functionality in this command
+      .action((options) => {
+        this.log.info("Running boot-orderer command...");
+        this.log.debug(`Options: ${JSON.stringify(options, null, 2)}`);
+
+        bootOrderer(
+          this.log,
+          options.configPath,
+          {
+            WALDir: options.consensusWaldir,
+            SnapDir: options.consensusSnapdir,
+          },
+          {},
+          { ListenAddress: options.adminListenAddress },
+          {
+            Enabled: options.tlsEnabled,
+            RootCAs: options.tlsRootcas,
+            Certificate: options.tlsCert,
+            PrivateKey: options.tlsKey,
+            ClientAuthRequired: options.tlsClientAuthrequired,
+            ClientRootCAs: options.tlsClientRootcas,
+          },
+          options.port,
+          options.listenAddress,
+          {},
+          {},
+          {},
+          {},
+          { LocalMSPDir: options.mspDir, LocalMSPID: options.mspId },
+          {},
+          {},
+          { ListenAddress: options.operationsAddress },
+          {},
+          undefined,
+          undefined,
+          {},
+          {}
+        );
 
         this.log.info("Command completed successfully!");
       });

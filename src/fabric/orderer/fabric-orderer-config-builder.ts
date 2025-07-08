@@ -21,7 +21,7 @@ import path from "path";
 import fs from "fs";
 import { readFileYaml, writeFileYaml } from "../../utils/yaml";
 
-export class FabricCAServerConfigBuilder {
+export class FabricOrdererConfigBuilder {
   private log: Logger;
 
   private config: OrdererConfig = readFileYaml(
@@ -29,8 +29,8 @@ export class FabricCAServerConfigBuilder {
   ) as OrdererConfig;
 
   constructor(logger?: Logger) {
-    if (!logger) this.log = Logging.for(FabricCAServerConfigBuilder);
-    else this.log = logger.for(FabricCAServerConfigBuilder.name);
+    if (!logger) this.log = Logging.for(FabricOrdererConfigBuilder);
+    else this.log = logger.for(FabricOrdererConfigBuilder.name);
   }
 
   setKafka(kafka?: KafkaConfig): this {
@@ -535,7 +535,7 @@ export class FabricCAServerConfigBuilder {
     return this;
   }
 
-  setTLS(tls: TLSConfig): this {
+  setTLS(tls?: TLSConfig): this {
     if (tls !== undefined) {
       if (tls.Enabled !== undefined) {
         this.log.debug(`Setting TLS enabled to ${tls.Enabled}`);
@@ -569,7 +569,7 @@ export class FabricCAServerConfigBuilder {
     return this;
   }
 
-  setAdmin(cfg: AdminConfig): this {
+  setAdmin(cfg?: AdminConfig): this {
     if (cfg !== undefined) {
       if (cfg.ListenAddress !== undefined) {
         this.log.debug(`Setting admin listen address to ${cfg.ListenAddress}`);
@@ -619,7 +619,7 @@ export class FabricCAServerConfigBuilder {
   }
 
   setChannelParticipation(
-    channelParticipation: ChannelParticipationConfig
+    channelParticipation?: ChannelParticipationConfig
   ): this {
     if (channelParticipation !== undefined) {
       if (channelParticipation.Enabled !== undefined) {
@@ -641,7 +641,7 @@ export class FabricCAServerConfigBuilder {
     return this;
   }
 
-  setConsensus(consensus: ConsensusConfig): this {
+  setConsensus(consensus?: ConsensusConfig): this {
     if (consensus !== undefined) {
       if (consensus.WALDir !== undefined) {
         this.log.debug(`Setting WAL directory to ${consensus.WALDir}`);
