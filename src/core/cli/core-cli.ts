@@ -585,11 +585,16 @@ export class CoreCLI extends BaseCLI {
     this.program
       .command("node-ou")
       .description("Command to manage node organizations")
+      .option("-d, --debug", "Enables debug mode")
       .option("--enable", "Enable node organizational unit")
       .option("--path <string>", "Path to output directory", "cacerts")
       .option("--mspdir <string>", "mspdirlocation")
       .option("--cert <string>", "Cert file name")
       .action(async (options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+
         this.log.info("Running node-ou command...");
         this.log.debug(`Options: ${JSON.stringify(options, null, 2)}`);
 
@@ -613,6 +618,7 @@ export class CoreCLI extends BaseCLI {
     this.program
       .command("boot-orderer")
       .description("Command to manage boot orderers")
+      .option("-d, --debug", "Enables debug mode")
       .option("--listen-address <string>", "Listen Address")
       .option("--port <number>", "Port", safeParseInt)
       .option("--msp-dir <string>", "MSP Directory")
@@ -641,6 +647,9 @@ export class CoreCLI extends BaseCLI {
       )
       //TODO: Implement all functionality in this command
       .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
         this.log.info("Running boot-orderer command...");
         this.log.debug(`Options: ${JSON.stringify(options, null, 2)}`);
 
