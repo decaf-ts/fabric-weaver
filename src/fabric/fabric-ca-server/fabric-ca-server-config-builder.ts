@@ -1,5 +1,5 @@
 import { Logger, Logging } from "@decaf-ts/logging";
-import { readFileYaml, writeFileYaml } from "../../utils-old/yaml";
+import { readFileYaml, writeFileYaml } from "../../utils/yaml";
 import {
   BCCSPConfig,
   CAConfig,
@@ -745,7 +745,7 @@ export class FabricCAServerConfigBuilder {
    *   end
    *   Builder-->>Client: Return this
    */
-  save(cpath: string): this {
+  save(cpath?: string): this {
     if (cpath === undefined) return this;
 
     if (!fs.existsSync(path.join(cpath)))
@@ -755,7 +755,7 @@ export class FabricCAServerConfigBuilder {
       cpath = path.join(cpath, "fabric-ca-server-config.yaml");
 
     this.log.debug(`Writing configuration to ${cpath}`);
-    this.log.verbose(`Config file: ${JSON.stringify(this.config)}`, 3);
+    this.log.debug(`Config file: ${JSON.stringify(this.config, null, 2)}`);
     writeFileYaml(cpath, this.config);
 
     return this;

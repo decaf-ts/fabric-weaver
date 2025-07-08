@@ -1,8 +1,3 @@
-export enum OrdererCommand {
-  /** Start the Orderer */
-  START = "start",
-}
-
 export const OSN_ADMIN_BASE_COMMAND = "channel";
 
 export enum OSN_ADMIN_SUBCOMMANDS {

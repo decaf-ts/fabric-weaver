@@ -1,11 +1,11 @@
 import { Logging } from "@decaf-ts/logging";
-import { FabricBinaries } from "../general-utils/constants";
 import { OSN_ADMIN_SUBCOMMANDS, OSN_ADMIN_BASE_COMMAND } from "./constants";
 import { runCommand } from "../../utils/child-process";
+import { FabricBinaries } from "../constants/fabric-binaries";
 
 export class OSNAdminCommandBuilder {
   private log = Logging.for(OSNAdminCommandBuilder);
-  private binName: FabricBinaries = FabricBinaries.OSNADMIN;
+  private binName: FabricBinaries = (FabricBinaries as any).OSNADMIN;
   private command: string = OSN_ADMIN_BASE_COMMAND;
   private subcommand: OSN_ADMIN_SUBCOMMANDS = OSN_ADMIN_SUBCOMMANDS.JOIN;
   private args: Map<string, string | boolean | number | string[]> = new Map();

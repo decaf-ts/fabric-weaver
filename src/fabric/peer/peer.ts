@@ -1,14 +1,14 @@
 import { Logging } from "@decaf-ts/logging";
-import { FabricBinaries } from "../general-utils/constants";
 import { PeerCommands, PeerSubcommands } from "./constants";
-import { readFileYaml, writeFileYaml } from "../../utils-old/yaml";
 import path from "path";
 import { PeerConfig } from "./peer-config";
 import fs from "fs";
 import { runCommand } from "../../utils/child-process";
+import { readFileYaml, writeFileYaml } from "../../utils/yaml";
+import { FabricBinaries } from "../constants/fabric-binaries";
 export class PeerCommandBuilder {
   private log = Logging.for(PeerCommandBuilder);
-  private binName: FabricBinaries = FabricBinaries.PEER;
+  private binName: FabricBinaries = (FabricBinaries as any).PEER;
   private command: PeerCommands = PeerCommands.VERSION;
   private subcommand: PeerSubcommands | string = undefined;
   private args: Map<string, string | boolean | number | string[]> = new Map();

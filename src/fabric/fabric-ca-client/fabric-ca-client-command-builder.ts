@@ -13,10 +13,8 @@ import {
   RevokeConfig,
   TLSConfig,
 } from "../interfaces/fabric/fabric-ca-client-config";
-import {
-  FabricCAServerCurveName,
-  FabricLogLevel,
-} from "../constants/fabric-ca-server";
+import { FabricCAServerCurveName } from "../constants/fabric-ca-server";
+import { FabricLogLevel } from "../constants/fabric-general";
 
 export class FabricCAClientCommandBuilder {
   private log: Logger;

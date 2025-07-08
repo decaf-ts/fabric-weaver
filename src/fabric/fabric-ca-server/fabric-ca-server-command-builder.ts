@@ -1,9 +1,6 @@
 import { Logger, Logging } from "@decaf-ts/logging";
 import { FabricBinaries } from "../constants/fabric-binaries";
-import {
-  FabricCAServerCommand,
-  FabricLogLevel,
-} from "../constants/fabric-ca-server";
+import { FabricCAServerCommand } from "../constants/fabric-ca-server";
 import {
   CAConfig,
   CommadCSRConfig,
@@ -17,6 +14,7 @@ import {
 import { COMMA_SEPARATOR } from "../../core/constants/constants";
 import { mapParser } from "../../utils";
 import { runCommand } from "../../utils/child-process";
+import { FabricLogLevel } from "../constants/fabric-general";
 
 export class FabricCAServerCommandBuilder {
   private log: Logger;

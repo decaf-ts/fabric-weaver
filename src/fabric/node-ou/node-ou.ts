@@ -1,5 +1,5 @@
 import { Logging } from "@decaf-ts/logging";
-import { writeFileYaml } from "../../utils-old/yaml";
+import { writeFileYaml } from "../../utils/yaml";
 import path from "path";
 import fs from "fs";
 import { FabricAccountType } from "../constants/fabric-general";

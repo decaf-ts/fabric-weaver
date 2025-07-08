@@ -62,13 +62,13 @@ export function readFileYaml<T>(
 ): Record<string, any> | T {
   const log = logger.for(readFileYaml);
 
-  log.verbose(`Reading YAML file: ${yamlFilePath}`, 3);
+  log.debug(`Reading YAML file: ${yamlFilePath}`);
   const content = fs.readFileSync(yamlFilePath, "utf8");
 
-  log.verbose(`Parsed YAML content: ${content}`, 3);
+  log.debug(`Parsed YAML content: ${content}`);
   const parsedYAML = yaml.load(content) as Record<string, any>;
 
-  log.verbose(`Parsed YAML object: ${JSON.stringify(parsedYAML)}`, 3);
+  log.debug(`Parsed YAML object: ${JSON.stringify(parsedYAML, null, 2)}`);
 
   log.info(
     `Returning ${variable ? `property '${variable}'` : "the entire parsed YAML object"}`
@@ -76,11 +76,11 @@ export function readFileYaml<T>(
   if (!variable) return parsedYAML;
 
   const variablePath = variable.split(".");
+
   return variablePath.reduce((acc, key) => {
     // eslint-disable-next-line no-prototype-builtins
     if (!acc.hasOwnProperty(key)) {
-      // Log an error if the property does not exist in the YAML structure
-      return log.error(
+      throw new Error(
         `Unable to locate a property named '${key}' from path '${variable}' in file: \n> ${yamlFilePath}`
       );
     }
@@ -124,10 +124,10 @@ export function readFileYaml<T>(
 export function writeFileYaml<T>(path: string, json: T) {
   const log = logger.for(writeFileYaml);
 
-  log.verbose(`Writing YAML file: ${path}`, 3);
-  log.verbose(`Writing YAML content: ${JSON.stringify(json)}`, 3);
+  log.debug(`Writing YAML file: ${path}`);
+  log.debug(`Writing YAML content: ${JSON.stringify(json, null, 2)}`);
   const content = yaml.dump(json, { indent: 2, lineWidth: -1 });
 
-  log.verbose(`Writing YAML content to file: ${content}`, 3);
+  log.debug(`Writing YAML content to file: ${content}`);
   fs.writeFileSync(path, content.replace(/ null$/gm, ""), "utf8");
 }
