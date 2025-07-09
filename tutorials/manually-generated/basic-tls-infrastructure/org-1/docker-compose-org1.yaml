@@ -316,7 +316,7 @@ services:
       --enable \
       --mspdir 'weaver/client/peers/peer-0/client/msp' -s &&
 
-      node ./weaver/lib/core/cli.cjs copy -s \
+      docker exec org-1 node ./weaver/lib/core/cli.cjs copy -s \
       --origin ./weaver/client/tls.pem \
       --dest ./weaver/client/orderers/orderer-0/tls.pem &&
 
@@ -328,6 +328,9 @@ services:
     hostname: org-1-orderer-0
     image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
     restart: no
+    environment:
+      - FABRIC_CFG_PATH=/weaver/orderer
+      - ORDERER_YAML_FILE=/weaver/orderer/orderer.yaml
     ports:
       - "7021:7021"
       - "9021:9021"
@@ -345,20 +348,20 @@ services:
       boot-org-1:
         condition: service_completed_successfully
     command: >
-      node ./weaver/lib/core/cli.cjs boot-orderer \
-      -d \
-      --listen-address 0.0.0.0 \
-      --port 7021 \
-      --msp-dir /weaver/orderer/client/msp \
-      --msp-id Orderer0Org1MSP \
-      --admin-listen-address 127.0.0.1:9000 \
-      --consensus-snapdir /weaver/orderer/production/orderer/etcdraft/snapshot \
-      --consensus-waldir /weaver/orderer/production/orderer/etcdraft/wal \
-      --operation-address 127.0.0.1:8010 \
-      --config-path /weaver/orderer \
-      --tls-enabled \
-      --tls-rootcas /weaver/orderer/tls.pem \
-      --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem \
+      node ./weaver/lib/core/cli.cjs boot-orderer 
+      -d 
+      --listen-address 0.0.0.0 
+      --port 7021 
+      --msp-dir /weaver/orderer/client/msp 
+      --msp-id Orderer0Org1MSP 
+      --admin-listen-address 127.0.0.1:9021 
+      --consensus-snapdir /weaver/orderer/production/orderer/etcdraft/snapshot 
+      --consensus-waldir /weaver/orderer/production/orderer/etcdraft/wal 
+      --operations-address 127.0.0.1:8010 
+      --config-path /weaver/orderer 
+      --tls-enabled 
+      --tls-rootcas /weaver/orderer/tls.pem 
+      --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem 
       --tls-key /weaver/orderer/client/tls-msp/keystore/key.pem
 
 volumes:

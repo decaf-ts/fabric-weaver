@@ -45,7 +45,7 @@ export function issueOrderer(
   bccsp?: BCCSPConfig,
   debug?: DebugConfig
 ) {
-  log.debug("Issuing Orderer");
+  log.info("Issuing Orderer");
 
   const builder = new FabricOrdererConfigBuilder(log);
   builder

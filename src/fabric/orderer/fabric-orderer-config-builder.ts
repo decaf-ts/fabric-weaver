@@ -688,8 +688,7 @@ export class FabricOrdererConfigBuilder {
     if (!fs.existsSync(path.join(cpath)))
       fs.mkdirSync(path.join(cpath), { recursive: true });
 
-    if (!cpath.endsWith(".yaml"))
-      cpath = path.join(cpath, "fabric-ca-server-config.yaml");
+    if (!cpath.endsWith(".yaml")) cpath = path.join(cpath, "orderer.yaml");
 
     this.log.debug(`Writing configuration to ${cpath}`);
     this.log.debug(`Config file: ${JSON.stringify(this.config, null, 2)}`);
