@@ -314,13 +314,19 @@ services:
       --enable \
       --mspdir 'weaver/client/peers/peer-0/client/msp' -s &&
 
+      docker exec org-2 node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/client/tls.pem \
+      --dest ./weaver/client/orderers/orderer-0/tls.pem &&
+
       touch /boot/boot-org-2.lock 
       "
 
-  ensure-boot-completion-2:
-    container_name: ensure-boot-completion-2
+  checker:
     image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
     restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files2:/boot:rw
     depends_on:
       boot-org-2:
         condition: service_completed_successfully
@@ -328,8 +334,59 @@ services:
       org2_network:
     command: >
       bash -c "
-      echo completed
+      if [ -f /boot/boot-checker-2.lock ]; then
+        echo 'Org 2 already booted. Skipping...';
+        exit 0;
+      fi;
+
+      apt-get update &&
+      apt-get install -y docker.io &&
+      ./weaver/bin/check-docker-ready.sh boot-infrastructure &&
+
+      touch /boot/boot-checker-2.lock 
       "
+
+  org-2-orderer-0:
+    container_name: org-2-orderer-0
+    hostname: org-2-orderer-0
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    environment:
+      - FABRIC_CFG_PATH=/weaver/orderer
+      - ORDERER_YAML_FILE=/weaver/orderer/orderer.yaml
+    ports:
+      - "7022:7022"
+      - "9022:9022"
+    volumes:
+      - org-2-orderer-0-vol:/weaver/orderer:rw
+    networks:
+      org2_network:
+    healthcheck:
+      test: bash -c "[ -f /weaver/orderer/orderer.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      checker:
+        condition: service_completed_successfully
+    command: >
+      node ./weaver/lib/core/cli.cjs boot-orderer
+      -d
+      --listen-address 0.0.0.0
+      --port 7022
+      --msp-dir /weaver/orderer/client/msp
+      --msp-id Orderer0Org2MSP
+      --admin-listen-address 127.0.0.1:9022
+      --consensus-snapdir /weaver/orderer/production/orderer/etcdraft/snapshot
+      --consensus-waldir /weaver/orderer/production/orderer/etcdraft/wal
+      --operations-address 127.0.0.1:8010
+      --config-path /weaver/orderer
+      --tls-enabled
+      --tls-rootcas /weaver/orderer/tls.pem
+      --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem
+      --tls-key /weaver/orderer/client/tls-msp/keystore/key.pem
+      --bootstrap-method none
 
 volumes:
   boot-files2:

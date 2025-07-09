@@ -1,18 +1,5 @@
 #!/bin/bash -x
 
-# # Navigate and start Org 1
-# (cd org-1 && docker compose -f docker-compose-org1.yaml up -d) &
-
-# # Navigate and start Org 2
-# (cd org-2 && docker compose -f docker-compose-org2.yaml up -d) &
-
-# # Start infrastructure (in current dir)
-# (docker compose -f docker-compose-infrastructure.yaml up -d) &
-
-# # Wait for all background jobs to finish
-# wait
-
-
 set -e
 
 echo "Starting Compose 1 and 2..."

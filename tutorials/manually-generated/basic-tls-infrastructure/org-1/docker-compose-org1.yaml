@@ -322,6 +322,30 @@ services:
 
       touch /boot/boot-org-1.lock 
       "
+  checker:
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files1:/boot:rw
+    depends_on:
+      boot-org-1:
+        condition: service_completed_successfully
+    networks:
+      org1_network:
+    command: >
+      bash -c "
+      if [ -f /boot/boot-checker-1.lock ]; then
+        echo 'Org 1 already booted. Skipping...';
+        exit 0;
+      fi;
+
+      apt-get update &&
+      apt-get install -y docker.io &&
+      ./weaver/bin/check-docker-ready.sh boot-infrastructure &&
+
+      touch /boot/boot-checker-1.lock 
+      "
 
   org-1-orderer-0:
     container_name: org-1-orderer-0
@@ -345,24 +369,25 @@ services:
       retries: 10
       start_period: 30s
     depends_on:
-      boot-org-1:
+      checker:
         condition: service_completed_successfully
     command: >
-      node ./weaver/lib/core/cli.cjs boot-orderer 
-      -d 
-      --listen-address 0.0.0.0 
-      --port 7021 
-      --msp-dir /weaver/orderer/client/msp 
-      --msp-id Orderer0Org1MSP 
-      --admin-listen-address 127.0.0.1:9021 
-      --consensus-snapdir /weaver/orderer/production/orderer/etcdraft/snapshot 
-      --consensus-waldir /weaver/orderer/production/orderer/etcdraft/wal 
-      --operations-address 127.0.0.1:8010 
-      --config-path /weaver/orderer 
-      --tls-enabled 
-      --tls-rootcas /weaver/orderer/tls.pem 
-      --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem 
+      node ./weaver/lib/core/cli.cjs boot-orderer
+      -d
+      --listen-address 0.0.0.0
+      --port 7021
+      --msp-dir /weaver/orderer/client/msp
+      --msp-id Orderer0Org1MSP
+      --admin-listen-address 127.0.0.1:9021
+      --consensus-snapdir /weaver/orderer/production/orderer/etcdraft/snapshot
+      --consensus-waldir /weaver/orderer/production/orderer/etcdraft/wal
+      --operations-address 127.0.0.1:8010
+      --config-path /weaver/orderer
+      --tls-enabled
+      --tls-rootcas /weaver/orderer/tls.pem
+      --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem
       --tls-key /weaver/orderer/client/tls-msp/keystore/key.pem
+      --bootstrap-method none
 
 volumes:
   boot-files1:

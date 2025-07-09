@@ -28,7 +28,10 @@ COPY tsconfig.json ./$TARGET_FOLDER_NAME/
 COPY src ./$TARGET_FOLDER_NAME/src
 COPY bin ./$TARGET_FOLDER_NAME/bin
 
+
 RUN --mount=type=secret,id=TOKEN TOKEN=$(cat /run/secrets/TOKEN) cd ${TARGET_FOLDER_NAME} && npm install && npm run setup && npm cache clean --force && chown -R node:node .
+
+RUN find /$TARGET_FOLDER_NAME/bin -type f \( -name "*.cjs" -o ! -name "*.*" \) -delete
 
 RUN echo "Build phase completed"
 
@@ -55,6 +58,7 @@ RUN --mount=type=secret,id=TOKEN TOKEN=$(cat /run/secrets/TOKEN) cd ${TARGET_FOL
 
 COPY --chown=node:node --from=builder /$TARGET_FOLDER_NAME/lib /$TARGET_FOLDER_NAME/lib
 COPY --chown=node:node --from=builder /$TARGET_FOLDER_NAME/config /$TARGET_FOLDER_NAME/config
+COPY --chown=node:node --from=builder /$TARGET_FOLDER_NAME/bin /$TARGET_FOLDER_NAME/bin
 
 RUN rm -rf /$TARGET_FOLDER_NAME/package*.json
 

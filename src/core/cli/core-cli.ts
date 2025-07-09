@@ -645,6 +645,7 @@ export class CoreCLI extends BaseCLI {
         "Client Root CA Certificate location",
         safeParseCSV
       )
+      .option("--bootstrap-method <string>", "Bootstrap Method")
       //TODO: Implement all functionality in this command
       .action((options) => {
         this.log.setConfig({
@@ -675,7 +676,7 @@ export class CoreCLI extends BaseCLI {
           {},
           {},
           {},
-          {},
+          { BootstrapMethod: options.bootstrapMethod },
           { LocalMSPDir: options.mspDir, LocalMSPID: options.mspId },
           {},
           {},
