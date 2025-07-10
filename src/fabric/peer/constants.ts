@@ -48,21 +48,10 @@ export enum PeerSnapshotCommands {
   SUBMITREQUEST = "submitrequest",
 }
 
-export enum PeerNodeCommands {
-  PAUSE = "pause",
-  REBUILD_DBS = "rebuild-dbs",
-  RESET = "reset",
-  RESUME = "resume",
-  ROLLBACK = "rollback",
-  START = "start",
-  UNJOIN = "unjoin",
-  UPGRADE_DBS = "upgrade-dbs",
-}
-
-export type PeerSubcommands =
-  | PeerChaincodeCommands
-  | PeerLifecycleChaincodeCommands
-  | PeerChannelCommands
-  | PeerNodeCommands
-  | PeerSnapshotCommands
-  | undefined;
+// export type PeerSubcommands =
+//   | PeerChaincodeCommands
+//   | PeerLifecycleChaincodeCommands
+//   | PeerChannelCommands
+//   | PeerNodeCommands
+//   | PeerSnapshotCommands
+//   | undefined;
