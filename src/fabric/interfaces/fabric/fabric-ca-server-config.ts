@@ -4,6 +4,7 @@ import {
   FabricCAServerDBTypes,
   FabricCAServerEnrollmentType,
 } from "../../constants/fabric-ca-server";
+import { MetricsConfig, OperationsConfig } from "./general-configs";
 
 /**
  * @description Configuration interface for the Fabric CA server.
@@ -374,30 +375,3 @@ export type CommandIntermediateCAConfig = Pick<
     type?: FabricCAServerEnrollmentType;
   };
 };
-
-export interface OperationsConfig {
-  listenAddress?: string;
-  tls?: {
-    enabled?: boolean;
-    cert?: {
-      file?: string;
-    };
-    key?: {
-      file?: string;
-    };
-    clientAuthRequired?: boolean;
-    clientRootCAs?: {
-      files?: string[];
-    };
-  };
-}
-
-export interface MetricsConfig {
-  provider?: string;
-  statsd?: {
-    network?: string;
-    address?: string;
-    writeInterval?: string;
-    prefix?: string;
-  };
-}

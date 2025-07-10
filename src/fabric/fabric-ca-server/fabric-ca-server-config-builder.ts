@@ -11,14 +11,16 @@ import {
   Identity,
   IntermediateCAConfig,
   LDAPConfig,
-  MetricsConfig,
-  OperationsConfig,
   ServerTLSConfig,
   SigningConfig,
 } from "../interfaces/fabric/fabric-ca-server-config";
 import path from "path";
 import { overrideNonUndefined } from "../../utils-old/object";
 import fs from "fs";
+import {
+  MetricsConfig,
+  OperationsConfig,
+} from "../interfaces/fabric/general-configs";
 
 export class FabricCAServerConfigBuilder {
   private log: Logger;
@@ -719,6 +721,7 @@ export class FabricCAServerConfigBuilder {
     }
     return this;
   }
+
   /**
    * @description Saves the current configuration to a file.
    * @summary Writes the current Fabric CA Server configuration to a YAML file at the specified path. If the directory doesn't exist, it will be created.

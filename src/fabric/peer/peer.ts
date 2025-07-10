@@ -1,7 +1,6 @@
 import { Logging } from "@decaf-ts/logging";
 import { PeerCommands, PeerSubcommands } from "./constants";
 import path from "path";
-import { PeerConfig } from "./peer-config";
 import fs from "fs";
 import { runCommand } from "../../utils/child-process";
 import { readFileYaml, writeFileYaml } from "../../utils/yaml";
@@ -12,9 +11,9 @@ export class PeerCommandBuilder {
   private command: PeerCommands = PeerCommands.VERSION;
   private subcommand: PeerSubcommands | string = undefined;
   private args: Map<string, string | boolean | number | string[]> = new Map();
-  private config: PeerConfig = readFileYaml(
+  private config: any = readFileYaml(
     path.join(__dirname, "../../../config/core.yaml")
-  ) as PeerConfig;
+  );
 
   setBasicConfig(): PeerCommandBuilder {
     if (this.config.chaincode) delete this.config.chaincode;
