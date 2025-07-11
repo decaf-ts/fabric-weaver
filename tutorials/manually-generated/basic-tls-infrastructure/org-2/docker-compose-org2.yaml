@@ -57,7 +57,7 @@ services:
       fi;
 
       apt-get update &&
-      apt-get install -y docker.io &&
+
 
       docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
       -d --url https://org-2-tls-admin:org-2-tls-admin-pw@org-2-tls:7002 \
@@ -182,7 +182,7 @@ services:
       fi;
 
       apt-get update &&
-      apt-get install -y docker.io &&
+
 
       docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
       -d --command enroll \
@@ -344,7 +344,7 @@ services:
       fi;
 
       apt-get update &&
-      apt-get install -y docker.io &&
+
       ./weaver/bin/check-docker-ready.sh boot-infrastructure &&
 
       touch /boot/boot-checker-2.lock 

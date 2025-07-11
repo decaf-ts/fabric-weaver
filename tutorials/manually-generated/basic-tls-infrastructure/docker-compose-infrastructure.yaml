@@ -21,15 +21,16 @@ services:
       fi;
 
       apt-get update &&
-      apt-get install -y docker.io &&
+
 
       node ./weaver/lib/core/cli.cjs configtxgen \
       --config-path /weaver/general \
       --profile SimpleChannel \
       --channel-id simple-channel \
-      --output-block '/weaver/client/orderer/genesisblock' -s -d &&
+      --output-block '/weaver/client/orderer/genesis_block.pb' -s -d &&
 
       touch /boot/boot-infrastructure.lock
+
       "
 
 volumes:

@@ -40,6 +40,8 @@ FROM ghcr.io/decaf-ts/fabric-weaver:base-${FABRIC_VERSION}-${WEAVER_VERSION} AS 
 RUN echo "Entering runing phase.\n Using Fabric version: $FABRIC_VERSION. \n Using Weaver Version: $WEAVER_VERSION"
 
 RUN apt update -y && apt upgrade -y
+RUN apt install -y jq vim docker.io 
+
 
 ARG TARGET_FOLDER_NAME
 ENV TARGET_FOLDER_NAME=${TARGET_FOLDER_NAME:-weaver}

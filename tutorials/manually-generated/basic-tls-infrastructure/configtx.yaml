@@ -396,8 +396,8 @@ Orderer: &OrdererDefaults
     Consenters:
       - Host: org-1-orderer-0
         Port: 7021
-        ClientTLSCert: /weaver/client/orderer/client/tls-msp/signcerts/cert.pem
-        ServerTLSCert: /weaver/client/orderer/client/tls-msp/signcerts/cert.pem
+        ClientTLSCert: /weaver/client/orderer/tls-msp/signcerts/cert.pem
+        ServerTLSCert: /weaver/client/orderer/tls-msp/signcerts/cert.pem
       # - Host: raft1.example.com
       #   Port: 7050
       #   ClientTLSCert: path/to/ClientTLSCert1

@@ -22,29 +22,6 @@
 //     this.setupCommands();
 //   }
 
-//   private ordererChannelJoin() {
-//     this.program
-//       .command("docker:osn-admin-join")
-//       .option("--channel-id <string>", "Channel id")
-//       .option("--config-block <string>", "Path to config block file")
-//       .option("--admin-address <string>", "Address of the OSN admin")
-//       .option("--tls-ca <string>", "Path to TLS CA certificate")
-//       .option("--tls-cert <string>", "Path to TLS certificate")
-//       .option("--tls-key <string>", "Path to TLS key")
-//       .option("--no-status", "Do not print status messages")
-//       .action(async (options: any) => {
-//         osnAdminJoin(
-//           options.channelId,
-//           options.configBlock,
-//           options.adminAddress,
-//           options.tlsCa,
-//           options.tlsCert,
-//           options.tlsKey,
-//           options.noStatus
-//         );
-//       });
-//   }
-
 //   private dockerFetchConfigBlock() {
 //     this.program
 //       .command("docker:fetch-block")

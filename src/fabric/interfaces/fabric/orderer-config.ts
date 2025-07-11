@@ -165,6 +165,7 @@ export interface AdminTLSConfig {
   Enabled?: boolean;
   Certificate?: string;
   PrivateKey?: string;
+  RootCAs?: string[];
   ClientAuthRequired?: boolean;
   ClientRootCAs?: string[];
 }

@@ -57,7 +57,7 @@ services:
       fi;
 
       apt-get update &&
-      apt-get install -y docker.io &&
+
 
       docker exec org-1-tls node ./weaver/lib/core/cli.cjs client-enrollment \
       -d --url https://org-1-tls-admin:org-1-tls-admin-pw@org-1-tls:7001 \
@@ -184,7 +184,7 @@ services:
       fi;
 
       apt-get update &&
-      apt-get install -y docker.io &&
+
 
       docker exec org-1 node ./weaver/lib/core/cli.cjs client-enrollment \
       -d --command enroll \
@@ -345,7 +345,7 @@ services:
       fi;
 
       apt-get update &&
-      apt-get install -y docker.io &&
+
       ./weaver/bin/check-docker-ready.sh boot-infrastructure &&
 
       touch /boot/boot-checker-1.lock 
@@ -389,14 +389,15 @@ services:
       --config-path /weaver/orderer
       --tls-enabled
       --tls-rootcas /weaver/orderer/tls.pem
-      --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem
-      --tls-key /weaver/orderer/client/tls-msp/keystore/key.pem
+      --tls-cert /weaver/orderer/tls-msp/signcerts/cert.pem
+      --tls-key /weaver/orderer/tls-msp/keystore/key.pem
       --bootstrap-method none
       --admin-tls-enabled
       --admin-tls-certificate /weaver/orderer/client/tls-msp/signcerts/cert.pem
       --admin-tls-key /weaver/orderer/client/tls-msp/keystore/key.pem
       --admin-tls-client-authrequired
       --admin-tls-client-rootcas /weaver/orderer/client/tls-msp/tlscacerts/tls-org-1-tls-7001.pem
+      --admin-tls-rootcas /weaver/orderer/client/tls-msp/tlscacerts/tls-org-1-tls-7001.pem
       --channel-participation-enabled
 
   boot-org-1-orderer-0:
@@ -419,7 +420,7 @@ services:
       fi;
 
       apt-get update &&
-      apt-get install -y docker.io &&
+
 
       docker exec org-1-orderer-0 node ./weaver/lib/core/cli.cjs copy -s \
       --origin ./weaver/orderer/client/tls-msp/tlscacerts/tls-org-1-tls-7001.pem \
@@ -431,9 +432,9 @@ services:
 
       docker exec org-1-orderer-0 node ./weaver/lib/core/cli.cjs osn-admin-join \
       --channel-id simple-channel \
-      --admin-address 0.0.0.0:9021 \
-      --config-block /weaver/orderer/genesisblock \
-      --tls-ca /weaver/orderer/tls.pem \
+      --admin-address org-1-orderer-0:9021 \
+      --config-block /weaver/orderer/genesis_block.pb \
+      --tls-ca /weaver/orderer/msp/tlscacerts/tls-org-1-tls-7001.pem \
       --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem \
       --tls-key /weaver/orderer/client/tls-msp/keystore/key.pem &&
 

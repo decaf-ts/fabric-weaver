@@ -8,6 +8,7 @@ import { configtxgen } from "../scripts/configtxgen";
 import { createNodeOU } from "../../fabric/node-ou/node-ou";
 import { bootOrderer } from "../scripts/orderer";
 import { bootPeer } from "../scripts/peer";
+import { osnAdminJoin } from "../scripts/osn-admin";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -625,6 +626,23 @@ export class CoreCLI extends BaseCLI {
       .option("--msp-dir <string>", "MSP Directory")
       .option("--msp-id <string>", "MSP ID")
       .option("--admin-listen-address <string>", "Admin Listen Address")
+      .option("--admin-tls-enabled", "Enable Admin TLS")
+      .option("--admin-tls-certificate <string>", "Admin TLS Certificate")
+      .option("--admin-tls-key <string>", "Admin TLS Key")
+      .option(
+        "--admin-tls-rootcas <CSV>",
+        "Admin TLS Root CA Certificate location",
+        safeParseCSV
+      )
+      .option(
+        "--admin-tls-client-authrequired",
+        "Enable Admin TLS client authentication"
+      )
+      .option(
+        "--admin-tls-client-rootcas <CSV>",
+        "Admin TLS Client Root CA Certificate location",
+        safeParseCSV
+      )
       .option("--consensus-snapdir <string>", "Consensus Snapshot Directory")
       .option(
         "--consensus-waldir <string>",
@@ -647,6 +665,7 @@ export class CoreCLI extends BaseCLI {
         safeParseCSV
       )
       .option("--bootstrap-method <string>", "Bootstrap Method")
+      .option("--channel-participation-enabled", "Enable Channel Participation")
       //TODO: Implement all functionality in this command
       .action((options) => {
         this.log.setConfig({
@@ -662,8 +681,20 @@ export class CoreCLI extends BaseCLI {
             WALDir: options.consensusWaldir,
             SnapDir: options.consensusSnapdir,
           },
-          {},
-          { ListenAddress: options.adminListenAddress },
+          {
+            Enabled: options.channelParticipationEnabled,
+          },
+          {
+            ListenAddress: options.adminListenAddress,
+            TLS: {
+              Enabled: options.adminTlsEnabled,
+              Certificate: options.adminTlsCertificate,
+              RootCAs: options.adminTlsRootcas,
+              PrivateKey: options.adminTlsKey,
+              ClientAuthRequired: options.adminTlsClientAuthrequired,
+              ClientRootCAs: options.adminTlsClientRootcas,
+            },
+          },
           {
             Enabled: options.tlsEnabled,
             RootCAs: options.tlsRootcas,
@@ -803,6 +834,42 @@ export class CoreCLI extends BaseCLI {
           options.snapshotRootDir,
           { listenAddress: options.operationsAddress },
           {}
+        );
+
+        this.log.info("Command completed successfully!");
+      });
+  }
+
+  private osnAdminJoin() {
+    this.program
+      .command("osn-admin-join")
+      .description("OSN admin join commnad")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--channel-id <string>", "Channel ID")
+      .option("--config-block <string>", "Config Block")
+      .option("--admin-address <string>", "Admin address")
+      .option("--tls-ca <string>", "Path to TLS CA certificate")
+      .option("--tls-cert <string>", "Path to TLS certificate")
+      .option("--tls-key <string>", "Path to TLS key")
+      .option("--no-status", "No status")
+      .option("--help", "Displays help for osn-admin-join command")
+      .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Running osn-admin-join command...");
+        this.log.debug(`Options: ${JSON.stringify(options, null, 2)}`);
+
+        osnAdminJoin(
+          this.log,
+          options.channelId,
+          options.configBlock,
+          options.adminAddress,
+          options.tlsCa,
+          options.tlsCert,
+          options.tlsKey,
+          options.noStatus,
+          options.help
         );
 
         this.log.info("Command completed successfully!");

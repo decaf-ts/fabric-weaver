@@ -595,6 +595,13 @@ export class FabricOrdererConfigBuilder {
           this.config.Admin!.TLS!.Certificate = cfg.TLS.Certificate;
         }
 
+        if (cfg.TLS.RootCAs !== undefined) {
+          this.log.debug(
+            `Setting admin TLS root CAs files: ${cfg.TLS.RootCAs.join(", ")}`
+          );
+          this.config.Admin!.TLS!.RootCAs = cfg.TLS.RootCAs;
+        }
+
         if (cfg.TLS.ClientAuthRequired !== undefined) {
           this.log.debug(
             `Setting admin TLS client auth required to ${cfg.TLS.ClientAuthRequired}`

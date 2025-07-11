@@ -154,28 +154,3 @@ export function hasOrdererInitialized(fileLocation?: string): boolean {
 
   return booted;
 }
-
-// export function osnAdminJoin(
-//   channelID?: string,
-//   configBlock?: string,
-//   adminAddress?: string,
-//   caFile?: string,
-//   clientCert?: string,
-//   clientKey?: string,
-//   noStatus?: boolean
-// ) {
-//   const log: Logger = Logging.for(osnAdminJoin);
-//   log.debug(`Joining Orderer to the network`);
-
-//   const builder = new OSNAdminCommandBuilder();
-
-//   builder
-//     .setChannelID(channelID)
-//     .setConfigBlock(configBlock)
-//     .setOrdererAdminAddress(adminAddress)
-//     .setCAFile(caFile)
-//     .setClientCert(clientCert)
-//     .setClientKey(clientKey)
-//     .setNoStatus(noStatus)
-//     .execute();
-// }
