@@ -6,8 +6,6 @@ import {
   CorsConfig,
   CSRConfig,
   Identity,
-  MetricsConfig,
-  OperationsConfig,
   ServerTLSConfig,
 } from "../../fabric/interfaces/fabric/fabric-ca-server-config";
 import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server-command-builder";
@@ -15,6 +13,10 @@ import {
   DEFAULT_CA_CERT_PATH,
   FabricCAServerCommand,
 } from "../../fabric/constants/fabric-ca-server";
+import {
+  MetricsConfig,
+  OperationsConfig,
+} from "../../fabric/interfaces/fabric/general-configs";
 
 export function hasCAInitialized(
   fileLocation: string = DEFAULT_CA_CERT_PATH

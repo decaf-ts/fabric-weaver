@@ -1038,7 +1038,7 @@ export class FabricPeerConfigBuilder {
     return this;
   }
 
-  setLedgerState(state: LedgerStateConfig): this {
+  setLedgerState(state?: LedgerStateConfig): this {
     if (state === undefined) return this;
 
     if (state.stateDatabase !== undefined) {
@@ -1125,7 +1125,7 @@ export class FabricPeerConfigBuilder {
     return this;
   }
 
-  setLegerBlockchain(blockchain: any): this {
+  setLegerBlockchain(blockchain?: any): this {
     if (blockchain !== undefined) {
       this.log.debug(
         `Setting ledger blockchain: ${JSON.stringify(blockchain)}`
@@ -1135,7 +1135,7 @@ export class FabricPeerConfigBuilder {
     return this;
   }
 
-  enableLedgerHistoryDatabase(enable: boolean): this {
+  enableLedgerHistoryDatabase(enable?: boolean): this {
     if (enable !== undefined) {
       this.log.debug(`Setting ledger history database enabled: ${enable}`);
       this.config.ledger!.history!.enableHistoryDatabase = enable;
@@ -1143,7 +1143,7 @@ export class FabricPeerConfigBuilder {
     return this;
   }
 
-  setLedgerPvtDataStore(pvtData: PrivateDataStoreConfig) {
+  setLedgerPvtDataStore(pvtData?: PrivateDataStoreConfig) {
     if (pvtData === undefined) return this;
 
     if (pvtData.collElgProcDbBatchesInterval !== undefined) {
@@ -1182,6 +1182,8 @@ export class FabricPeerConfigBuilder {
       this.config.ledger!.pvtdataStore!.purgedKeyAuditLogging =
         pvtData.purgedKeyAuditLogging;
     }
+
+    return this;
   }
 
   setLedgerSnapshotsRootDir(rootDir?: string): this {

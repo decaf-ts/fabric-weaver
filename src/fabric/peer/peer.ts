@@ -1,5 +1,5 @@
 import { Logging } from "@decaf-ts/logging";
-import { PeerCommands, PeerSubcommands } from "./constants";
+import { PeerCommands } from "./constants";
 import path from "path";
 import fs from "fs";
 import { runCommand } from "../../utils/child-process";
@@ -9,7 +9,7 @@ export class PeerCommandBuilder {
   private log = Logging.for(PeerCommandBuilder);
   private binName: FabricBinaries = (FabricBinaries as any).PEER;
   private command: PeerCommands = PeerCommands.VERSION;
-  private subcommand: PeerSubcommands | string = undefined;
+  private subcommand?: string = undefined;
   private args: Map<string, string | boolean | number | string[]> = new Map();
   private config: any = readFileYaml(
     path.join(__dirname, "../../../config/core.yaml")
@@ -35,7 +35,7 @@ export class PeerCommandBuilder {
     return this;
   }
 
-  setSubCommand(subcommand?: PeerSubcommands | string): PeerCommandBuilder {
+  setSubCommand(subcommand?: string): PeerCommandBuilder {
     if (subcommand !== undefined) {
       this.subcommand = subcommand;
       this.log.debug(`Setting subcommand to ${subcommand}`);

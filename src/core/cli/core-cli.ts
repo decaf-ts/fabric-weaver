@@ -7,6 +7,7 @@ import { clientEnrollment } from "../scripts/ca-client";
 import { configtxgen } from "../scripts/configtxgen";
 import { createNodeOU } from "../../fabric/node-ou/node-ou";
 import { bootOrderer } from "../scripts/orderer";
+import { bootPeer } from "../scripts/peer";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -685,6 +686,122 @@ export class CoreCLI extends BaseCLI {
           undefined,
           undefined,
           {},
+          {}
+        );
+
+        this.log.info("Command completed successfully!");
+      });
+  }
+
+  private bootPeer() {
+    this.program
+      .command("boot-peer")
+      .description("Command to manage boot peers")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--config-path <string>", "Config Path")
+      .option("--gossip-bootstrap <string>", "Gossip Bootstrap Address")
+      .option("--gossip-external-endpoint <string>", "Gossip External Address")
+      .option("--tls-enabled", "Enable TLS")
+      .option("--tls-client-authrequired", "Enable TLS client authentication")
+      .option("--tls-cert <string>", "TLS Certificate File")
+      .option("--tls-key <string>", "TLS Key File")
+      .option("--tls-rootca <string>", "TLS Root Certificate File")
+      .option("--tls-client-cert <string>", "TLS Client Certificate File")
+      .option("--tls-client-key <string>", "TLS Client Key File")
+      .option(
+        "--tls-client-rootcas <CSV>",
+        "TLS Client Root Certificate File",
+        safeParseCSV
+      )
+      .option("--peer-id <string>", "Peer ID")
+      .option("--network-id <string>", "Network ID")
+      .option("--listen-address <string>", "Listen Address")
+      .option("--address <string>", "Address")
+      .option("--file-system-path <string>", "File System Path")
+      .option("--local-mspid <string>", "Local MSP ID")
+      .option("--local-mspdir <string>", "Local MSP DIR")
+      .option("--vm-network-mode <string>", "VM Network Mode")
+      .option("--state-database <string>", "State Database")
+      .option("--couchdb-address <string>", "Address for CouchDB")
+      .option("--couchdb-username <string>", "Username for CouchDB")
+      .option("--couchdb-password <string>", "Password for CouchDB")
+      .option(
+        "--operations-address <string>",
+        "Address for the operations server to listen on"
+      )
+      .option("--snapshot-root-dir <string>", "Snapshot Root Directory")
+      .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Running boot-peer command...");
+        this.log.debug(`Options: ${JSON.stringify(options, null, 2)}`);
+
+        bootPeer(
+          this.log,
+          options.configPath,
+          {
+            bootstrap: options.gossipBootstrap,
+            externalEndpoint: options.gossipExternalEndpoint,
+          },
+          {
+            enabled: options.tlsEnabled,
+            clientAuthRequired: options.tlsClientAuthrequired,
+            cert: {
+              file: options.tlsCert,
+            },
+            key: {
+              file: options.tlsKey,
+            },
+            rootcert: {
+              file: options.tlsRootca,
+            },
+            clientCert: {
+              file: options.tlsClientCert,
+            },
+            clientKey: {
+              file: options.tlsClientKey,
+            },
+            clientRootCAs: {
+              files: options.tlsClientRootcas,
+            },
+          },
+          undefined,
+          {},
+          {},
+          {
+            id: options.peerId,
+            networkId: options.networkId,
+            address: options.address,
+            listenAddress: options.listenAddress,
+            fileSystemPath: options.fileSystemPath,
+          },
+          {},
+          {
+            mspConfigPath: options.localMspdir,
+            localMspId: options.localMspid,
+          },
+          undefined,
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {},
+          {
+            stateDatabase: options.stateDatabase,
+            couchDBConfig: {
+              couchDBAddress: options.couchdbAddress,
+              username: options.couchdbUsername,
+              password: options.couchdbPassword,
+            },
+          },
+          undefined,
+          undefined,
+          {},
+          options.snapshotRootDir,
+          { listenAddress: options.operationsAddress },
           {}
         );
 

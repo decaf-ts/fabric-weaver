@@ -18,6 +18,14 @@ export class FabricPeerNodeCommandBuilder {
     else this.log = logger.for(FabricPeerNodeCommandBuilder.name);
   }
 
+  setCommand(command?: PeerNodeCommands): this {
+    if (command !== undefined) {
+      this.log.debug(`Setting command to ${command}`);
+      this.command = command;
+    }
+    return this;
+  }
+
   setPeerDevelopmentMode(enable?: boolean): this {
     if (enable !== undefined) {
       this.log.debug(`Setting peer development mode to ${enable}`);

@@ -318,6 +318,10 @@ services:
       --origin ./weaver/client/tls.pem \
       --dest ./weaver/client/orderers/orderer-0/tls.pem &&
 
+      docker exec org-2 node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/client/tls.pem \
+      --dest ./weaver/client/peers/peer-0/tls.pem &&
+
       touch /boot/boot-org-2.lock 
       "
 
@@ -388,6 +392,78 @@ services:
       --tls-key /weaver/orderer/client/tls-msp/keystore/key.pem
       --bootstrap-method none
 
+  org-2-peer-0-couchdb:
+    container_name: org-2-peer-0-couchdb
+    hostname: org-2-peer-0-couchdb
+    restart: no
+    image: couchdb:${COUCHDB_VERSION:-latest}
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: admin-pw
+    volumes:
+      - org-2-peer-0-couchdb-vol:/opt/couchdb/data
+    networks:
+      org2_network:
+    ports:
+      - 5985:5984
+    healthcheck:
+      test: curl -f http://localhost:5984/ || exit 1
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  org-2-peer-0:
+    container_name: org-2-peer-0
+    hostname: org-2-peer-0
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    environment:
+      - FABRIC_CFG_PATH=/weaver/peer
+      - PEER_CORE_YAML_FILE=/weaver/peer/core.yaml
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+    ports:
+      - "7032:7032"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - org-2-peer-0-vol:/weaver/peer:rw
+    networks:
+      org2_network:
+    healthcheck:
+      test: bash -c "[ -f /weaver/peer/core.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      org-2-orderer-0:
+        condition: service_healthy
+      org-2-peer-0-couchdb:
+        condition: service_healthy
+    command: >
+      node ./weaver/lib/core/cli.cjs boot-peer
+      -d
+      --config-path /weaver/peer
+      --gossip-bootstrap 127.0.0.1:7032
+      --tls-enabled
+      --tls-cert /weaver/peer/client/tls-msp/signcerts/cert.pem
+      --tls-key /weaver/peer/client/tls-msp/keystore/key.pem
+      --tls-rootca /weaver/peer/tls.pem
+      --peer-id org-2-peer-0
+      --listen-address 0.0.0.0:7032
+      --address org-2-peer-0:7032
+      --gossip-external-endpoint org-2-peer-0:7032
+      --file-system-path /weaver/peer/production
+      --local-mspdir /weaver/peer/client/msp
+      --local-mspid Peer0Org2MSP
+      --vm-network-mode org2_network
+      --network-id org2_network
+      --state-database CouchDB
+      --couchdb-username admin
+      --couchdb-password admin-pw
+      --couchdb-address org-2-peer-0-couchdb:5984
+      --operations-address 127.0.0.1:8010
+      --snapshot-root-dir /weaver/peer/production/snapshot-dir
+
 volumes:
   boot-files2:
     name: boot-files2
@@ -406,6 +482,9 @@ volumes:
     name: org-2-orderer-0-vol
 
   org-2-peer-0-vol:
+    name: org-2-peer-0-vol
+
+  org-2-peer-0-couchdb-vol:
     name: org-2-peer-0-vol
 
 networks:
