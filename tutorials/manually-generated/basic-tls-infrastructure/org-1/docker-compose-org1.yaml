@@ -382,7 +382,7 @@ services:
       --port 7021
       --msp-dir /weaver/orderer/client/msp
       --msp-id Orderer0Org1MSP
-      --admin-listen-address 127.0.0.1:9021
+      --admin-listen-address 0.0.0.0:9021
       --consensus-snapdir /weaver/orderer/production/orderer/etcdraft/snapshot
       --consensus-waldir /weaver/orderer/production/orderer/etcdraft/wal
       --operations-address 127.0.0.1:8010
@@ -392,6 +392,53 @@ services:
       --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem
       --tls-key /weaver/orderer/client/tls-msp/keystore/key.pem
       --bootstrap-method none
+      --admin-tls-enabled
+      --admin-tls-certificate /weaver/orderer/client/tls-msp/signcerts/cert.pem
+      --admin-tls-key /weaver/orderer/client/tls-msp/keystore/key.pem
+      --admin-tls-client-authrequired
+      --admin-tls-client-rootcas /weaver/orderer/client/tls-msp/tlscacerts/tls-org-1-tls-7001.pem
+      --channel-participation-enabled
+
+  boot-org-1-orderer-0:
+    container_name: boot-org-1-orderer-0
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files1:/boot:rw
+    depends_on:
+      org-1-orderer-0:
+        condition: service_healthy
+    networks:
+      org1_network:
+    command: >
+      bash -c "
+      if [ -f /boot/boot-org-1-orderer-0.lock ]; then
+        echo 'Org 1 orderer already booted. Skipping...';
+        exit 0;
+      fi;
+
+      apt-get update &&
+      apt-get install -y docker.io &&
+
+      docker exec org-1-orderer-0 node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/orderer/client/tls-msp/tlscacerts/tls-org-1-tls-7001.pem \
+      --dest ./weaver/orderer/client/msp/tlscacerts/tls-org-1-tls-7001.pem &&
+
+      docker exec org-1-orderer-0 node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/orderer/tls-msp/tlscacerts/tls-org-1-tls-7001.pem \
+      --dest ./weaver/orderer/msp/tlscacerts/tls-org-1-tls-7001.pem &&
+
+      docker exec org-1-orderer-0 node ./weaver/lib/core/cli.cjs osn-admin-join \
+      --channel-id simple-channel \
+      --admin-address 0.0.0.0:9021 \
+      --config-block /weaver/orderer/genesisblock \
+      --tls-ca /weaver/orderer/tls.pem \
+      --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem \
+      --tls-key /weaver/orderer/client/tls-msp/keystore/key.pem &&
+
+      touch /boot/boot-org-1-orderer-0.lock 
+      "
 
   org-1-peer-0-couchdb:
     container_name: org-1-peer-0-couchdb
