@@ -171,8 +171,8 @@ export class CoreCLI extends BaseCLI {
                 pass: password,
               },
             ],
-            options.noTlsProfile,
-            options.noCaProfile,
+            options.caProfile,
+            options.tlsProfile,
             {
               cn: options.csrCn,
               hosts: options.csrHosts,
@@ -380,8 +380,8 @@ export class CoreCLI extends BaseCLI {
                 pass: password,
               },
             ],
-            options.noTlsProfile,
-            options.noCaProfile,
+            options.caProfile,
+            options.tlsProfile,
             {
               cn: options.csrCn,
               hosts: options.csrHosts,

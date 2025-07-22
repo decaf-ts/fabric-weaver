@@ -54,9 +54,18 @@ const defaultConfig = {
 
 const program = new Command();
 
+program.version(VERSION).description("Fabric setup and update utility");
+
 program
-  .version(VERSION)
-  .description("Fabric setup and update utility")
+  .command("update")
+  .description("Update the Fabric install script")
+  .action(async () => {
+    await updateFabric();
+  });
+
+program
+  .command("setup")
+  .description("Set up Fabric components")
   .option(
     "-f, --fabric-version <version>",
     "Fabric version",
@@ -71,24 +80,12 @@ program
     "--components <components...>",
     "Components to install (binary, docker, podman, samples)",
     defaultConfig.components
-  );
-
-program
-  .command("update")
-  .description("Update the Fabric install script")
-  .action(async () => {
-    await updateFabric();
-  });
-
-program
-  .command("setup")
-  .description("Set up Fabric components")
+  )
   .action(async (options) => {
     const config = {
-      ...defaultConfig,
-      fabricVersion: options.fabricVersion || program.opts().fabricVersion,
-      caVersion: options.caVersion || program.opts().caVersion,
-      components: options.components || program.opts().components,
+      fabricVersion: options.fabricVersion || defaultConfig.fabricVersion,
+      caVersion: options.caVersion || defaultConfig.caVersion,
+      components: options.components || defaultConfig.components,
     };
     await setupFabric(config);
   });
