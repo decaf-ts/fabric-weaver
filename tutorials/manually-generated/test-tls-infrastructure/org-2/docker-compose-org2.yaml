@@ -1,0 +1,547 @@
+services:
+  org-2-tls:
+    container_name: org-2-tls
+    hostname: org-2-tls
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    environment:
+      - FABRIC_CA_CLIENT_HOME=/weaver/client/admin
+      - FABRIC_CA_SERVER_HOME=/weaver/server
+      - FABRIC_CA_CLIENT_TLS_CERTFILES=/weaver/server/ca-cert.pem
+    ports:
+      - "7002:7002"
+    networks:
+      org2_network:
+    healthcheck:
+      test: bash -c "[ -f /weaver/server/ca-cert.pem ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - org-2-tls-server-vol:/weaver/server:rw
+      - org-2-tls-client-vol:/weaver/client:rw
+    command: >
+      node ./weaver/lib/core/cli.cjs boot-ca 
+      -d 
+      -s 
+      --home /weaver/server 
+      --port 7002 
+      --tls-enabled 
+      --ca-name org-2-tls 
+      --bootstrap-users org-2-tls-admin:org-2-tls-admin-pw 
+      --no-ca-profile 
+      --csr-cn org-2-tls 
+      --csr-hosts 0.0.0.0,localhost,org-2-tls 
+      --operations-listen-address 127.0.0.1:8010
+
+  boot-org-2-tls:
+    container_name: boot-org-2-tls
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files2:/boot:rw
+      - org-2-client-vol:/weaver/client:rw
+      - org-2-tls-server-vol:/weaver/server:rw
+    depends_on:
+      org-2-tls:
+        condition: service_healthy
+    networks:
+      org2_network:
+    command: >
+      bash -c "
+      if [ -f /boot/boot-org-2-tls.lock ]; then
+        echo 'Org 2 TLS already booted. Skipping...';
+        exit 0;
+      fi;
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d --url https://org-2-tls-admin:org-2-tls-admin-pw@org-2-tls:7002 \
+      --command enroll && 
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2-tls:7002 \
+      --id-name org-2-admin \
+      --id-secret org-2-admin-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2-tls:7002 \
+      --id-name org-2-orderer-0-admin \
+      --id-secret org-2-orderer-0-admin-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2-tls:7002 \
+      --id-name org-2-orderer-0 \
+      --id-secret org-2-orderer-0-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2-tls:7002 \
+      --id-name org-2-peer-0-admin \
+      --id-secret org-2-peer-0-admin-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2-tls node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2-tls:7002 \
+      --id-name org-2-peer-0 \
+      --id-secret org-2-peer-0-pw \
+      --tls-certfiles /weaver/server/ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/server/ca-cert.pem \
+      --dest ./weaver/client/tls-ca-cert.pem &&
+
+      node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/server/tls-cert.pem \
+      --dest ./weaver/client/tls-tls-cert.pem &&
+
+      node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-admin:org-2-admin-pw@org-2-tls:7002 \
+      --mspdir /weaver/client/admin/tls-msp \
+      --enrollment-profile tls  \
+      --csr-hosts 0.0.0.0,localhost,org-2 \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --rename-key
+
+      touch /boot/boot-org-2-tls.lock 
+      "
+
+  org-2:
+    container_name: org-2
+    hostname: org-2
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    environment:
+      - FABRIC_CA_CLIENT_HOME=/weaver/client/admin
+      - FABRIC_CA_SERVER_HOME=/weaver/server
+      - FABRIC_CA_CLIENT_TLS_CERTFILES=/weaver/client/tls-ca-cert.pem
+    ports:
+      - "7012:7012"
+    networks:
+      org2_network:
+    depends_on:
+      boot-org-2-tls:
+        condition: service_completed_successfully
+    healthcheck:
+      test: bash -c "[ -f /weaver/server/ca-cert.pem ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    volumes:
+      - org-2-server-vol:/weaver/server:rw
+      - org-2-client-vol:/weaver/client:rw
+      - org-2-orderer-0-vol:/weaver/client/orderers/orderer-0:rw
+      - org-2-peer-0-vol:/weaver/client/peers/peer-0:rw
+    command: >
+      node ./weaver/lib/core/cli.cjs boot-ca 
+      -d 
+      -s 
+      --home /weaver/server 
+      --port 7012 
+      --tls-enabled 
+      --ca-name org-2 
+      --bootstrap-users org-2-admin:org-2-admin-pw 
+      --no-tls-profile
+      --csr-cn org-2 
+      --csr-hosts 0.0.0.0,localhost,org-2 
+      --operations-listen-address 127.0.0.1:8010
+      --tls-certfile /weaver/client/admin/tls-msp/signcerts/cert.pem
+      --tls-keyfile /weaver/client/admin/tls-msp/keystore/key.pem
+
+  boot-org-2:
+    container_name: boot-org-2
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files2:/boot:rw
+      - ../../basic-tls-infrastructure:/weaver/general:rw
+      - org-2-share-vol:/weaver/share:rw
+    depends_on:
+      org-2:
+        condition: service_healthy
+    networks:
+      org2_network:
+    command: >
+      bash -c "
+      if [ -f /boot/boot-org-2.lock ]; then
+        echo 'Org 2 already booted. Skipping...';
+        exit 0;
+      fi;
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d --command enroll \
+      --url https://org-2-admin:org-2-admin-pw@org-2:7012 \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2:7012 \
+      --id-name org-2-orderer-0-admin \
+      --id-secret org-2-orderer-0-admin-pw \
+      --id-type admin \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-orderer-0-admin:org-2-orderer-0-admin-pw@org-2:7012 \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/orderers/orderer-0/client/msp \
+      --csr-hosts org-2-orderer-0,0.0.0.0,localhost \
+      --home /weaver/client/orderers/orderer-0/client &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-orderer-0-admin:org-2-orderer-0-admin-pw@org-2-tls:7002 \
+      --enrollment-profile tls \
+      --csr-hosts org-2-orderer-0,0.0.0.0,localhost \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/orderers/orderer-0/client/tls-msp \
+      --home /weaver/client/orderers/orderer-0/client \
+      --rename-key &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --url https://org-2:7012 \
+      --id-name org-2-orderer-0 \
+      --id-secret org-2-orderer-0-pw \
+      --id-type orderer \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-orderer-0:org-2-orderer-0-pw@org-2:7012 \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/orderers/orderer-0/msp \
+      --csr-hosts org-2-orderer-0,0.0.0.0,localhost \
+      --home /weaver/client/orderers/orderer-0 &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-orderer-0:org-2-orderer-0-pw@org-2-tls:7002 \
+      --enrollment-profile tls \
+      --csr-hosts org-2-orderer-0,0.0.0.0,localhost \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/orderers/orderer-0/tls-msp \
+      --home /weaver/client/orderers/orderer-0/tls-msp \
+      --rename-key &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --id-name org-2-peer-0-admin \
+      --id-secret org-2-peer-0-admin-pw \
+      --id-type admin \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/admin/msp  \
+      --url https://org-2:7012 &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-peer-0-admin:org-2-peer-0-admin-pw@org-2:7012 \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/peers/peer-0/client/msp \
+      --csr-hosts org-2-peer-0,0.0.0.0,localhost \
+      --home /weaver/client/peers/peer-0/client &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-peer-0-admin:org-2-peer-0-admin-pw@org-2-tls:7002 \
+      --enrollment-profile tls \
+      --csr-hosts org-2-peer-0,0.0.0.0,localhost \
+      --home /weaver/client/peers/peer-0/client/tls-msp \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/peers/peer-0/client/tls-msp \
+      --rename-key &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command register \
+      --id-name org-2-peer-0 \
+      --id-secret org-2-peer-0-pw \
+      --id-type peer \
+      --url https://org-2:7012 \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/admin/msp &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-peer-0:org-2-peer-0-pw@org-2:7012 \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/peers/peer-0/msp \
+      --csr-hosts org-2-peer-0,0.0.0.0,localhost \
+      --home /weaver/client/peers/peer-0 &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs client-enrollment \
+      -d -s --command enroll \
+      --url https://org-2-peer-0:org-2-peer-0-pw@org-2-tls:7002 \
+      --enrollment-profile tls \
+      --csr-hosts org-2-peer-0,0.0.0.0,localhost \
+      --home /weaver/client/peers/peer-0/tls-msp \
+      --tls-certfiles /weaver/client/tls-ca-cert.pem \
+      --mspdir /weaver/client/peers/peer-0/tls-msp \
+      --rename-key &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/orderers/orderer-0/msp' -s &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/orderers/orderer-0/client/msp' -s &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/peers/peer-0/msp' -s &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs node-ou \
+      --enable \
+      --mspdir 'weaver/client/peers/peer-0/client/msp' -s &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/client/tls-ca-cert.pem \
+      --dest ./weaver/client/orderers/orderer-0/tls-ca-cert.pem &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/client/tls-ca-cert.pem \
+      --dest ./weaver/client/orderers/orderer-0/msp/tlscacerts/tls-ca-cert.pem &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/client/tls-ca-cert.pem \
+      --dest ./weaver/client/orderers/orderer-0/client/msp/tlscacerts/tls-ca-cert.pem &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/client/tls-ca-cert.pem \
+      --dest ./weaver/client/peers/peer-0/tls-ca-cert.pem &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/client/tls-ca-cert.pem \
+      --dest ./weaver/client/peers/peer-0/client/msp/tlscacerts/tls-ca-cert.pem &&
+
+      docker exec org-2 node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/client/tls-ca-cert.pem \
+      --dest ./weaver/client/peers/peer-0/msp/tlscacerts/tls-ca-cert.pem &&
+
+      touch /boot/boot-org-2.lock 
+      "
+
+  checker:
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files2:/boot:rw
+    depends_on:
+      boot-org-2:
+        condition: service_completed_successfully
+    networks:
+      org2_network:
+    command: >
+      bash -c "
+      if [ -f /boot/boot-checker-2.lock ]; then
+        echo 'Org 2 already booted. Skipping...';
+        exit 0;
+      fi;
+
+      ./weaver/bin/check-docker-ready.sh boot-infrastructure &&
+
+      touch /boot/boot-checker-2.lock 
+      "
+
+  org-2-orderer-0:
+    container_name: org-2-orderer-0
+    hostname: org-2-orderer-0
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    environment:
+      - FABRIC_CFG_PATH=/weaver/orderer
+      - ORDERER_YAML_FILE=/weaver/orderer/orderer.yaml
+    ports:
+      - "7022:7022"
+      - "9022:9022"
+    volumes:
+      - org-2-orderer-0-vol:/weaver/orderer:rw
+    networks:
+      org2_network:
+    healthcheck:
+      test: bash -c "[ -f /weaver/orderer/orderer.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      checker:
+        condition: service_completed_successfully
+    command: >
+      node ./weaver/lib/core/cli.cjs boot-orderer
+      -d
+      --listen-address 0.0.0.0
+      --port 7022
+      --msp-dir /weaver/orderer/client/msp
+      --msp-id Orderer0Org2MSP
+      --admin-listen-address 0.0.0.0:9022
+      --consensus-snapdir /weaver/orderer/production/orderer/etcdraft/snapshot
+      --consensus-waldir /weaver/orderer/production/orderer/etcdraft/wal
+      --operations-address 127.0.0.1:8010
+      --config-path /weaver/orderer
+      --tls-enabled
+      --tls-rootcas /weaver/orderer/tls-ca-cert.pem
+      --tls-cert /weaver/orderer/tls-msp/signcerts/cert.pem
+      --tls-key /weaver/orderer/tls-msp/keystore/key.pem
+      --bootstrap-method none
+      --admin-tls-enabled
+      --admin-tls-certificate /weaver/orderer/client/tls-msp/signcerts/cert.pem
+      --admin-tls-key /weaver/orderer/client/tls-msp/keystore/key.pem
+      --admin-tls-client-authrequired
+      --admin-tls-client-rootcas /weaver/orderer/tls-ca-cert.pem
+      --admin-tls-rootcas /weaver/orderer/tls-ca-cert.pem
+      --channel-participation-enabled
+
+  boot-org-2-orderer-0:
+    container_name: boot-org-2-orderer-0
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files2:/boot:rw
+    depends_on:
+      org-2-orderer-0:
+        condition: service_healthy
+    networks:
+      org2_network:
+    command: >
+      bash -c "
+      if [ -f /boot/boot-org-2-orderer-0.lock ]; then
+        echo 'Org 2 orderer already booted. Skipping...';
+        exit 0;
+      fi;
+
+      touch /boot/boot-org-2-orderer-0.lock 
+      "
+
+  #     docker exec org-2-orderer-0 node ./weaver/lib/core/cli.cjs osn-admin-join \
+  # --channel-id simple-channel \
+  # --admin-address org-2-orderer-0:9022 \
+  # --config-block /weaver/orderer/genesis_block.pb \
+  # --tls-ca /weaver/orderer/tls-ca-cert.pem \
+  # --tls-cert /weaver/orderer/client/tls-msp/signcerts/cert.pem \
+  # --tls-key /weaver/orderer/client/tls-msp/keystore/key.pem &&
+
+  org-2-peer-0-couchdb:
+    container_name: org-2-peer-0-couchdb
+    hostname: org-2-peer-0-couchdb
+    restart: no
+    image: couchdb:${COUCHDB_VERSION:-latest}
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: admin-pw
+    volumes:
+      - org-2-peer-0-couchdb-vol:/opt/couchdb/data
+    networks:
+      org2_network:
+    ports:
+      - 5985:5984
+    healthcheck:
+      test: curl -f http://localhost:5984/ || exit 1
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  org-2-peer-0:
+    container_name: org-2-peer-0
+    hostname: org-2-peer-0
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    environment:
+      - FABRIC_CFG_PATH=/weaver/peer
+      - PEER_CORE_YAML_FILE=/weaver/peer/core.yaml
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+    ports:
+      - "7032:7032"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - org-2-peer-0-vol:/weaver/peer:rw
+    networks:
+      org2_network:
+    healthcheck:
+      test: bash -c "[ -f /weaver/peer/core.yaml ] && curl -s 127.0.0.1:8010/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      org-2-orderer-0:
+        condition: service_healthy
+      org-2-peer-0-couchdb:
+        condition: service_healthy
+    command: >
+      node ./weaver/lib/core/cli.cjs boot-peer
+      -d
+      --config-path /weaver/peer
+      --gossip-bootstrap 127.0.0.1:7032
+      --tls-enabled
+      --tls-cert /weaver/peer/client/tls-msp/signcerts/cert.pem
+      --tls-key /weaver/peer/client/tls-msp/keystore/key.pem
+      --tls-rootca /weaver/peer/tls-ca-cert.pem
+      --peer-id org-2-peer-0
+      --listen-address 0.0.0.0:7032
+      --address org-2-peer-0:7032
+      --gossip-external-endpoint org-2-peer-0:7032
+      --file-system-path /weaver/peer/production
+      --local-mspdir /weaver/peer/client/msp
+      --local-mspid Peer0Org2MSP
+      --vm-network-mode org2_network
+      --network-id org2_network
+      --state-database CouchDB
+      --couchdb-username admin
+      --couchdb-password admin-pw
+      --couchdb-address org-2-peer-0-couchdb:5984
+      --operations-address 127.0.0.1:8010
+      --snapshot-root-dir /weaver/peer/production/snapshot-dir
+
+volumes:
+  boot-files2:
+    name: boot-files2
+
+  org-2-share-vol:
+    name: org-2-share-vol
+
+  org-2-tls-server-vol:
+    name: org-2-tls-server-vol
+  org-2-tls-client-vol:
+    name: org-2-tls-client-vol
+
+  org-2-server-vol:
+    name: org-2-server-vol
+  org-2-client-vol:
+    name: org-2-client-vol
+
+  org-2-orderer-0-vol:
+    name: org-2-orderer-0-vol
+
+  org-2-peer-0-vol:
+    name: org-2-peer-0-vol
+
+  org-2-peer-0-couchdb-vol:
+    name: org-2-peer-0-vol
+
+networks:
+  org2_network:
+    name: org2_network
+    driver: bridge
