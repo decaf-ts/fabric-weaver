@@ -33,7 +33,7 @@ COPY tsconfig.json ./$FOLDER_NAME/
 COPY src ./$FOLDER_NAME/src
 COPY bin ./$FOLDER_NAME/bin
 
-RUN --mount=type=secret,id=TOKEN TOKEN=$(cat /run/secrets/TOKEN) cd ${FOLDER_NAME} && npm install && npm run setup && npm cache clean --force && chown -R node:node .
+RUN --mount=type=secret,id=TOKEN TOKEN=$(cat /run/secrets/TOKEN) cd ${FOLDER_NAME} && npm install && npm run setup -- --fabric-version ${FABRIC_VERSION} --ca-version ${FABRIC_CA_VERSION} && npm cache clean --force && chown -R node:node .
 
 RUN find /$FOLDER_NAME/bin -type f \( -name "*.cjs" -o -name "*.sh" \) -delete
 
