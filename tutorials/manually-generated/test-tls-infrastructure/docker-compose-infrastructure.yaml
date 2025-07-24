@@ -26,8 +26,11 @@ services:
       --channel-id simple-channel \
       --output-block '/weaver/client/orderer/genesis_block.pb' -s -d &&
 
-      touch /boot/boot-infrastructure.lock
+      node ./weaver/lib/core/cli.cjs copy -s \
+      --origin ./weaver/client/orderer/tls-ca-cert.pem \
+      --dest ./weaver/client/peer-2/orderer-tls-ca-cert.pem &&
 
+      touch /boot/boot-infrastructure.lock
       "
 
 volumes:

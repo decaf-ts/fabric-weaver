@@ -515,6 +515,41 @@ services:
       --operations-address 127.0.0.1:8010
       --snapshot-root-dir /weaver/peer/production/snapshot-dir
 
+  boot-org-2-peer-0:
+    container_name: boot-org-2-peer-0
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files2:/boot:rw
+    depends_on:
+      org-2-peer-0:
+        condition: service_healthy
+    networks:
+      org2_network:
+    command: >
+      bash -c "
+      if [ -f /boot/boot-org-2-peer-0.lock ]; then
+        echo 'Org 1 peer already booted. Skipping...';
+        exit 0;
+      fi;
+
+      docker exec org-2-peer-0 node ./weaver/lib/core/cli.cjs peer-fetch-genesis-block \
+      -d \
+      --channel-id simple-channel \
+      --orderer-address org-1-orderer-0:7021 \
+      --block-number 0 \
+      --output-file /weaver/peer/genesis_block.pb \
+      --tls \
+      --tls-ca-cert-file /weaver/peer/orderer-tls-ca-cert.pem 
+
+      docker exec org-2-peer-0 node ./weaver/lib/core/cli.cjs peer-join-channel \
+      -d -s \
+      --blockpath /weaver/peer/genesis_block.pb 
+
+      touch /boot/boot-org-2-peer-0.lock 
+      "
+
 volumes:
   boot-files2:
     name: boot-files2
