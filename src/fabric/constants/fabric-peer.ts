@@ -1,9 +1,9 @@
 export enum PeerCommands {
-  //   CHAINCODE = "chaincode",
+  CHAINCODE = "chaincode",
   CHANNEL = "channel",
   NODE = "node",
   //   VERSION = "version",
-  //   LIFECYCLE_CHAINCODE = "lifecycle chaincode",
+  LIFECYCLE_CHAINCODE = "lifecycle chaincode",
 }
 
 export enum PeerNodeCommands {
@@ -27,4 +27,28 @@ export enum PeerChannelCommands {
   LIST = "list",
   SIGNCONFIGTX = "signconfigtx",
   UPDATE = "update",
+}
+
+export enum PeerChaincodeCommands {
+  INSTALL = "install",
+  INSTANTIATE = "instantiate",
+  INVOKE = "invoke",
+  LIST = "list",
+  PACKAGE = "package",
+  QUERY = "query",
+  SIGNPACKAGE = "signpackage",
+  UPGRADE = "upgrade",
+}
+
+export enum PeerLifecycleChaincodeCommands {
+  PACKAGE = "package",
+  INSTALL = "install",
+  QUERYINSTALLED = "queryinstalled",
+  GETINSTALLEDPACKAGE = "getinstalledpackage",
+  CALCULATEPACKAGEID = "calculatepackageid",
+  APPROVEFORMYORG = "approveformyorg",
+  QUERYAPPROVED = "queryapproved",
+  CHECKCOMMITREADINESS = "checkcommitreadiness",
+  COMMIT = "commit",
+  QUERYCOMMITTED = "querycommitted",
 }

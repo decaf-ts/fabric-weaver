@@ -27,9 +27,11 @@ import {
 import { FabricPeerNodeCommandBuilder } from "../../fabric/peer/fabric-peer-node-command-builder";
 import {
   PeerChannelCommands,
+  PeerLifecycleChaincodeCommands,
   PeerNodeCommands,
 } from "../../fabric/constants/fabric-peer";
 import { FabricPeerChannelCommandBuilder } from "../../fabric/peer/fabric-peer-channel-command-builder";
+import { FabricPeerLifecycleChaincodeCommandBuilder } from "../../fabric/peer/fabric-peer-lifecycle-chaincode-command-builder";
 
 export function issuePeer(
   log: Logger,
@@ -222,15 +224,31 @@ export async function peerJoinChannel(logger?: Logger, blockPath?: string) {
     .execute();
 }
 
+export function packageChaincode(
+  logger?: Logger,
+  outputFile?: string,
+  contractPath?: string,
+  lang?: string,
+  contractName?: string,
+  contractVersion?: string
+) {
+  const log: Logger = Logging.for(packageChaincode);
+  log.debug(`Packaging Chaincode`);
+
+  const builder = new FabricPeerLifecycleChaincodeCommandBuilder(logger);
+
+  builder
+    .setCommand(PeerLifecycleChaincodeCommands.PACKAGE)
+    .setDestination(outputFile)
+    .setContractPath(contractPath)
+    .setLang(lang)
+    .setLabel(`${contractName}_${contractVersion}`)
+    .execute();
+}
+
 // export async function packageChaincode(
-//   outputFile?: string,
-//   contractPath?: string,
-//   lang?: string,
-//   contractName?: string,
-//   contractVersion?: string
+
 // ) {
-//   const log: Logger = Logging.for(packageChaincode);
-//   log.debug(`Packaging Chaincode`);
 
 //   const builder = new PeerCommandBuilder();
 

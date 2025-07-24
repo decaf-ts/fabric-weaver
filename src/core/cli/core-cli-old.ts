@@ -59,31 +59,6 @@
 //       });
 //   }
 
-//   private dockerChaincodePackage() {
-//     this.program
-//       .command("docker:chaincode-package")
-//       .option("-d, --debug", "Enables debug mode")
-//       .option("--chaincode-path <string>", "Path to the chaincode directory")
-//       .option("--lang <string>", "Language of the chaincode")
-//       .option("--chaincode-output <string>", "output location of the chaincode")
-//       .option("--chaincode-name <string>", "Name of the chaincode")
-//       .option("--chaincode-version <string>", "Version of the chaincode")
-//       .action(async (options: any) => {
-//         this.log.setConfig({
-//           level: options.debug ? LogLevel.debug : LogLevel.info,
-//         });
-//         this.log.info("Packaging Chaincode...");
-//         packageChaincode(
-//           options.chaincodeOutput,
-//           options.chaincodePath,
-//           options.lang,
-//           options.chaincodeName,
-//           options.chaincodeVersion
-//         );
-//         this.log.info("Chaincode packaged successfully!");
-//       });
-//   }
-
 //   private dockerChaincodeInstall() {
 //     this.program
 //       .command("docker:chaincode-install")

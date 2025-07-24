@@ -9,6 +9,7 @@ import { createNodeOU } from "../../fabric/node-ou/node-ou";
 import { bootOrderer } from "../scripts/orderer";
 import {
   bootPeer,
+  packageChaincode,
   peerFetchGenesisBlock,
   peerJoinChannel,
 } from "../scripts/peer";
@@ -928,6 +929,34 @@ export class CoreCLI extends BaseCLI {
         );
 
         this.log.info("Command completed successfully!");
+      });
+  }
+
+  private packageChaincode() {
+    this.program
+      .command("package-chaincode")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--chaincode-path <string>", "Path to the chaincode directory")
+      .option("--lang <string>", "Language of the chaincode")
+      .option("--chaincode-output <string>", "output location of the chaincode")
+      .option("--chaincode-name <string>", "Name of the chaincode")
+      .option("--chaincode-version <string>", "Version of the chaincode")
+      .action(async (options: any) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Packaging Chaincode...");
+
+        packageChaincode(
+          this.log,
+          options.chaincodeOutput,
+          options.chaincodePath,
+          options.lang,
+          options.chaincodeName,
+          options.chaincodeVersion
+        );
+
+        this.log.info("Chaincode packaged successfully!");
       });
   }
 }
