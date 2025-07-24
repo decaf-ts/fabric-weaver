@@ -477,6 +477,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - org-1-peer-0-vol:/weaver/peer:rw
+      - ../chaincode:/weaver/chaincode:rw
     networks:
       org1_network:
     healthcheck:
@@ -546,6 +547,13 @@ services:
       docker exec org-1-peer-0 node ./weaver/lib/core/cli.cjs peer-join-channel \
       -d \
       --blockpath /weaver/peer/genesis_block.pb 
+
+      docker exec org-1-peer-0 node ./weaver/lib/core/cli.cjs package-chaincode -d \
+      --chaincode-path ./weaver/chaincode \
+      --lang node \
+      --chaincode-output /weaver/peer/simple.tar.gz \
+      --chaincode-name simple \
+      --chaincode-version 1.0 -s &&
 
       touch /boot/boot-org-1-peer-0.lock 
       "

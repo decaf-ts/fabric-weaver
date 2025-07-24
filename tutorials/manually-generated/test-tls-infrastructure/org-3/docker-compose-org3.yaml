@@ -477,6 +477,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - org-3-peer-0-vol:/weaver/peer:rw
+      - ../chaincode:/weaver/chaincode:rw
     networks:
       org3_network:
     healthcheck:
