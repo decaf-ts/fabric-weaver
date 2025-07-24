@@ -25,7 +25,11 @@ import {
   OperationsConfig,
 } from "../../fabric/interfaces/fabric/general-configs";
 import { FabricPeerNodeCommandBuilder } from "../../fabric/peer/fabric-peer-node-command-builder";
-import { PeerNodeCommands } from "../../fabric/constants/fabric-peer";
+import {
+  PeerChannelCommands,
+  PeerNodeCommands,
+} from "../../fabric/constants/fabric-peer";
+import { FabricPeerChannelCommandBuilder } from "../../fabric/peer/fabric-peer-channel-command-builder";
 
 export function issuePeer(
   log: Logger,
@@ -180,67 +184,43 @@ export function hasPeerInitialized(fileLocation?: string): boolean {
 
   return booted;
 }
-//   const log: Logger = Logging.for(hasPeerInitialized);
 
-//   const defaultFileLocation = path.join(__dirname, "../../../peer/core.yaml");
+export function peerFetchGenesisBlock(
+  logger?: Logger,
+  channelID?: string,
+  ordererAddress?: string,
+  blockNumber?: string,
+  outputFile?: string,
+  tlsEnabled?: boolean,
+  tlsCACertFile?: string
+) {
+  const log: Logger = Logging.for(peerFetchGenesisBlock);
+  log.debug(`Fetching Genesis Block`);
 
-//   if (!fileLocation) {
-//     log.debug(
-//       `No file location provided, using default file location: ${defaultFileLocation}`
-//     );
-//     fileLocation = defaultFileLocation;
-//   } else {
-//     if (!fileLocation.endsWith(".yaml"))
-//       fileLocation = path.join(fileLocation, "core.yaml");
-//     log.debug(`Using provided file location: ${fileLocation}`);
-//   }
+  const builder = new FabricPeerChannelCommandBuilder(logger);
 
-//   const booted = fs.existsSync(fileLocation);
+  builder
+    .enableTLS(tlsEnabled)
+    .setCommand(PeerChannelCommands.FETCH)
+    .setBlockReference(blockNumber)
+    .setDestination(outputFile)
+    .setOrderer(ordererAddress)
+    .setChannelID(channelID)
+    .setTLSCAFile(tlsCACertFile)
+    .execute();
+}
 
-//   log.debug(`Orderer has been booted: ${booted}`);
+export async function peerJoinChannel(logger?: Logger, blockPath?: string) {
+  const log: Logger = Logging.for(peerJoinChannel);
+  log.debug(`Joining Channel`);
 
-//   return booted;
-// }
+  const builder = new FabricPeerChannelCommandBuilder(logger);
 
-// export async function peerFetchGenesisBlock(
-//   channelID?: string,
-//   ordererAddress?: string,
-//   blockNumber?: string,
-//   outputFile?: string
-// ) {
-//   const log: Logger = Logging.for(peerFetchGenesisBlock);
-//   log.debug(`Fetching Genesis Block`);
-
-//   const builder = new PeerCommandBuilder();
-
-//   const command = builder
-//     .setCommand(PeerCommands.CHANNEL)
-//     .setSubCommand(
-//       `${PeerChannelCommands.FETCH} ${blockNumber || "--help"} ${outputFile || ""}`
-//     )
-//     .setChannelID(channelID)
-//     .setOrderer(ordererAddress)
-//     .build();
-
-//   log.info(`Executing command: ${command.join(" ")}`);
-
-//   execSync(command.join(" "), { stdio: "inherit" });
-//   //  `peer channel fetch ${isExternal ? '0' : 'config'} ./genesis.block \
-//   //         --tls \
-//   //         --cafile ${cfg.channel.ordererCaFile}`],
-// }
-
-// export async function peerJoinChannel(blockLocation?: string) {
-//   const log: Logger = Logging.for(peerJoinChannel);
-//   log.debug(`Joining Channel`);
-//   const builder = new PeerCommandBuilder();
-
-//   builder
-//     .setCommand(PeerCommands.CHANNEL)
-//     .setSubCommand(PeerChannelCommands.JOIN)
-//     .setBlockPath(blockLocation)
-//     .execute();
-// }
+  builder
+    .setCommand(PeerChannelCommands.JOIN)
+    .setBlockPath(blockPath)
+    .execute();
+}
 
 // export async function packageChaincode(
 //   outputFile?: string,

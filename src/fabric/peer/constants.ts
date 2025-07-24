@@ -30,18 +30,6 @@ export enum PeerLifecycleChaincodeCommands {
   QUERYCOMMITTED = "querycommitted",
 }
 
-export enum PeerChannelCommands {
-  CREATE = "create",
-  FETCH = "fetch",
-  GETINFO = "getinfo",
-  JOIN = "join",
-  JOINBYSNAPSHOT = "joinbysnapshot",
-  JOINBYSNAPSHOTSTATUS = "joinbysnapshotstatus",
-  LIST = "list",
-  SIGNCONFIGTX = "signconfigtx",
-  UPDATE = "update",
-}
-
 export enum PeerSnapshotCommands {
   CANCELREQUEST = "cancelrequest",
   LISTPENDING = "listpending",

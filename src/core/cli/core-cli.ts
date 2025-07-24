@@ -7,7 +7,11 @@ import { clientEnrollment } from "../scripts/ca-client";
 import { configtxgen } from "../scripts/configtxgen";
 import { createNodeOU } from "../../fabric/node-ou/node-ou";
 import { bootOrderer } from "../scripts/orderer";
-import { bootPeer } from "../scripts/peer";
+import {
+  bootPeer,
+  peerFetchGenesisBlock,
+  peerJoinChannel,
+} from "../scripts/peer";
 import { osnAdminJoin } from "../scripts/osn-admin";
 
 export class CoreCLI extends BaseCLI {
@@ -835,6 +839,57 @@ export class CoreCLI extends BaseCLI {
           { listenAddress: options.operationsAddress },
           {}
         );
+
+        this.log.info("Command completed successfully!");
+      });
+  }
+
+  private peerBlockFetch() {
+    this.program
+      .command("peer-fetch-genesis-block")
+      .description("Command to manage boot peers")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--channel-id <string>", "Channel ID")
+      .option("--orderer-address <string>", "Orderer Address")
+      .option("--block-number <string>", "Block number")
+      .option("--output-file <string>", "Output file")
+      .option("--tls", "Enable TLS")
+      .option("--tls-ca-cert-file <string>", "TLS CA Certificate File")
+      .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Running peer fetch command...");
+        this.log.debug(`Options: ${JSON.stringify(options, null, 2)}`);
+
+        peerFetchGenesisBlock(
+          this.log,
+          options.channelId,
+          options.ordererAddress,
+          options.blockNumber,
+          options.outputFile,
+          options.tls,
+          options.tlsCaCertFile
+        );
+
+        this.log.info("Command completed successfully!");
+      });
+  }
+
+  private peerJoinChannel() {
+    this.program
+      .command("peer-join-channel")
+      .description("Command to manage boot peers")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--blockpath <string>", "Block number")
+      .action((options) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Running peer fetch command...");
+        this.log.debug(`Options: ${JSON.stringify(options, null, 2)}`);
+
+        peerJoinChannel(this.log, options.blockpath);
 
         this.log.info("Command completed successfully!");
       });
