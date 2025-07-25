@@ -9,6 +9,7 @@ import { createNodeOU } from "../../fabric/node-ou/node-ou";
 import { bootOrderer } from "../scripts/orderer";
 import {
   bootPeer,
+  installChaincode,
   packageChaincode,
   peerFetchGenesisBlock,
   peerJoinChannel,
@@ -957,6 +958,23 @@ export class CoreCLI extends BaseCLI {
         );
 
         this.log.info("Chaincode packaged successfully!");
+      });
+  }
+
+  private installChaincode() {
+    this.program
+      .command("install-chaincode")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--chaincode-path <string>", "Path to the chaincode directory")
+      .action(async (options: any) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Packaging Chaincode...");
+
+        installChaincode(this.log, options.chaincodePath);
+
+        this.log.info("Chaincode installed successfully!");
       });
   }
 }

@@ -246,38 +246,17 @@ export function packageChaincode(
     .execute();
 }
 
-// export async function packageChaincode(
+export function installChaincode(logger: Logger, contractLocation?: string) {
+  const log: Logger = Logging.for(installChaincode);
+  log.debug(`Installing Chaincode`);
 
-// ) {
+  const builder = new FabricPeerLifecycleChaincodeCommandBuilder(logger);
 
-//   const builder = new PeerCommandBuilder();
-
-//   const cmd = builder
-//     .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-//     .setSubCommand(
-//       `${PeerLifecycleChaincodeCommands.PACKAGE} ${outputFile || ""}`
-//     )
-//     .setPath(contractPath)
-//     .setLang(lang)
-//     .setLabel(`${contractName}_${contractVersion}`)
-//     .build();
-
-//   execSync(cmd.join(" "), { stdio: "inherit" });
-// }
-
-// export async function installChaincode(chaincodePath?: string) {
-//   const log: Logger = Logging.for(installChaincode);
-//   log.debug(`Installing Chaincode`);
-
-//   const builder = new PeerCommandBuilder();
-
-//   const cmd = builder
-//     .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-//     .setSubCommand(`${PeerLifecycleChaincodeCommands.INSTALL} ${chaincodePath}`)
-//     .build();
-
-//   execSync(cmd.join(" "), { stdio: "inherit" });
-// }
+  builder
+    .setCommand(PeerLifecycleChaincodeCommands.INSTALL)
+    .setDestination(contractLocation)
+    .execute();
+}
 
 // export async function aproveChainCode(
 //   orderer?: string,

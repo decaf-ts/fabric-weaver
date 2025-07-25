@@ -555,6 +555,9 @@ services:
       --chaincode-name simple \
       --chaincode-version 1.0 -s &&
 
+      docker exec org-2-peer-0 node ./weaver/lib/core/cli.cjs install-chaincode -d -s \
+      --chaincode-path ./weaver/peer/simple.tar.gz &&
+
       touch /boot/boot-org-2-peer-0.lock 
       "
 
