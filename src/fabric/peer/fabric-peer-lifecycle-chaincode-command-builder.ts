@@ -16,6 +16,9 @@ export class FabricPeerLifecycleChaincodeCommandBuilder {
 
   private destination?: string;
 
+  private peerDetails: { peerAddresses?: string[]; peerTLSRoots?: string[] } =
+    {};
+
   private args: string[] = [];
 
   constructor(logger?: Logger) {
@@ -150,6 +153,38 @@ export class FabricPeerLifecycleChaincodeCommandBuilder {
     return this;
   }
 
+  setPeerAddresses(peerAddresses?: string[]): this {
+    if (
+      peerAddresses !== undefined &&
+      Array.isArray(peerAddresses) &&
+      peerAddresses.length > 0
+    ) {
+      this.log.debug(`Setting peer addresses: ${peerAddresses.join(", ")}`);
+      this.peerDetails.peerAddresses = peerAddresses;
+    }
+    return this;
+  }
+
+  setPeerTLSRoots(peerTLSRoots?: string[]): this {
+    if (
+      peerTLSRoots !== undefined &&
+      Array.isArray(peerTLSRoots) &&
+      peerTLSRoots.length > 0
+    ) {
+      this.log.debug(`Setting peer TLS roots: ${peerTLSRoots.join(", ")}`);
+      this.peerDetails.peerTLSRoots = peerTLSRoots;
+    }
+    return this;
+  }
+
+  setOutput(output?: string): this {
+    if (output !== undefined) {
+      this.log.debug(`Setting output to ${output}`);
+      this.args.push(`--output ${output}`);
+    }
+    return this;
+  }
+
   build(): string {
     const command: string = [
       this.getBinary(),
@@ -157,6 +192,7 @@ export class FabricPeerLifecycleChaincodeCommandBuilder {
       this.getCommand(),
       this.destination,
       ...[...new Set(this.args)],
+      ...(this.generatePeerDetails() || []),
     ]
       .filter((item) => item !== undefined && item !== null && item !== "")
       .join(" ");
@@ -181,6 +217,36 @@ export class FabricPeerLifecycleChaincodeCommandBuilder {
     return [...new Set(this.args)];
   }
 
+  private generatePeerDetails(): string[] | undefined {
+    const peerAddresses = this.peerDetails.peerAddresses || undefined;
+    const peerTLSRoots = this.peerDetails.peerTLSRoots || undefined;
+
+    this.log.info(
+      `Generating peer details: ${peerAddresses}, ${peerTLSRoots}...`
+    );
+    if (
+      peerAddresses !== undefined &&
+      Array.isArray(peerAddresses) &&
+      peerAddresses.length > 0
+    ) {
+      const peerCommands = peerAddresses.map((address, i) => {
+        let str = `--peerAddresses ${address}`;
+
+        if (peerTLSRoots !== undefined && Array.isArray(peerTLSRoots)) {
+          str += ` --tlsRootCertFiles ${peerTLSRoots[i]}`;
+        }
+
+        return str;
+      });
+
+      this.log.info(`Generated peer details: ${peerCommands}`);
+
+      return peerCommands;
+    }
+
+    return undefined;
+  }
+
   async execute(options?: { [indexer: string]: string }): Promise<void> {
     const bin = this.getBinary();
     const argz = [
@@ -188,6 +254,7 @@ export class FabricPeerLifecycleChaincodeCommandBuilder {
       this.getCommand(),
       this.destination,
       ...this.getArgs(),
+      ...(this.generatePeerDetails() || []),
     ].filter(
       (item) => item !== undefined && item !== null && item !== ""
     ) as string[];

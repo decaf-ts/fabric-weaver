@@ -22,6 +22,8 @@ while true; do
   status=$(docker inspect --format='{{.State.Status}}' "$container_id")
   exit_code=$(docker inspect --format='{{.State.ExitCode}}' "$container_id")
 
+  echo "Status: $status, Exit Code: $exit_code"
+
   if [ "$status" == "exited" ]; then
     echo "$container_name exited."
     if [ "$exit_code" -eq 0 ]; then

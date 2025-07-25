@@ -280,7 +280,7 @@ export function approveChaincode(
     builder.setCommand(PeerLifecycleChaincodeCommands.QUERYINSTALLED).build()
   );
 
-  log.info(`Using id: ${id}`);
+  log.debug(`Using id: ${id}`);
 
   builder
     .setCommand(PeerLifecycleChaincodeCommands.APPROVEFORMYORG)
@@ -306,144 +306,133 @@ export function approveChaincode(
     .execute();
 }
 
-// export async function aproveChainCode(
-//   orderer?: string,
-//   channelID?: string,
-//   chaincodeName?: string,
-//   version?: string,
-//   sequence?: string
-// ) {
-//   const log: Logger = Logging.for(aproveChainCode);
-//   log.info(`Approving Chaincode`);
+export async function commitChainCode(
+  logger: Logger,
+  ordererAddress?: string,
+  channelID?: string,
+  chaincodeName?: string,
+  version?: string,
+  sequence?: string,
+  enableTLS?: boolean,
+  tlsCACertFile?: string,
+  collectionConfigPath?: string,
+  ordererTLSHostnameOverride?: string,
+  peerAddresses?: string[],
+  peerTLSRoots?: string[]
+) {
+  const log: Logger = Logging.for(commitChainCode);
+  log.info(`Commiting chaincode`);
 
-//   const idBuilder = new PeerCommandBuilder();
-//   const builder = new PeerCommandBuilder();
+  const checkChaincodeReadiness = function (
+    logger: Logger,
+    channelID?: string,
+    chaincodeName?: string,
+    version?: string,
+    sequence?: string,
+    enableTLS?: boolean,
+    tlsCACertFile?: string
+  ) {
+    const verificationBuilder = new FabricPeerLifecycleChaincodeCommandBuilder(
+      logger
+    );
 
-//   const id = execSync(
-//     idBuilder
-//       .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-//       .setSubCommand(PeerLifecycleChaincodeCommands.QUERYINSTALLED)
-//       .build()
-//       .join(" ")
-//   )
-//     .toString()
-//     .split(",")[0]
-//     .split("\n")[1]
-//     .split(":")
-//     .slice(1)
-//     .map((s) => s.trim())
-//     .join(":");
+    const approvalData = execSync(
+      verificationBuilder
+        .setCommand(PeerLifecycleChaincodeCommands.CHECKCOMMITREADINESS)
+        .setChannelID(channelID)
+        .setContractName(chaincodeName)
+        .setVersion(version)
+        .setSequence(sequence)
+        .enableTLS(enableTLS)
+        .setTLSCAFile(tlsCACertFile)
+        .setOutput("json")
+        .build()
+    ).toString();
 
-//   log.info(`Chaincode ID: ${id}`);
+    const approvalJSON = JSON.parse(approvalData);
 
-//   const cmd = builder
-//     .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-//     .setSubCommand(`${PeerLifecycleChaincodeCommands.APPROVEFORMYORG}`)
-//     .setOrderer(orderer)
-//     .setChannelID(channelID)
-//     .setChaincodeName(chaincodeName)
-//     .setCustom("version", version)
-//     .setPackageID(id)
-//     .setSequence(sequence)
-//     .build();
+    log.info(JSON.stringify(approvalJSON, null, 2));
 
-//   execSync(cmd.join(" "), { stdio: "inherit" });
-// }
+    return (
+      Object.keys(approvalJSON.approvals).filter(
+        (key) => approvalJSON.approvals[key] == true
+      ).length >
+      Object.keys(approvalJSON.approvals).length / 2
+    );
+  };
 
-// export async function commitChainCode(
-//   orderer?: string,
-//   channelID?: string,
-//   chaincodeName?: string,
-//   version?: string,
-//   sequence?: string,
-//   peerAddress?: string
-// ) {
-//   const log: Logger = Logging.for(commitChainCode);
+  const commitWhenReady = function (
+    logger: Logger,
+    ordererAddress?: string,
+    channelID?: string,
+    chaincodeName?: string,
+    version?: string,
+    sequence?: string,
+    enableTLS?: boolean,
+    tlsCACertFile?: string,
+    collectionConfigPath?: string,
+    ordererTLSHostnameOverride?: string,
+    peerAddresses?: string[],
+    peerTLSRoots?: string[]
+  ) {
+    if (
+      !checkChaincodeReadiness(
+        logger,
+        channelID,
+        chaincodeName,
+        version,
+        sequence,
+        enableTLS,
+        tlsCACertFile
+      )
+    ) {
+      log.info("Chaincode not ready, waiting...");
+      return setTimeout(() => {
+        commitWhenReady(
+          logger,
+          ordererAddress,
+          channelID,
+          chaincodeName,
+          version,
+          sequence,
+          enableTLS,
+          tlsCACertFile,
+          collectionConfigPath,
+          ordererTLSHostnameOverride,
+          peerAddresses,
+          peerTLSRoots
+        );
+      }, 30000);
+    }
 
-//   const readinessCheck = function () {
-//     log.info(`Checking Chaincode Readiness`);
-//     const builder = new PeerCommandBuilder();
-//     const cmd = builder
-//       .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-//       .setSubCommand(PeerLifecycleChaincodeCommands.CHECKCOMMITREADINESS)
-//       .setChannelID(channelID)
-//       .setChaincodeName(chaincodeName)
-//       .setCustom("version", version)
-//       .setSequence(sequence)
-//       .setOutput("json")
-//       .build();
+    new FabricPeerLifecycleChaincodeCommandBuilder(logger)
+      .setCommand(PeerLifecycleChaincodeCommands.COMMIT)
+      .setOrdererAddress(ordererAddress)
+      .setChannelID(channelID)
+      .setContractName(chaincodeName)
+      .setVersion(version)
+      .setSequence(sequence)
+      .enableTLS(enableTLS)
+      .setTLSCAFile(tlsCACertFile)
+      .setCollectionsConfigPath(collectionConfigPath)
+      .setOrdererTLSHostnameOverride(ordererTLSHostnameOverride)
+      .setPeerAddresses(peerAddresses)
+      .setPeerTLSRoots(peerTLSRoots)
+      .execute();
+  };
 
-//     const approvalData = execSync(cmd.join(" ")).toString();
-
-//     const approvalJSON = JSON.parse(approvalData);
-//     const isReady =
-//       Object.keys(approvalJSON.approvals).filter(
-//         (key) => approvalJSON.approvals[key] == true
-//       ).length >
-//       Object.keys(approvalJSON.approvals).length / 2;
-
-//     log.info(
-//       `Chaincode Readiness: ${isReady} with ${
-//         Object.keys(approvalJSON.approvals).filter(
-//           (key) => approvalJSON.approvals[key] == true
-//         ).length
-//       }/${Object.keys(approvalJSON.approvals).length}`
-//     );
-
-//     return isReady;
-//   };
-
-//   const commitCode = function () {
-//     log.info(`Committing Chaincode`);
-//     const builder = new PeerCommandBuilder();
-
-//     const cmd = builder
-//       .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-//       .setSubCommand(`${PeerLifecycleChaincodeCommands.COMMIT}`)
-//       .setOrderer(orderer)
-//       .setChannelID(channelID)
-//       .setChaincodeName(chaincodeName)
-//       .setCustom("version", version)
-//       .setSequence(sequence)
-//       // .setCustom("peer-addresses", peerAddresses)
-//       .build();
-
-//     peerAddress
-//       ?.split(",")
-//       .map((address) => cmd.push(`--peerAddresses ${address}`));
-
-//     execSync(cmd.join(" "), { stdio: "inherit" });
-//   };
-
-//   if (readinessCheck()) {
-//     commitCode();
-//   } else {
-//     log.info("Chaincode not ready, waiting for approval...");
-//     await new Promise((resolve) => setTimeout(resolve, 15000));
-//     commitChainCode(
-//       orderer,
-//       channelID,
-//       chaincodeName,
-//       version,
-//       sequence,
-//       peerAddress
-//     );
-//   }
-// }
-
-// export function commitChainCode(contract: ChainCodeRequest, channel: Pick<peerBootConfig, 'channel' | 'port' | 'peerName'>, skipReadyCheck: boolean, skipCommit: boolean, collectionPath: string){
-
-//         runCommand(`peer lifecycle chaincode commit \
-
-//
-//                 --tls \
-//                 --cafile ${channel.channel.ordererCaFile} \
-//                 --peerAddresses ${channel.peerName}:${channel.port} \
-//                 --tlsRootCertFiles ${channel.channel.ordererCaFile} \
-//                 --collections-config ${collectionPath}`)
-//     }
-
-//     if(skipCommit) return;
-
-//     verifyAndCommit(contract, channel, skipReadyCheck);
-// }
+  commitWhenReady(
+    logger,
+    ordererAddress,
+    channelID,
+    chaincodeName,
+    version,
+    sequence,
+    enableTLS,
+    tlsCACertFile,
+    collectionConfigPath,
+    ordererTLSHostnameOverride,
+    peerAddresses,
+    peerTLSRoots
+  );
+}

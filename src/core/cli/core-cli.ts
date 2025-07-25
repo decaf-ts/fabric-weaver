@@ -10,6 +10,7 @@ import { bootOrderer } from "../scripts/orderer";
 import {
   approveChaincode,
   bootPeer,
+  commitChainCode,
   installChaincode,
   packageChaincode,
   peerFetchGenesisBlock,
@@ -1015,6 +1016,52 @@ export class CoreCLI extends BaseCLI {
         );
 
         this.log.info("Chaincode approved successfully!");
+      });
+  }
+
+  private commitChaincode() {
+    this.program
+      .command("commit-chaincode")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--orderer-address <string>", "Orderer Address")
+      .option("--channel-id <string>", "Channel ID")
+      .option("--chaincode-name <string>", "Chaincode name")
+      .option("--chaincode-version <string>", "Version of the chaincode")
+      .option("--sequence <number>", "Sequence of the chaincode")
+      .option("--enable-tls", "enable TLS")
+      .option("--tls-ca-cert-file <string>", "TLS CA Certificate File")
+      .option("--collections-config <string>", "Collections configuration file")
+      .option(
+        "--orderer-hostname-override <string>",
+        "The hostname override to use when validating the TLS connection to the orderer"
+      )
+      .option("--peer-addresses <CSV>", "Peer Address", safeParseCSV, undefined)
+      .option("--peer-root-tls <CSV>", "Peer Address", safeParseCSV, undefined)
+      .action(async (options: any) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Commiting Chaincode...");
+
+        this.log.info(JSON.stringify(options.peerAddresses, null, 2));
+        this.log.info(JSON.stringify(options.peerRootTls, null, 2));
+
+        commitChainCode(
+          this.log,
+          options.ordererAddress,
+          options.channelId,
+          options.chaincodeName,
+          options.chaincodeVersion,
+          options.sequence,
+          options.enableTls,
+          options.tlsCaCertFile,
+          options.collectionsConfig,
+          options.ordererHostnameOverride,
+          options.peerAddresses,
+          options.peerRootTls
+        );
+
+        this.log.info("Chaincode commited successfully!");
       });
   }
 }
