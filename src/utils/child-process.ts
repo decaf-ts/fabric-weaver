@@ -10,8 +10,7 @@ export async function runCommand(
   const log: Logger = Logging.for(runCommand);
   log.info(`Running command: ${command} ${args.join(" ")}`);
 
-  if (!logMatch)
-    return execSync([command, ...args].join(" "), { stdio: "inherit" });
+  if (!logMatch) return execSync([command, ...args].join(" "), options);
 
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, options);

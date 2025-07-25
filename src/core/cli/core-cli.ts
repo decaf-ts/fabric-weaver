@@ -8,6 +8,7 @@ import { configtxgen } from "../scripts/configtxgen";
 import { createNodeOU } from "../../fabric/node-ou/node-ou";
 import { bootOrderer } from "../scripts/orderer";
 import {
+  approveChaincode,
   bootPeer,
   installChaincode,
   packageChaincode,
@@ -975,6 +976,45 @@ export class CoreCLI extends BaseCLI {
         installChaincode(this.log, options.chaincodePath);
 
         this.log.info("Chaincode installed successfully!");
+      });
+  }
+
+  private approveChaincode() {
+    this.program
+      .command("approve-chaincode")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--orderer-address <string>", "Orderer Address")
+      .option("--channel-id <string>", "Channel ID")
+      .option("--chaincode-name <string>", "Chaincode name")
+      .option("--chaincode-version <string>", "Version of the chaincode")
+      .option("--sequence <number>", "Sequence of the chaincode")
+      .option("--enable-tls", "enable TLS")
+      .option("--tls-ca-cert-file <string>", "TLS CA Certificate File")
+      .option("--collections-config <string>", "Collections configuration file")
+      .option(
+        "--orderer-hostname-override <string>",
+        "The hostname override to use when validating the TLS connection to the orderer"
+      )
+      .action(async (options: any) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Packaging Chaincode...");
+
+        approveChaincode(
+          this.log,
+          options.ordererAddress,
+          options.channelId,
+          options.chaincodeName,
+          options.chaincodeVersion,
+          options.sequence,
+          options.enableTls,
+          options.tlsCaCertFile,
+          options.collectionsConfig,
+          options.ordererHostnameOverride
+        );
+
+        this.log.info("Chaincode approved successfully!");
       });
   }
 }

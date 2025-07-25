@@ -32,6 +32,7 @@ import {
 } from "../../fabric/constants/fabric-peer";
 import { FabricPeerChannelCommandBuilder } from "../../fabric/peer/fabric-peer-channel-command-builder";
 import { FabricPeerLifecycleChaincodeCommandBuilder } from "../../fabric/peer/fabric-peer-lifecycle-chaincode-command-builder";
+import { execSync } from "child_process";
 
 export function issuePeer(
   log: Logger,
@@ -255,6 +256,53 @@ export function installChaincode(logger: Logger, contractLocation?: string) {
   builder
     .setCommand(PeerLifecycleChaincodeCommands.INSTALL)
     .setDestination(contractLocation)
+    .execute();
+}
+
+export function approveChaincode(
+  logger: Logger,
+  ordererAddress?: string,
+  channelID?: string,
+  chaincodeName?: string,
+  version?: string,
+  sequence?: string,
+  enableTLS?: boolean,
+  tlsCACertFile?: string,
+  collectionConfigPath?: string,
+  ordererTLSHostnameOverride?: string
+) {
+  const log: Logger = Logging.for(installChaincode);
+  log.debug(`Approve Chaincode`);
+
+  const builder = new FabricPeerLifecycleChaincodeCommandBuilder(logger);
+
+  const id = execSync(
+    builder.setCommand(PeerLifecycleChaincodeCommands.QUERYINSTALLED).build()
+  );
+
+  log.info(`Using id: ${id}`);
+
+  builder
+    .setCommand(PeerLifecycleChaincodeCommands.APPROVEFORMYORG)
+    .setOrdererAddress(ordererAddress)
+    .setChannelID(channelID)
+    .setContractName(chaincodeName)
+    .setVersion(version)
+    .setSequence(sequence)
+    .enableTLS(enableTLS)
+    .setTLSCAFile(tlsCACertFile)
+    .setOrdererTLSHostnameOverride(ordererTLSHostnameOverride)
+    .setCollectionsConfigPath(collectionConfigPath)
+    .setPackageID(
+      id
+        .toString()
+        .split(",")[0]
+        .split("\n")[1]
+        .split(":")
+        .slice(1)
+        .map((s) => s.trim())
+        .join(":")
+    )
     .execute();
 }
 
