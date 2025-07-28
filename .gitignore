@@ -33,4 +33,5 @@
 !/bin/build-scripts-extended.cjs
 !/bin/fabric.cjs
 !/bin/check-docker-ready.sh
+!/bin/check-lockfile.sh
 /output
