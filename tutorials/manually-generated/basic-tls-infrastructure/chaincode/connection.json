@@ -1,0 +1,5 @@
+{
+    "address": "{{.chaincodeaddress}}",
+    "dial_timeout": "10s",
+    "tls_required": false
+}
