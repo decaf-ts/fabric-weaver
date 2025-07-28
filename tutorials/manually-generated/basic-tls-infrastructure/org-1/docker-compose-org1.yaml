@@ -465,7 +465,7 @@ services:
       - CHAINCODE_SERVER_ADDRESS=0.0.0.0:7052
     ports:
       - "7031:7031"
-      - "7053:7052"
+      - "7053:7053"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - org-1-peer-0-vol:/weaver/peer:rw
@@ -502,6 +502,7 @@ services:
       --vm-network-mode org1_network
       --network-id org1_network
       --state-database CouchDB
+      --chaincode-listen-address org-1-peer-0:7053
       --couchdb-username admin
       --couchdb-password admin-pw
       --couchdb-address org-1-peer-0-couchdb:5984

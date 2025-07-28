@@ -465,7 +465,7 @@ services:
       - CHAINCODE_SERVER_ADDRESS=0.0.0.0:7053
     ports:
       - "7032:7032"
-      - "7054:7052"
+      - "7054:7054"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - org-2-peer-0-vol:/weaver/peer:rw
@@ -495,6 +495,7 @@ services:
       --peer-id org-2-peer-0
       --listen-address 0.0.0.0:7032
       --address org-2-peer-0:7032
+      --chaincode-listen-address org-2-peer-0:7054
       --gossip-external-endpoint org-2-peer-0:7032
       --file-system-path /weaver/peer/production
       --local-mspdir /weaver/peer/client/msp

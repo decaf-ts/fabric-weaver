@@ -464,6 +464,7 @@ services:
       - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
     ports:
       - "7033:7033"
+      - "7055:7055"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - org-3-peer-0-vol:/weaver/peer:rw
@@ -489,6 +490,7 @@ services:
       --tls-enabled
       --tls-cert /weaver/peer/client/tls-msp/signcerts/cert.pem
       --tls-key /weaver/peer/client/tls-msp/keystore/key.pem
+      --chaincode-listen-address org-3-peer-0:7055
       --tls-rootca /weaver/peer/tls-ca-cert.pem
       --peer-id org-3-peer-0
       --listen-address 0.0.0.0:7033
