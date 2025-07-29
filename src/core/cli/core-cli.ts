@@ -17,6 +17,8 @@ import {
   peerJoinChannel,
 } from "../scripts/peer";
 import { osnAdminJoin } from "../scripts/osn-admin";
+import { DEFAULT_PORT } from "../constants/peer-middleware";
+import { PeerMiddleware } from "../middlewares/PeerMiddleware";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -1067,6 +1069,25 @@ export class CoreCLI extends BaseCLI {
         );
 
         this.log.info("Chaincode commited successfully!");
+      });
+  }
+
+  private bootMiddleware() {
+    this.program
+      .command("boot-peer-middleware")
+      .option("-d, --debug", "Enables debug mode")
+      .option("--port <number>", "middleware port", safeParseInt, DEFAULT_PORT)
+      .action(async (options: any) => {
+        this.log.setConfig({
+          level: options.debug ? LogLevel.debug : LogLevel.info,
+        });
+        this.log.info("Booting Middleware...");
+
+        const middleware = new PeerMiddleware(options.port);
+
+        middleware.listen();
+
+        this.log.info("Middleware booted successfully!");
       });
   }
 }

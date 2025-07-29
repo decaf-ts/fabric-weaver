@@ -462,7 +462,6 @@ services:
       - FABRIC_CFG_PATH=/weaver/peer
       - PEER_CORE_YAML_FILE=/weaver/peer/core.yaml
       - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
-      - CHAINCODE_SERVER_ADDRESS=0.0.0.0:7052
     ports:
       - "7031:7031"
       - "7053:7053"
@@ -509,6 +508,36 @@ services:
       --operations-address 127.0.0.1:8010
       --snapshot-root-dir /weaver/peer/production/snapshot-dir
 
+  org-1-peer-0-middleware:
+    container_name: org-1-peer-0-middleware
+    hostname: org-1-peer-0-middleware
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    restart: no
+    profiles:
+      - stage2
+    ports:
+      - "3001:3001"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - org-1-peer-0-vol:/weaver/peer:rw
+    networks:
+      org1_network:
+    healthcheck:
+      test: bash -c "curl -s 127.0.0.1:3001/healthz | grep "OK" || exit 1"
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      org-1-orderer-0:
+        condition: service_healthy
+      org-1-peer-0-couchdb:
+        condition: service_healthy
+    command: >
+      node ./weaver/lib/core/cli.cjs boot-peer-middleware
+      -d
+      --port 3001
+
   boot-org-1-peer-0:
     container_name: boot-org-1-peer-0
     image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
@@ -520,6 +549,8 @@ services:
       - boot-files1:/boot:rw
     depends_on:
       org-1-peer-0:
+        condition: service_healthy
+      org-1-peer-0-middleware:
         condition: service_healthy
     networks:
       org1_network:
@@ -561,6 +592,12 @@ services:
       --sequence 1 \
       --enable-tls \
       --tls-ca-cert-file /weaver/peer/tls-ca-cert.pem &&
+
+
+
+      curl -X POST http://172.17.0.1:3001/access-keys \
+      -H \"Content-Type: application/json\" \
+      -d '{\"accessKey\": \"test\"}'
 
       touch /boot/boot-org-1-peer-0.lock
       "
