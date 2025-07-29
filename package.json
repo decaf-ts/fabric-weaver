@@ -1,5 +1,5 @@
 {
-  "name": "fabric-weaver",
+  "name": "@decaf-ts/fabric-weaver",
   "version": "0.0.3",
   "description": "template for ts projects",
   "type": "module",
