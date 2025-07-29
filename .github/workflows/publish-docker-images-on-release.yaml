@@ -76,29 +76,29 @@ jobs:
           FABRIC_VERSION: ${{ vars.FABRIC_VERSION }}
         run: |
           DOCKER_BUILDKIT=1 docker build \
-            --secret id=TOKEN,src=.npmtoken \
-            -t $DOCKER_IMAGE_ID:base-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION \
-            -t $DOCKER_IMAGE_ID:base-$FABRIC_VERSION-latest \
-            -f ./Dockerfile .
+              --secret id=TOKEN,src=.npmtoken \
+              -t $DOCKER_IMAGE_ID:base-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION \
+              -t $DOCKER_IMAGE_ID:base-$FABRIC_VERSION-latest \
+              -f ./Dockerfile .
 
           docker build \
-            -t $DOCKER_IMAGE_ID:couchdb-$DOCKER_IMAGE_VERSION  \
-            -t $DOCKER_IMAGE_ID:couchdb-latest \
-            --build-arg COUCHDB_VERSION=latest \
-            -f ./Dockerfile-couchdb .
+              -t $DOCKER_IMAGE_ID:couchdb-$DOCKER_IMAGE_VERSION  \
+              -t $DOCKER_IMAGE_ID:couchdb-latest \
+              --build-arg COUCHDB_VERSION=latest \
+              -f ./Dockerfile-couchdb .
 
           DOCKER_BUILDKIT=1 docker build \
-            --secret id=TOKEN,src=.npmtoken \ 
-            -t $DOCKER_IMAGE_ID:builder-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION \
-            -t $DOCKER_IMAGE_ID:builder-$FABRIC_VERSION-latest \
-            --target=builder \
-            -f ./Dockerfile-fabric .
+              --secret id=TOKEN,src=.npmtoken \
+              -t $DOCKER_IMAGE_ID:builder-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION \
+              -t $DOCKER_IMAGE_ID:builder-$FABRIC_VERSION-latest \
+              --target=builder \
+              -f ./Dockerfile-fabric .
 
           DOCKER_BUILDKIT=1 docker build \
-            --secret id=TOKEN,src=.npmtoken \
-            -t $DOCKER_IMAGE_ID:weaver-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION \
-            -t $DOCKER_IMAGE_ID:weaver-$FABRIC_VERSION-latest \
-            -f ./Dockerfile-fabric .
+              --secret id=TOKEN,src=.npmtoken \
+              -t $DOCKER_IMAGE_ID:weaver-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION \
+              -t $DOCKER_IMAGE_ID:weaver-$FABRIC_VERSION-latest \
+              -f ./Dockerfile-fabric .
 
       - name: Tag and Push Docker Image
         env:
