@@ -48,7 +48,7 @@ jobs:
         run: npm run build:prod # Replace with your build command
 
       - name: Build Docker image
-        run: npm run build:docker
+        run: npm run docker:build
       - run: npm run test:all
       - run: npm publish --access public
         env:
