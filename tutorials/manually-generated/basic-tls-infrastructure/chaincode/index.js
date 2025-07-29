@@ -11,12 +11,16 @@ class KVContract extends Contract {
   }
 
   async put(ctx, key, value) {
+    console.log("KEY: ", key);
+    console.log("VALUE: ", value);
     await ctx.stub.putState(key, Buffer.from(value));
     return { success: "OK" };
   }
 
   async get(ctx, key) {
+    console.log("KEY: ", key);
     const buffer = await ctx.stub.getState(key);
+    console.log("BUFFER: ", buffer);
     if (!buffer || !buffer.length) return { error: "NOT_FOUND" };
     return { success: buffer.toString() };
   }
@@ -30,16 +34,25 @@ class KVContract extends Contract {
 
   async getPrivateMessage(ctx, collection) {
     const message = await ctx.stub.getPrivateData(collection, "message");
-    const messageString = message.toBuffer ? message.toBuffer().toString() : message.toString();
+    const messageString = message.toBuffer
+      ? message.toBuffer().toString()
+      : message.toString();
     return { success: messageString };
   }
 
   async verifyPrivateMessage(ctx, collection) {
     const transient = ctx.stub.getTransient();
     const message = transient.get("message");
-    const messageString = message.toBuffer ? message.toBuffer().toString() : message.toString();
-    const currentHash = crypto.createHash("sha256").update(messageString).digest("hex");
-    const privateDataHash = (await ctx.stub.getPrivateDataHash(collection, "message")).toString("hex");
+    const messageString = message.toBuffer
+      ? message.toBuffer().toString()
+      : message.toString();
+    const currentHash = crypto
+      .createHash("sha256")
+      .update(messageString)
+      .digest("hex");
+    const privateDataHash = (
+      await ctx.stub.getPrivateDataHash(collection, "message")
+    ).toString("hex");
     if (privateDataHash !== currentHash) {
       return { error: "VERIFICATION_FAILED" };
     }

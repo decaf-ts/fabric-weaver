@@ -765,6 +765,10 @@ export class CoreCLI extends BaseCLI {
       .option("--couchdb-username <string>", "Username for CouchDB")
       .option("--couchdb-password <string>", "Password for CouchDB")
       .option(
+        "--chaincode-listen-address <string>",
+        "Address for the chaincode to listen on"
+      )
+      .option(
         "--operations-address <string>",
         "Address for the operations server to listen on"
       )
@@ -814,6 +818,7 @@ export class CoreCLI extends BaseCLI {
             address: options.address,
             listenAddress: options.listenAddress,
             fileSystemPath: options.fileSystemPath,
+            chaincodeListenAddress: options.chaincodeListenAddress,
           },
           {},
           {

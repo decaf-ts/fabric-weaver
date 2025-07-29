@@ -474,6 +474,7 @@ services:
       - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
     ports:
       - "7031:7031"
+      - "7052:7052"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:rw
       - org-1-peer-0-vol:/weaver/peer:rw
@@ -566,17 +567,6 @@ services:
       --sequence 1 \
       --enable-tls \ 
       --tls-ca-cert-file /weaver/peer/tls-ca-cert.pem &&
-
-      docker exec org-1-peer-0 node ./weaver/lib/core/cli.cjs commit-chaincode -d -s \
-      --orderer-address org-1-orderer-0:7021 \
-      --channel-id simple-channel \
-      --chaincode-name simple \
-      --chaincode-version 1.0 \
-      --sequence 1 \
-      --enable-tls \ 
-      --tls-ca-cert-file /weaver/peer/tls-ca-cert.pem \
-      --peer-addresses org-1-peer-0:7031,org-2-peer-0:7032
-      --peer-root-tls ./weaver/peer/tls-ca-cert.pem,./weaver/peer/org-2-tls-ca-cert.pem &&
 
       touch /boot/boot-org-1-peer-0.lock 
       "

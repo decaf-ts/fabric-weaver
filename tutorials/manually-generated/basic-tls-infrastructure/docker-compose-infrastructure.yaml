@@ -50,7 +50,7 @@ services:
       - boot-files:/boot:rw
       - org-1-peer-0-vol:/weaver/peer:rw
     networks:
-      org2_network:
+      org1_network:
     command: >
       bash -c "
       if [ -f /boot/boot-chaincode.lock ]; then
@@ -71,7 +71,45 @@ services:
 
       touch /boot/boot-chaincode.lock
       "
+  test-chaincode:
+    image: ghcr.io/decaf-ts/fabric-weaver:weaver-${FABRIC_VERSION:-2.5.12}-${WEAVER_VERSION:-latest}
+    container_name: test-chaincode
+    restart: no
+    profiles:
+      - stage10
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - boot-files:/boot:rw
+      - org-1-peer-0-vol:/weaver/peer:rw
+    networks:
+      org1_network:
+    command: >
+      bash -c "
+      if [ -f /boot/boot-test-chaincode.lock ]; then
+        echo 'chaincode already booted. Skipping...';
+        exit 0;
+      fi;
 
+      docker exec org-1-peer-0 peer chaincode invoke \
+      -o org-1-orderer-0:7021 \
+      --tls --cafile /weaver/peer/tls-ca-cert.pem \
+      -C simple-channel \
+      -n simple \
+      --peerAddresses org-1-peer-0:7031 \
+      --tlsRootCertFiles /weaver/peer/tls-ca-cert.pem \
+      -c '{\"function\":\"put\",\"Args\":[\"add\", \"100\"]}' &&
+
+      docker exec org-1-peer-0 peer chaincode invoke \
+      -o org-1-orderer-0:7021 \
+      --tls --cafile /weaver/peer/tls-ca-cert.pem \
+      -C simple-channel \
+      -n simple \
+      --peerAddresses org-1-peer-0:7031 \
+      --tlsRootCertFiles /weaver/peer/tls-ca-cert.pem \
+      -c '{\"function\":\"get\",\"Args\":[\"add\"]}' &&
+
+      touch /boot/boot-test-chaincode.lock
+      "
 volumes:
   boot-files:
     name: boot-files

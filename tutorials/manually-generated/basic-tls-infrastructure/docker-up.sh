@@ -102,3 +102,9 @@ check_container_status "$container_id_org3" "boot-org-3-ca"
 ## STAGE 2
 echo "Starting Compose Org-3 Stage-2..."
 (cd org-3 && docker compose --profile stage2 -f docker-compose-org3.yaml up -d)
+
+
+
+## TEST STAGE
+echo "Starting Compose Infrastructure Stage-10..."
+(docker compose --profile stage10 -f docker-compose-infrastructure.yaml up -d)

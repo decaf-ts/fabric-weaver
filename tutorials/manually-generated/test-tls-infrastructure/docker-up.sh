@@ -95,7 +95,7 @@ container_id_infra1=""
 
 echo "Checking boot-org-1 container ID..."
 while true; do
-  container_id_infra1=$(docker compose -f ./docker-compose-infrastructure.yaml ps -q checker1)
+  container_id_infra1=$(docker compose -f ./docker-compose-infrastructure.yaml ps -q commit-chaincode)
   
   if [ -z "$container_id_infra1" ]; then
     echo "boot-org-1 not found yet. Retrying..."
@@ -107,22 +107,22 @@ while true; do
   break
 done
 
-# --- Wait for boot-org-2 container ---
-container_id_infra2=""
+# # --- Wait for boot-org-2 container ---
+# container_id_infra2=""
 
-echo "Checking boot-org-1 container ID..."
-while true; do
-  container_id_infra2=$(docker compose -f ./docker-compose-infrastructure.yaml ps -q checker2)
+# echo "Checking boot-org-1 container ID..."
+# while true; do
+#   container_id_infra2=$(docker compose -f ./docker-compose-infrastructure.yaml ps -q checker2)
   
-  if [ -z "$container_id_infra2" ]; then
-    echo "boot-org-2 not found yet. Retrying..."
-    sleep 5
-    continue
-  fi
+#   if [ -z "$container_id_infra2" ]; then
+#     echo "boot-org-2 not found yet. Retrying..."
+#     sleep 5
+#     continue
+#   fi
 
-  echo "Container ID: $container_id_infra2"
-  break
-done
+#   echo "Container ID: $container_id_infra2"
+#   break
+# done
 
 # --- Wait for boot-org-1 to finish with exit code 0 ---
 echo "Waiting for boot-org-1 to complete successfully..."
@@ -145,26 +145,26 @@ while true; do
   sleep 5
 done
 
-# --- Wait for boot-org-2 to finish with exit code 0 ---
-echo "Waiting for boot-org-2 to complete successfully..."
-while true; do
-  status=$(docker inspect --format='{{.State.Status}}' "$container_id_infra2")
-  exit_code=$(docker inspect --format='{{.State.ExitCode}}' "$container_id_infra2")
+# # --- Wait for boot-org-2 to finish with exit code 0 ---
+# echo "Waiting for boot-org-2 to complete successfully..."
+# while true; do
+#   status=$(docker inspect --format='{{.State.Status}}' "$container_id_infra2")
+#   exit_code=$(docker inspect --format='{{.State.ExitCode}}' "$container_id_infra2")
 
-  if [ "$status" == "exited" ]; then
-    echo "boot-org-2 exited."
-    if [ "$exit_code" -eq 0 ]; then
-      echo "boot-org-2 completed successfully."
-      break
-    else
-      echo "boot-org-2 failed with exit code $exit_code."
-      exit 1
-    fi
-  fi
+#   if [ "$status" == "exited" ]; then
+#     echo "boot-org-2 exited."
+#     if [ "$exit_code" -eq 0 ]; then
+#       echo "boot-org-2 completed successfully."
+#       break
+#     else
+#       echo "boot-org-2 failed with exit code $exit_code."
+#       exit 1
+#     fi
+#   fi
 
-  echo "Waiting for boot-org-2 to finish..."
-  sleep 2
-done
+#   echo "Waiting for boot-org-2 to finish..."
+#   sleep 2
+# done
 
 echo "All boot containers completed successfully."
 
