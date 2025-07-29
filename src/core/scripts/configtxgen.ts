@@ -1,24 +1,40 @@
 import { Logger, Logging } from "@decaf-ts/logging";
 import { ConfigtxgenCommandBuilder } from "../../fabric/configtxgen/configtxgen";
 
-export async function createGenesisBlock(
-  cpath?: string,
-  profile?: string,
+export async function configtxgen(
+  asOrg?: string,
+  channelCreateTxBaseProfile?: string,
   channelID?: string,
-  outputBlock?: string
+  cpath?: string,
+  inspectBlock?: string,
+  inspectChannelCreateTx?: string,
+  outputAnchorPeersUpdate?: string,
+  outputBlock?: string,
+  outputCreateChannelTx?: string,
+  printOrg?: string,
+  profile?: string,
+  showVersion?: boolean
 ) {
-  const log: Logger = Logging.for(createGenesisBlock);
-  log.debug(`Creating genesis block...`);
+  const log: Logger = Logging.for(configtxgen);
+  log.info(`Running configtxgen command...`);
 
   const builder = new ConfigtxgenCommandBuilder();
 
   builder
-    .setConfigPath(cpath)
-    .setProfile(profile)
+    .setAsOrg(asOrg)
+    .setChannelCreateTxBaseProfile(channelCreateTxBaseProfile)
     .setChannelID(channelID)
-    .setOutputBlock(outputBlock);
+    .setConfigPath(cpath)
+    .setInspectBlock(inspectBlock)
+    .setInspectChannelCreateTx(inspectChannelCreateTx)
+    .setOutputAnchorPeersUpdate(outputAnchorPeersUpdate)
+    .setOutputBlock(outputBlock)
+    .setOutputCreateChannelTx(outputCreateChannelTx)
+    .setPrintOrg(printOrg)
+    .setProfile(profile)
+    .setVersion(showVersion);
 
-  await builder.execute();
+  builder.execute();
 
-  log.debug(`Genesis block created...`);
+  log.info(`Command runned successfully...`);
 }

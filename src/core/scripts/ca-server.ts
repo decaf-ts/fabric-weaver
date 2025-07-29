@@ -1,77 +1,117 @@
-import path from "path";
 import fs from "fs";
 import { Logger, Logging } from "@decaf-ts/logging";
-import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server";
-import { FabricCAServerCommand } from "../../fabric/fabric-ca-server/constants";
-import { CAConfig } from "../../fabric/fabric-ca-server/fabric-ca-server-config";
+import { FabricCAServerConfigBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server-config-builder";
+import {
+  CAConfig,
+  CorsConfig,
+  CSRConfig,
+  Identity,
+  ServerTLSConfig,
+} from "../../fabric/interfaces/fabric/fabric-ca-server-config";
+import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server-command-builder";
+import {
+  DEFAULT_CA_CERT_PATH,
+  FabricCAServerCommand,
+} from "../../fabric/constants/fabric-ca-server";
+import {
+  MetricsConfig,
+  OperationsConfig,
+} from "../../fabric/interfaces/fabric/general-configs";
 
-export async function bootCAServer(
-  homeDir: string,
-  caConfig: CAConfig,
-  bootFileLocation?: string
-) {
-  if (hasCAInitialized(bootFileLocation))
-    return startCAServer(homeDir, caConfig);
+export function hasCAInitialized(
+  fileLocation: string = DEFAULT_CA_CERT_PATH
+): boolean {
+  const log: Logger = Logging.for(hasCAInitialized);
 
-  issueCA(homeDir, caConfig);
-  await startCAServer(homeDir, caConfig);
+  log.debug(`Checking CA initialization at: ${fileLocation}`);
+
+  const isInitialized = fs.existsSync(fileLocation);
+
+  log.debug(`CA initialization status: ${isInitialized}`);
+
+  return isInitialized;
 }
 
-export async function startCAServer(homeDir: string, caConfig: CAConfig) {
-  const builder: FabricCAServerCommandBuilder =
-    new FabricCAServerCommandBuilder();
+export function issueCA(
+  logger: Logger,
+  caDir: string,
+  version?: string,
+  port?: number,
+  cors?: CorsConfig,
+  debug?: boolean,
+  crlSizeLimit?: number,
+  serverTLS?: ServerTLSConfig,
+  caConfig?: CAConfig,
+  identities?: Identity[],
+  noTLS?: boolean,
+  noCA?: boolean,
+  csrConfig?: CSRConfig,
+  operations?: OperationsConfig,
+  metrics?: MetricsConfig
+) {
+  const builder = new FabricCAServerConfigBuilder(logger);
 
-  const command = builder
-    .setCommand(FabricCAServerCommand.START)
-    .setHomeDirectory(homeDir)
-    .setPort(caConfig.port)
-    .enableDebug(caConfig.debug)
-    .setLogLevel(caConfig.logLevel)
-    .setBootstrapAdmin(caConfig.bootstrapUser)
-    .setCAName(caConfig.ca?.name)
-    .setOperationsListenAddress(caConfig.operations?.listenAddress)
-    .setMetricsListenAddress(caConfig.metrics?.statsd?.address);
+  builder
+    .setVersion(version)
+    .setPort(port)
+    .setCors(cors)
+    .enableDebug(debug)
+    .setCrlSizeLimit(crlSizeLimit)
+    .setServerTLS(serverTLS)
+    .setCA(caConfig)
+    .setIdentities(identities)
+    .removeUnusedProfiles(noTLS, noCA)
+    .setCSR(csrConfig)
+    .setOperations(operations)
+    .setMetrics(metrics)
+    .save(caDir);
+}
+
+export async function startCA(logger: Logger) {
+  const builder: FabricCAServerCommandBuilder =
+    new FabricCAServerCommandBuilder(logger);
+
+  const command = builder.setCommand(FabricCAServerCommand.START);
 
   await command.execute();
 }
 
-export function issueCA(homeDir: string, caConfig: CAConfig) {
-  const builder: FabricCAServerCommandBuilder =
-    new FabricCAServerCommandBuilder();
-
-  builder
-    .setCommand(FabricCAServerCommand.START)
-    .setHomeDirectory(homeDir)
-    .setPort(caConfig.port)
-    .enableDebug(caConfig.debug)
-    .setLogLevel(caConfig.logLevel)
-    .setBootstrapAdmin(caConfig.bootstrapUser)
-    .setCAName(caConfig.ca?.name)
-    .setOperationsListenAddress(caConfig.operations?.listenAddress)
-    .setMetricsListenAddress(caConfig.metrics?.statsd?.address)
-    .saveConfig(homeDir);
-}
-
-export function hasCAInitialized(fileLocation?: string): boolean {
-  const log: Logger = Logging.for(hasCAInitialized);
-
-  const defaultFileLocation = path.join(
-    __dirname,
-    "../../../server/ca-cert.pem"
-  );
-
-  if (!fileLocation) {
-    log.debug(
-      `No file location provided, using default file location: ${defaultFileLocation}`
+export async function bootCA(
+  logger: Logger,
+  caDir: string,
+  version?: string,
+  port?: number,
+  cors?: CorsConfig,
+  debug?: boolean,
+  crlSizeLimit?: number,
+  serverTLS?: ServerTLSConfig,
+  caConfig?: CAConfig,
+  identities?: Identity[],
+  noTLS?: boolean,
+  noCA?: boolean,
+  csrConfig?: CSRConfig,
+  operations?: OperationsConfig,
+  metrics?: MetricsConfig,
+  bootFile?: string
+) {
+  if (!hasCAInitialized(bootFile))
+    issueCA(
+      logger,
+      caDir,
+      version,
+      port,
+      cors,
+      debug,
+      crlSizeLimit,
+      serverTLS,
+      caConfig,
+      identities,
+      noTLS,
+      noCA,
+      csrConfig,
+      operations,
+      metrics
     );
-    fileLocation = defaultFileLocation;
-  } else {
-    log.debug(`Using provided file location: ${fileLocation}`);
-  }
 
-  const booted = fs.existsSync(fileLocation);
-
-  log.debug(`CA has been booted: ${booted}`);
-
-  return booted;
+  await startCA(logger);
 }

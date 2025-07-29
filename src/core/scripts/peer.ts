@@ -1,58 +1,168 @@
-import { Logger, Logging } from "@decaf-ts/logging";
-import { PeerConfig } from "../../fabric/peer/peer-config";
-import { PeerCommandBuilder } from "../../fabric/peer";
-import { setPeerEnvironment } from "../../utils/environment";
-import {
-  PeerChannelCommands,
-  PeerCommands,
-  PeerLifecycleChaincodeCommands,
-  PeerNodeCommands,
-} from "../../fabric/peer/constants";
 import path from "path";
 import fs from "fs";
+import { Logger, Logging } from "@decaf-ts/logging";
+import { FabricPeerConfigBuilder } from "../../fabric/peer/fabric-peer-config-builder";
+import {
+  BCCSPConfig,
+  ChaincodeConfig,
+  DeliveryClientConfig,
+  DiscoveryConfig,
+  GatewayConfig,
+  GeneralConfig,
+  GossipConfig,
+  HandlersConfig,
+  KeepAliveConfig,
+  LedgerStateConfig,
+  LimitsConfig,
+  MSGSizeConfig,
+  MSPConfig,
+  PrivateDataStoreConfig,
+  ProfileConfig,
+  TLSConfig,
+} from "../../fabric/interfaces/fabric/peer-config";
+import {
+  MetricsConfig,
+  OperationsConfig,
+} from "../../fabric/interfaces/fabric/general-configs";
+import { FabricPeerNodeCommandBuilder } from "../../fabric/peer/fabric-peer-node-command-builder";
+import {
+  PeerChannelCommands,
+  PeerLifecycleChaincodeCommands,
+  PeerNodeCommands,
+} from "../../fabric/constants/fabric-peer";
+import { FabricPeerChannelCommandBuilder } from "../../fabric/peer/fabric-peer-channel-command-builder";
+import { FabricPeerLifecycleChaincodeCommandBuilder } from "../../fabric/peer/fabric-peer-lifecycle-chaincode-command-builder";
 import { execSync } from "child_process";
 
-export function issuePeer(cpath: string, peerConfig: Partial<PeerConfig>) {
-  const log: Logger = Logging.for(issuePeer);
-  log.debug(`Issuing Peer with config: ${JSON.stringify(peerConfig)}`);
+export function issuePeer(
+  log: Logger,
+  cpath: string,
+  gossip?: GossipConfig,
+  tls?: TLSConfig,
+  authTimeWindow?: string,
+  keepAlive?: KeepAliveConfig,
+  gateway?: GatewayConfig,
+  general?: GeneralConfig,
+  bccsp?: BCCSPConfig,
+  msp?: MSPConfig,
+  clientConnectionTimeout?: string,
+  delivery?: DeliveryClientConfig,
+  profile?: ProfileConfig,
+  handlers?: HandlersConfig,
+  discovery?: DiscoveryConfig,
+  limits?: LimitsConfig,
+  msgSize?: MSGSizeConfig,
+  chaincode?: ChaincodeConfig,
+  state?: LedgerStateConfig,
+  blockchain?: any,
+  enableLedgerHistoryDatabase?: boolean,
+  pvtData?: PrivateDataStoreConfig,
+  ledgerSnapshosRootDir?: string,
+  operation?: OperationsConfig,
+  metrics?: MetricsConfig
+) {
+  const logger = Logging.for(issuePeer);
+  log.debug(`Issuing Peer...`);
   log.debug(`Writing configuration to ${cpath}`);
 
-  const builder = new PeerCommandBuilder();
+  const builder = new FabricPeerConfigBuilder(logger);
 
   builder
-    // .setBasicConfig()
-    .setPeerAddress(peerConfig?.peer?.address)
-    .setDatabase(peerConfig.ledger?.state?.stateDatabase, {
-      uri: peerConfig.ledger?.state?.couchDBConfig?.couchDBAddress,
-      user: peerConfig.ledger?.state?.couchDBConfig?.username,
-      pass: peerConfig.ledger?.state?.couchDBConfig?.password,
-    })
-    .setLocalMSPDir(peerConfig.peer?.mspConfigPath)
-    .setOperationsAddress(peerConfig.operations?.listenAddress)
-    .setNetworkID(peerConfig.peer?.networkId)
-    .setLocalMSPID(peerConfig.peer?.localMspId)
-    .saveConfig(cpath);
+    .setGossip(gossip)
+    .setTLS(tls)
+    .setLedgerSnapshotsRootDir(ledgerSnapshosRootDir)
+    .setOperations(operation)
+    .setMetrics(metrics)
+    .enableLedgerHistoryDatabase(enableLedgerHistoryDatabase)
+    .setLedgerPvtDataStore(pvtData)
+    .setHandlers(handlers)
+    .setDiscovery(discovery)
+    .setLimits(limits)
+    .setMessageSize(msgSize)
+    .setChaincode(chaincode)
+    .setLedgerState(state)
+    .setLegerBlockchain(blockchain)
+    .setAuthentication(authTimeWindow)
+    .setKeepAlice(keepAlive)
+    .setGateway(gateway)
+    .setGeneral(general)
+    .setBCCSP(bccsp)
+    .setMspConfig(msp)
+    .setConnTimeoutClient(clientConnectionTimeout)
+    .setDeliveryClient(delivery)
+    .setProfile(profile)
+    .save(cpath);
 }
 
-export async function startPeer(cpath: string) {
-  const log: Logger = Logging.for(startPeer);
+export async function startPeer(logger: Logger) {
+  const log: Logger = logger.for(startPeer);
   log.debug(`Starting Peer`);
-  setPeerEnvironment(cpath);
 
-  const builder = new PeerCommandBuilder();
+  const builder = new FabricPeerNodeCommandBuilder(log);
 
-  await builder
-    .setCommand(PeerCommands.NODE)
-    .setSubCommand(PeerNodeCommands.START)
-    .execute();
+  builder.setCommand(PeerNodeCommands.START).execute();
 }
 
-export async function bootPeer(cpath: string, config: Partial<PeerConfig>) {
-  const log: Logger = Logging.for(bootPeer);
-  log.debug(`Booting Peer with config: ${JSON.stringify(config)}`);
+export async function bootPeer(
+  log: Logger,
+  cpath: string,
+  gossip?: GossipConfig,
+  tls?: TLSConfig,
+  authTimeWindow?: string,
+  keepAlive?: KeepAliveConfig,
+  gateway?: GatewayConfig,
+  general?: GeneralConfig,
+  bccsp?: BCCSPConfig,
+  msp?: MSPConfig,
+  clientConnectionTimeout?: string,
+  delivery?: DeliveryClientConfig,
+  profile?: ProfileConfig,
+  handlers?: HandlersConfig,
+  discovery?: DiscoveryConfig,
+  limits?: LimitsConfig,
+  msgSize?: MSGSizeConfig,
+  chaincode?: ChaincodeConfig,
+  state?: LedgerStateConfig,
+  blockchain?: any,
+  enableLedgerHistoryDatabase?: boolean,
+  pvtData?: PrivateDataStoreConfig,
+  ledgerSnapshosRootDir?: string,
+  operation?: OperationsConfig,
+  metrics?: MetricsConfig
+) {
+  const logger = Logging.for(bootPeer);
+  log.debug(`Booting Peer...`);
 
-  issuePeer(cpath, config);
-  await startPeer(cpath);
+  if (!hasPeerInitialized(cpath))
+    issuePeer(
+      logger,
+      cpath,
+      gossip,
+      tls,
+      authTimeWindow,
+      keepAlive,
+      gateway,
+      general,
+      bccsp,
+      msp,
+      clientConnectionTimeout,
+      delivery,
+      profile,
+      handlers,
+      discovery,
+      limits,
+      msgSize,
+      chaincode,
+      state,
+      blockchain,
+      enableLedgerHistoryDatabase,
+      pvtData,
+      ledgerSnapshosRootDir,
+      operation,
+      metrics
+    );
+
+  startPeer(logger);
 }
 
 export function hasPeerInitialized(fileLocation?: string): boolean {
@@ -73,52 +183,50 @@ export function hasPeerInitialized(fileLocation?: string): boolean {
 
   const booted = fs.existsSync(fileLocation);
 
-  log.debug(`Orderer has been booted: ${booted}`);
+  log.debug(`Peer has been booted: ${booted}`);
 
   return booted;
 }
 
-export async function peerFetchGenesisBlock(
+export function peerFetchGenesisBlock(
+  logger?: Logger,
   channelID?: string,
   ordererAddress?: string,
   blockNumber?: string,
-  outputFile?: string
+  outputFile?: string,
+  tlsEnabled?: boolean,
+  tlsCACertFile?: string
 ) {
   const log: Logger = Logging.for(peerFetchGenesisBlock);
   log.debug(`Fetching Genesis Block`);
 
-  const builder = new PeerCommandBuilder();
-
-  const command = builder
-    .setCommand(PeerCommands.CHANNEL)
-    .setSubCommand(
-      `${PeerChannelCommands.FETCH} ${blockNumber || "--help"} ${outputFile || ""}`
-    )
-    .setChannelID(channelID)
-    .setOrderer(ordererAddress)
-    .build();
-
-  log.info(`Executing command: ${command.join(" ")}`);
-
-  execSync(command.join(" "), { stdio: "inherit" });
-  //  `peer channel fetch ${isExternal ? '0' : 'config'} ./genesis.block \
-  //         --tls \
-  //         --cafile ${cfg.channel.ordererCaFile}`],
-}
-
-export async function peerJoinChannel(blockLocation?: string) {
-  const log: Logger = Logging.for(peerJoinChannel);
-  log.debug(`Joining Channel`);
-  const builder = new PeerCommandBuilder();
+  const builder = new FabricPeerChannelCommandBuilder(logger);
 
   builder
-    .setCommand(PeerCommands.CHANNEL)
-    .setSubCommand(PeerChannelCommands.JOIN)
-    .setBlockPath(blockLocation)
+    .enableTLS(tlsEnabled)
+    .setCommand(PeerChannelCommands.FETCH)
+    .setBlockReference(blockNumber)
+    .setDestination(outputFile)
+    .setOrderer(ordererAddress)
+    .setChannelID(channelID)
+    .setTLSCAFile(tlsCACertFile)
     .execute();
 }
 
-export async function packageChaincode(
+export async function peerJoinChannel(logger?: Logger, blockPath?: string) {
+  const log: Logger = Logging.for(peerJoinChannel);
+  log.debug(`Joining Channel`);
+
+  const builder = new FabricPeerChannelCommandBuilder(logger);
+
+  builder
+    .setCommand(PeerChannelCommands.JOIN)
+    .setBlockPath(blockPath)
+    .execute();
+}
+
+export function packageChaincode(
+  logger?: Logger,
   outputFile?: string,
   contractPath?: string,
   lang?: string,
@@ -128,173 +236,203 @@ export async function packageChaincode(
   const log: Logger = Logging.for(packageChaincode);
   log.debug(`Packaging Chaincode`);
 
-  const builder = new PeerCommandBuilder();
+  const builder = new FabricPeerLifecycleChaincodeCommandBuilder(logger);
 
-  const cmd = builder
-    .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-    .setSubCommand(
-      `${PeerLifecycleChaincodeCommands.PACKAGE} ${outputFile || ""}`
-    )
-    .setPath(contractPath)
+  builder
+    .setCommand(PeerLifecycleChaincodeCommands.PACKAGE)
+    .setDestination(outputFile)
+    .setContractPath(contractPath)
     .setLang(lang)
     .setLabel(`${contractName}_${contractVersion}`)
-    .build();
-
-  execSync(cmd.join(" "), { stdio: "inherit" });
+    .execute();
 }
 
-export async function installChaincode(chaincodePath?: string) {
+export function installChaincode(logger: Logger, contractLocation?: string) {
   const log: Logger = Logging.for(installChaincode);
   log.debug(`Installing Chaincode`);
 
-  const builder = new PeerCommandBuilder();
+  const builder = new FabricPeerLifecycleChaincodeCommandBuilder(logger);
 
-  const cmd = builder
-    .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-    .setSubCommand(`${PeerLifecycleChaincodeCommands.INSTALL} ${chaincodePath}`)
-    .build();
-
-  execSync(cmd.join(" "), { stdio: "inherit" });
+  builder
+    .setCommand(PeerLifecycleChaincodeCommands.INSTALL)
+    .setDestination(contractLocation)
+    .execute();
 }
 
-export async function aproveChainCode(
-  orderer?: string,
-  channelID?: string,
-  chaincodeName?: string,
-  version?: string,
-  sequence?: string
-) {
-  const log: Logger = Logging.for(aproveChainCode);
-  log.info(`Approving Chaincode`);
-
-  const idBuilder = new PeerCommandBuilder();
-  const builder = new PeerCommandBuilder();
-
-  const id = execSync(
-    idBuilder
-      .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-      .setSubCommand(PeerLifecycleChaincodeCommands.QUERYINSTALLED)
-      .build()
-      .join(" ")
-  )
-    .toString()
-    .split(",")[0]
-    .split("\n")[1]
-    .split(":")
-    .slice(1)
-    .map((s) => s.trim())
-    .join(":");
-
-  log.info(`Chaincode ID: ${id}`);
-
-  const cmd = builder
-    .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-    .setSubCommand(`${PeerLifecycleChaincodeCommands.APPROVEFORMYORG}`)
-    .setOrderer(orderer)
-    .setChannelID(channelID)
-    .setChaincodeName(chaincodeName)
-    .setCustom("version", version)
-    .setPackageID(id)
-    .setSequence(sequence)
-    .build();
-
-  execSync(cmd.join(" "), { stdio: "inherit" });
-}
-
-export async function commitChainCode(
-  orderer?: string,
+export function approveChaincode(
+  logger: Logger,
+  ordererAddress?: string,
   channelID?: string,
   chaincodeName?: string,
   version?: string,
   sequence?: string,
-  peerAddress?: string
+  enableTLS?: boolean,
+  tlsCACertFile?: string,
+  collectionConfigPath?: string,
+  ordererTLSHostnameOverride?: string
+) {
+  const log: Logger = Logging.for(installChaincode);
+  log.debug(`Approve Chaincode`);
+
+  const builder = new FabricPeerLifecycleChaincodeCommandBuilder(logger);
+
+  const id = execSync(
+    builder.setCommand(PeerLifecycleChaincodeCommands.QUERYINSTALLED).build()
+  );
+
+  log.debug(`Using id: ${id}`);
+
+  builder
+    .setCommand(PeerLifecycleChaincodeCommands.APPROVEFORMYORG)
+    .setOrdererAddress(ordererAddress)
+    .setChannelID(channelID)
+    .setContractName(chaincodeName)
+    .setVersion(version)
+    .setSequence(sequence)
+    .enableTLS(enableTLS)
+    .setTLSCAFile(tlsCACertFile)
+    .setOrdererTLSHostnameOverride(ordererTLSHostnameOverride)
+    .setCollectionsConfigPath(collectionConfigPath)
+    .setPackageID(
+      id
+        .toString()
+        .split(",")[0]
+        .split("\n")[1]
+        .split(":")
+        .slice(1)
+        .map((s) => s.trim())
+        .join(":")
+    )
+    .execute();
+}
+
+export async function commitChainCode(
+  logger: Logger,
+  ordererAddress?: string,
+  channelID?: string,
+  chaincodeName?: string,
+  version?: string,
+  sequence?: string,
+  enableTLS?: boolean,
+  tlsCACertFile?: string,
+  collectionConfigPath?: string,
+  ordererTLSHostnameOverride?: string,
+  peerAddresses?: string[],
+  peerTLSRoots?: string[]
 ) {
   const log: Logger = Logging.for(commitChainCode);
+  log.info(`Commiting chaincode`);
 
-  const readinessCheck = function () {
-    log.info(`Checking Chaincode Readiness`);
-    const builder = new PeerCommandBuilder();
-    const cmd = builder
-      .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-      .setSubCommand(PeerLifecycleChaincodeCommands.CHECKCOMMITREADINESS)
-      .setChannelID(channelID)
-      .setChaincodeName(chaincodeName)
-      .setCustom("version", version)
-      .setSequence(sequence)
-      .setOutput("json")
-      .build();
+  const checkChaincodeReadiness = function (
+    logger: Logger,
+    channelID?: string,
+    chaincodeName?: string,
+    version?: string,
+    sequence?: string,
+    enableTLS?: boolean,
+    tlsCACertFile?: string
+  ) {
+    const verificationBuilder = new FabricPeerLifecycleChaincodeCommandBuilder(
+      logger
+    );
 
-    const approvalData = execSync(cmd.join(" ")).toString();
+    const approvalData = execSync(
+      verificationBuilder
+        .setCommand(PeerLifecycleChaincodeCommands.CHECKCOMMITREADINESS)
+        .setChannelID(channelID)
+        .setContractName(chaincodeName)
+        .setVersion(version)
+        .setSequence(sequence)
+        .enableTLS(enableTLS)
+        .setTLSCAFile(tlsCACertFile)
+        .setOutput("json")
+        .build()
+    ).toString();
 
     const approvalJSON = JSON.parse(approvalData);
-    const isReady =
+
+    log.info(JSON.stringify(approvalJSON, null, 2));
+
+    return (
       Object.keys(approvalJSON.approvals).filter(
         (key) => approvalJSON.approvals[key] == true
       ).length >
-      Object.keys(approvalJSON.approvals).length / 2;
-
-    log.info(
-      `Chaincode Readiness: ${isReady} with ${
-        Object.keys(approvalJSON.approvals).filter(
-          (key) => approvalJSON.approvals[key] == true
-        ).length
-      }/${Object.keys(approvalJSON.approvals).length}`
+      Object.keys(approvalJSON.approvals).length / 2
     );
-
-    return isReady;
   };
 
-  const commitCode = function () {
-    log.info(`Committing Chaincode`);
-    const builder = new PeerCommandBuilder();
+  const commitWhenReady = function (
+    logger: Logger,
+    ordererAddress?: string,
+    channelID?: string,
+    chaincodeName?: string,
+    version?: string,
+    sequence?: string,
+    enableTLS?: boolean,
+    tlsCACertFile?: string,
+    collectionConfigPath?: string,
+    ordererTLSHostnameOverride?: string,
+    peerAddresses?: string[],
+    peerTLSRoots?: string[]
+  ) {
+    if (
+      !checkChaincodeReadiness(
+        logger,
+        channelID,
+        chaincodeName,
+        version,
+        sequence,
+        enableTLS,
+        tlsCACertFile
+      )
+    ) {
+      log.info("Chaincode not ready, waiting...");
+      return setTimeout(() => {
+        commitWhenReady(
+          logger,
+          ordererAddress,
+          channelID,
+          chaincodeName,
+          version,
+          sequence,
+          enableTLS,
+          tlsCACertFile,
+          collectionConfigPath,
+          ordererTLSHostnameOverride,
+          peerAddresses,
+          peerTLSRoots
+        );
+      }, 30000);
+    }
 
-    const cmd = builder
-      .setCommand(PeerCommands.LIFECYCLE_CHAINCODE)
-      .setSubCommand(`${PeerLifecycleChaincodeCommands.COMMIT}`)
-      .setOrderer(orderer)
+    new FabricPeerLifecycleChaincodeCommandBuilder(logger)
+      .setCommand(PeerLifecycleChaincodeCommands.COMMIT)
+      .setOrdererAddress(ordererAddress)
       .setChannelID(channelID)
-      .setChaincodeName(chaincodeName)
-      .setCustom("version", version)
+      .setContractName(chaincodeName)
+      .setVersion(version)
       .setSequence(sequence)
-      // .setCustom("peer-addresses", peerAddresses)
-      .build();
-
-    peerAddress
-      ?.split(",")
-      .map((address) => cmd.push(`--peerAddresses ${address}`));
-
-    execSync(cmd.join(" "), { stdio: "inherit" });
+      .enableTLS(enableTLS)
+      .setTLSCAFile(tlsCACertFile)
+      .setCollectionsConfigPath(collectionConfigPath)
+      .setOrdererTLSHostnameOverride(ordererTLSHostnameOverride)
+      .setPeerAddresses(peerAddresses)
+      .setPeerTLSRoots(peerTLSRoots)
+      .execute();
   };
 
-  if (readinessCheck()) {
-    commitCode();
-  } else {
-    log.info("Chaincode not ready, waiting for approval...");
-    await new Promise((resolve) => setTimeout(resolve, 15000));
-    commitChainCode(
-      orderer,
-      channelID,
-      chaincodeName,
-      version,
-      sequence,
-      peerAddress
-    );
-  }
+  commitWhenReady(
+    logger,
+    ordererAddress,
+    channelID,
+    chaincodeName,
+    version,
+    sequence,
+    enableTLS,
+    tlsCACertFile,
+    collectionConfigPath,
+    ordererTLSHostnameOverride,
+    peerAddresses,
+    peerTLSRoots
+  );
 }
-
-// export function commitChainCode(contract: ChainCodeRequest, channel: Pick<peerBootConfig, 'channel' | 'port' | 'peerName'>, skipReadyCheck: boolean, skipCommit: boolean, collectionPath: string){
-
-//         runCommand(`peer lifecycle chaincode commit \
-
-//
-//                 --tls \
-//                 --cafile ${channel.channel.ordererCaFile} \
-//                 --peerAddresses ${channel.peerName}:${channel.port} \
-//                 --tlsRootCertFiles ${channel.channel.ordererCaFile} \
-//                 --collections-config ${collectionPath}`)
-//     }
-
-//     if(skipCommit) return;
-
-//     verifyAndCommit(contract, channel, skipReadyCheck);
-// }

@@ -33,18 +33,20 @@
     "drawings": "for FILE in workdocs/drawings/*.drawio; do echo \"converting $FILE to image...\" && docker run --rm -v $(pwd):/data rlespinasse/drawio-export --format png $FILE; done && cp -rf workdocs/drawings/export/* workdocs/resources/",
     "uml": "cd workdocs/uml && for FILE in ./*.puml; do docker run --rm -v $(pwd):/work -w /work miy4/plantuml -DPLANTUML_LIMIT_SIZE=8192 -tpng $FILE; done && cd ../.. && cp -fr workdocs/uml/*.png workdocs/resources/",
     "docs": "npx rimraf ./docs && mkdir docs && node ./bin/build-scripts.cjs --docs",
+    "basic:up": "cd ./tutorials/manually-generated/basic-tls-infrastructure && ./docker-up.sh",
+    "basic:down": "cd ./tutorials/manually-generated/basic-tls-infrastructure && ./docker-down.sh",
     "publish-docs": "docker run -it --rm --user $(id -u):$(id -g) -v \"$(pwd)/workdocs/confluence:/content\" -e ATLASSIAN_API_TOKEN=$(cat .confluence-token) ghcr.io/markdown-confluence/publish:latest",
     "docker:login": "docker login ghcr.io -u $(cat .dockeruser) -p $(cat .dockertoken)",
     "docker:build": "npm run docker:build-base && npm run docker:build-couchdb && npm run docker:build-builder && npm run docker:build-weaver",
-    "docker:build-builder": "DOCKER_BUILDKIT=1 docker build --secret id=TOKEN,src=$PWD/.npmtoken -t ghcr.io/decaf-ts/fabric-weaver:builder-2.5.12-$(cat package.json | jq -r '.version') -t ghcr.io/decaf-ts/fabric-weaver:builder-2.5.12-${VERSION:-latest} --target=builder -f ./Dockerfile-fabric .",
-    "docker:build-base": "DOCKER_BUILDKIT=1 docker build --secret id=TOKEN,src=$PWD/.npmtoken -t ghcr.io/decaf-ts/fabric-weaver:base-2.5.12-$(cat package.json | jq -r '.version') -t ghcr.io/decaf-ts/fabric-weaver:base-2.5.12-${VERSION:-latest} -f ./Dockerfile .",
-    "docker:build-couchdb": "docker build -t ghcr.io/decaf-ts/fabric-weaver:couchdb-$(cat package.json | jq -r '.version') -t ghcr.io/decaf-ts/fabric-weaver:couchdb-${VERSION:-latest} --build-arg COUCHDB_VERSION=${COUCHDB_VERSION:-latest} -f ./Dockerfile-couchdb .",
-    "docker:build-weaver": "DOCKER_BUILDKIT=1 docker build --secret id=TOKEN,src=$PWD/.npmtoken -t ghcr.io/decaf-ts/fabric-weaver:weaver-2.5.12-$(cat package.json | jq -r '.version') -t ghcr.io/decaf-ts/fabric-weaver:weaver-2.5.12-${VERSION:-latest} -f ./Dockerfile-fabric .",
+    "docker:build-builder": "DOCKER_BUILDKIT=1 docker build --secret id=TOKEN,src=$PWD/.npmtoken -t ghcr.io/decaf-ts/fabric-weaver:builder-2.5.12-$(cat package.json | jq -r '.version') -t ghcr.io/decaf-ts/fabric-weaver:builder-2.5.12-latest --target=builder -f ./Dockerfile-fabric .",
+    "docker:build-base": "DOCKER_BUILDKIT=1 docker build --secret id=TOKEN,src=$PWD/.npmtoken -t ghcr.io/decaf-ts/fabric-weaver:base-2.5.12-$(cat package.json | jq -r '.version') -t ghcr.io/decaf-ts/fabric-weaver:base-2.5.12-latest -f ./Dockerfile .",
+    "docker:build-couchdb": "docker build -t ghcr.io/decaf-ts/fabric-weaver:couchdb-$(cat package.json | jq -r '.version') -t ghcr.io/decaf-ts/fabric-weaver:couchdb-latest --build-arg COUCHDB_VERSION=${COUCHDB_VERSION:-latest} -f ./Dockerfile-couchdb .",
+    "docker:build-weaver": "DOCKER_BUILDKIT=1 docker build --secret id=TOKEN,src=$PWD/.npmtoken -t ghcr.io/decaf-ts/fabric-weaver:weaver-2.5.12-$(cat package.json | jq -r '.version') -t ghcr.io/decaf-ts/fabric-weaver:weaver-2.5.12-latest -f ./Dockerfile-fabric .",
     "docker:publish": "npm run docker:publish-base && docker:publish-couchdb && docker:publish-builder && npm run docker:publish-weaver",
-    "docker:publish-couchdb": "docker push ghcr.io/decaf-ts/fabric-weaver:couchdb-$(cat package.json | jq -r '.version') && docker push ghcr.io/decaf-ts/fabric-weaver:couchdb-${VERSION:-latest}",
-    "docker:publish-builder": "docker push ghcr.io/decaf-ts/fabric-weaver:builder-$(cat package.json | jq -r '.version') && docker push ghcr.io/decaf-ts/fabric-weaver:builder-${VERSION:-latest}",
-    "docker:publish-weaver": "docker push ghcr.io/decaf-ts/fabric-weaver:weaver-$(cat package.json | jq -r '.version') && docker push ghcr.io/decaf-ts/fabric-weaver:weaver-${VERSION:-latest}",
-    "docker:publish-base": "docker push ghcr.io/fabric-weaver:base-2.5.12-$(cat package.json | jq -r '.version') && docker push ghcr.io/fabric-weaver:base-${VERSION:-latest}"
+    "docker:publish-couchdb": "docker push ghcr.io/decaf-ts/fabric-weaver:couchdb-$(cat package.json | jq -r '.version') && docker push ghcr.io/decaf-ts/fabric-weaver:couchdb-latest",
+    "docker:publish-builder": "docker push ghcr.io/decaf-ts/fabric-weaver:builder-2.5.12-$(cat package.json | jq -r '.version') && docker push ghcr.io/decaf-ts/fabric-weaver:builder-2.5.12-latest",
+    "docker:publish-weaver": "docker push ghcr.io/decaf-ts/fabric-weaver:weaver-2.5.12-$(cat package.json | jq -r '.version') && docker push ghcr.io/decaf-ts/fabric-weaver:weaver-2.5.12-latest",
+    "docker:publish-base": "docker push ghcr.io/decaf-ts/fabric-weaver:base-2.5.12-$(cat package.json | jq -r '.version') && docker push ghcr.io/fabric-weaver:base-2.5.12-latest"
   },
   "repository": {
     "type": "git",
@@ -87,6 +89,7 @@
   "devDependencies": {
     "@eslint/js": "^9.25.1",
     "@stylistic/eslint-plugin": "^4.2.0",
+    "@types/express": "^5.0.3",
     "@types/jest": "^29.5.14",
     "@types/js-yaml": "^4.0.9",
     "axios": "^1.9.0",
@@ -122,6 +125,7 @@
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.2",
     "commander": "^13.1.0",
+    "express": "^5.1.0",
     "js-yaml": "^4.1.0",
     "rollup": "^4.40.2"
   }

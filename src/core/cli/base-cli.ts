@@ -1,12 +1,12 @@
 import { Command } from "commander";
 import { VERSION } from "../../index";
 import { Logger, Logging } from "@decaf-ts/logging";
-import { addFabricToPath } from "../../utils/path";
+import { addFabricToPath } from "../../utils-old/path";
 import { EnvVars } from "../constants/env-vars";
-import { printBanner, printBorder } from "../../utils/banner";
-import { safeParseInt } from "../../utils/parsers";
+import { printBanner, printBorder } from "../../utils-old/banner";
 import fs from "fs";
 import path from "path";
+import { safeParseInt } from "../../utils/parsers";
 
 /**
  * @class BaseCLI
@@ -53,15 +53,16 @@ export abstract class BaseCLI {
       .option("-l, --limiter", "Supress the line after the command output")
       .hook("preAction", (cmd) => {
         const skipBanner = cmd.opts().skipBanner === true;
+        const skipLimiter = cmd.opts().limiter === true;
         printBanner(skipBanner);
         this.log.debug(`Skip banner: ${skipBanner}`);
+        this.log.debug(`Skip Limiter: ${skipLimiter}`);
         this.log.debug(`Starting ${this.program.name()} v${VERSION}`);
         addFabricToPath(process.env[EnvVars.FABRIC_BIN_FOLDER]);
       })
       .hook("postAction", (cmd) => {
         const skipLimiter = cmd.opts().limiter === true;
         printBorder(skipLimiter);
-        this.log.debug(`Skip Limiter: ${skipLimiter}`);
       });
 
     this.sleep();

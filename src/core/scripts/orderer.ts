@@ -1,55 +1,132 @@
 import { Logger, Logging } from "@decaf-ts/logging";
-import {
-  OrdererCommand,
-  OrdererCommandBuilder,
-  OrdererConfig,
-  OSNAdminCommandBuilder,
-} from "../../fabric/orderer/";
+import { OrdererCommand } from "../../fabric/constants/fabric-orderer";
+import { FabricOrdererCommandBuilder } from "../../fabric/orderer/fabric-orderer-command-builder";
 import path from "path";
 import fs from "fs";
-import { setOrdererEnvironment } from "../../utils/environment";
+import { FabricOrdererConfigBuilder } from "../../fabric/orderer/fabric-orderer-config-builder";
+import {
+  AdminConfig,
+  BCCSPConfig,
+  BootstrapConfig,
+  ChannelParticipationConfig,
+  ClusterConfig,
+  ConsensusConfig,
+  DebugConfig,
+  KafkaConfig,
+  KeepAliveConfig,
+  MetricsConfig,
+  MSGSizeConfig,
+  MSPConfig,
+  OperationsConfig,
+  ProfileConfig,
+  TLSConfig,
+} from "../../fabric/interfaces/fabric/orderer-config";
 
 export function issueOrderer(
-  cpath: string,
-  ordererConfig: Partial<OrdererConfig>
+  log: Logger,
+  cpath?: string,
+  consensus?: ConsensusConfig,
+  channelParticipation?: ChannelParticipationConfig,
+  adminCfg?: AdminConfig,
+  tls?: TLSConfig,
+  port?: number,
+  address?: string,
+  keepAlive?: KeepAliveConfig,
+  msgSize?: MSGSizeConfig,
+  cluster?: ClusterConfig,
+  boot?: BootstrapConfig,
+  msp?: MSPConfig,
+  profile?: ProfileConfig,
+  metrics?: MetricsConfig,
+  operations?: OperationsConfig,
+  Kafka?: KafkaConfig,
+  fileLedgerLocation?: string,
+  authWindow?: string,
+  bccsp?: BCCSPConfig,
+  debug?: DebugConfig
 ) {
-  const log: Logger = Logging.for(issueOrderer);
-  log.debug(`Issuing Orderer with config: ${JSON.stringify(ordererConfig)}`);
-  log.debug(`Writing configuration to ${cpath}`);
+  log.info("Issuing Orderer");
 
-  const builder = new OrdererCommandBuilder();
-
+  const builder = new FabricOrdererConfigBuilder(log);
   builder
-    .setListenAddress(ordererConfig.General?.ListenAddress)
-    .setListenPort(ordererConfig.General?.ListenPort)
-    .setLocalMSPDir(ordererConfig.General?.LocalMSPDir)
-    .setLocalMSPID(ordererConfig.General?.LocalMSPID)
-    .setAdminListenAddress(ordererConfig.Admin?.ListenAddress)
-    .setConsensusSnapDir(ordererConfig.Consensus?.SnapDir)
-    .setConsensusWALDir(ordererConfig.Consensus?.WALDir)
-    .setOperationsListenAddress(ordererConfig.Operations?.ListenAddress)
-    .saveConfig(cpath);
+    .setConsensus(consensus)
+    .setKafka(Kafka)
+    .setFileLedgerLocation(fileLedgerLocation)
+    .setAuthWindow(authWindow)
+    .setBCCSP(bccsp)
+    .setDebug(debug)
+    .setCluster(cluster)
+    .setBootstrap(boot)
+    .setLocalMSP(msp)
+    .setProfile(profile)
+    .setMetrics(metrics)
+    .setOperations(operations)
+    .setChannelParticipation(channelParticipation)
+    .setAdmin(adminCfg)
+    .setTLS(tls)
+    .setPort(port)
+    .setListenAddress(address)
+    .setKeepAlive(keepAlive)
+    .setMSGSize(msgSize)
+    .save(cpath);
 }
 
-export async function startOrderer(cpath: string) {
+export async function startOrderer() {
   const log: Logger = Logging.for(startOrderer);
   log.debug(`Starting Orderer`);
-  setOrdererEnvironment(cpath);
+  const builder = new FabricOrdererCommandBuilder(log);
 
-  const builder = new OrdererCommandBuilder();
-
-  await builder.setCommand(OrdererCommand.START).execute();
+  builder.setCommand(OrdererCommand.START).execute();
 }
 
 export async function bootOrderer(
-  cpath: string,
-  config: Partial<OrdererConfig>
+  log: Logger,
+  cpath?: string,
+  consensus?: ConsensusConfig,
+  channelParticipation?: ChannelParticipationConfig,
+  adminCfg?: AdminConfig,
+  tls?: TLSConfig,
+  port?: number,
+  address?: string,
+  keepAlive?: KeepAliveConfig,
+  msgSize?: MSGSizeConfig,
+  cluster?: ClusterConfig,
+  boot?: BootstrapConfig,
+  msp?: MSPConfig,
+  profile?: ProfileConfig,
+  metrics?: MetricsConfig,
+  operations?: OperationsConfig,
+  Kafka?: KafkaConfig,
+  fileLedgerLocation?: string,
+  authWindow?: string,
+  bccsp?: BCCSPConfig,
+  debug?: DebugConfig
 ) {
-  const log: Logger = Logging.for(bootOrderer);
-  log.debug(`Booting Orderer with config: ${JSON.stringify(config)}`);
-
-  issueOrderer(cpath, config);
-  await startOrderer(cpath);
+  if (!hasOrdererInitialized())
+    issueOrderer(
+      log,
+      cpath,
+      consensus,
+      channelParticipation,
+      adminCfg,
+      tls,
+      port,
+      address,
+      keepAlive,
+      msgSize,
+      cluster,
+      boot,
+      msp,
+      profile,
+      metrics,
+      operations,
+      Kafka,
+      fileLedgerLocation,
+      authWindow,
+      bccsp,
+      debug
+    );
+  startOrderer();
 }
 
 export function hasOrdererInitialized(fileLocation?: string): boolean {
@@ -76,29 +153,4 @@ export function hasOrdererInitialized(fileLocation?: string): boolean {
   log.debug(`Orderer has been booted: ${booted}`);
 
   return booted;
-}
-
-export function osnAdminJoin(
-  channelID?: string,
-  configBlock?: string,
-  adminAddress?: string,
-  caFile?: string,
-  clientCert?: string,
-  clientKey?: string,
-  noStatus?: boolean
-) {
-  const log: Logger = Logging.for(osnAdminJoin);
-  log.debug(`Joining Orderer to the network`);
-
-  const builder = new OSNAdminCommandBuilder();
-
-  builder
-    .setChannelID(channelID)
-    .setConfigBlock(configBlock)
-    .setOrdererAdminAddress(adminAddress)
-    .setCAFile(caFile)
-    .setClientCert(clientCert)
-    .setClientKey(clientKey)
-    .setNoStatus(noStatus)
-    .execute();
 }

@@ -1,6 +1,13 @@
-import { Logging } from "@decaf-ts/logging";
-import { EnrollmentRequest } from "../constants/enrollment-request";
-import { FabricCAClientCommandBuilder } from "../../fabric/fabric-ca-client/fabric-ca-client";
+import { Logger } from "@decaf-ts/logging";
+import { FabricCAClientCommandBuilder } from "../../fabric/fabric-ca-client/fabric-ca-client-command-builder";
+import { EnrollmentType } from "../constants/enrollment-request";
+import {
+  CommadCSRConfig,
+  EnrollmentConfig,
+  IdentityConfig,
+  TLSConfig,
+} from "../../fabric/interfaces/fabric/fabric-ca-client-config";
+import { FabricCAServerCurveName } from "../../fabric/constants";
 
 // export function processEnrollmentRequest(request: EnrollmentRequest, debug: boolean = false){
 //     pipeline([
@@ -24,41 +31,44 @@ import { FabricCAClientCommandBuilder } from "../../fabric/fabric-ca-client/fabr
 //     ).execAll()
 // }
 
-export async function processEnrollmentRequest(
-  request: EnrollmentRequest,
-  debug: boolean = false
+export function clientEnrollment(
+  logger: Logger,
+  command: EnrollmentType,
+  csr: CommadCSRConfig,
+  home?: string,
+  caName?: string,
+  url?: string,
+  enrollment?: EnrollmentConfig,
+  identity?: IdentityConfig,
+  idemixCurve?: string,
+  mspdir?: string,
+  myHost?: string,
+  tls?: TLSConfig,
+  destinationDir?: string,
+  changeKeyName?: boolean
 ) {
-  const log = Logging.for(processEnrollmentRequest);
+  const builder = new FabricCAClientCommandBuilder(logger);
 
-  const builder: FabricCAClientCommandBuilder =
-    new FabricCAClientCommandBuilder();
+  //TODO: implement
+  //setHelp()
+  //setLogLevel()
+  //setRevoke()
 
-  log.info(`Debug mode: ${debug}`);
-
-  await builder
-    .setCommand(request.type)
-    .setURL(request.request.url)
-    .setTLSCertFiles(
-      request.request.tlsCertfiles
-        ? request.request.tlsCertfiles.split(",")
-        : undefined
-    )
-    .setMSPDir(request.request.mspdir)
-    .setIdName(request.request.idName)
-    .setIdSecret(request.request.idSecret)
-    .setIdType(request.request.idType)
-    .setIdAttributes(request.request.idAttrs)
-    .setCSRHosts(request.request.csrHosts)
-    .setHome(request.request.home)
+  builder
+    .setCommand(command)
+    .setCSR(csr)
+    .setHome(home)
+    .setCAName(caName)
+    .setUrl(url)
+    .setEnrollment(enrollment)
+    .setIdentity(identity)
+    .setIdemixCurve(idemixCurve as FabricCAServerCurveName)
+    .setMspdir(mspdir)
+    .setMyHost(myHost)
+    .setTLS(tls)
+    .copyKey(mspdir, destinationDir)
     .execute();
 
-  builder.changeKeyName(
-    request.changeKeyName
-      ? request.request.mspdir
-        ? request.request.mspdir
-        : undefined
-      : undefined
-  );
-
-  log.info(`Enrollment request processed successfully.`);
+  // We need to change the key name after the command is executed so the files are present
+  builder.changeKeyName(mspdir, changeKeyName);
 }
