@@ -1,0 +1,117 @@
+name: "Publish docker images on Release"
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        node-version: [22]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          registry-url: https://registry.npmjs.org/
+          # Cache dependencies (npm)
+      - name: Cache dependencies
+        id: cache-npm
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            node_modules
+          key: deps-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ matrix.node-version }}-
+      - run: npm ci
+      - run: npm run setup
+      - name: Cache Build
+        id: cache-build
+        uses: actions/cache@v4
+        with:
+          path: |
+            lib
+            dist
+          key: build-${{ runner.os }}-${{ matrix.node-version }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            build-${{ runner.os }}-${{ matrix.node-version }}-
+
+      - if: ${{ steps.cache-build.outputs.cache-hit != 'true' }}
+        run: npm run build:prod # Replace with your build command
+
+      - run: npm run test:all
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Docker image version, id and token
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository }}
+          IMAGE_ID=$(echo "$IMAGE_ID" | tr '[:upper:]' '[:lower:]')
+
+          IMAGE_VERSION=$(jq -r '.version' package-lock.json)
+          echo "Tagging as: $IMAGE_ID:latest and $IMAGE_ID:$VERSION"
+
+
+          echo "DOCKER_IMAGE_VERSION=$IMAGE_VERSION" >> $GITHUB_ENV
+          echo "DOCKER_IMAGE_ID=$IMAGE_ID" >> $GITHUB_ENV
+
+          echo "${{ secrets.NPM_TOKEN }}" > .npmtoken
+          chmod 600 .npmtoken
+
+      - name: Build Docker image
+        env:
+          FABRIC_VERSION: ${{ vars.FABRIC_VERSION }}
+        run: |
+          DOCKER_BUILDKIT=1 docker build \
+            --secret id=TOKEN,src=.npmtoken \
+            -t $DOCKER_IMAGE_ID:base-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION \
+            -t $DOCKER_IMAGE_ID:base-$FABRIC_VERSION-latest \
+            -f ./Dockerfile .
+
+          docker build \
+            -t $DOCKER_IMAGE_ID:couchdb-$DOCKER_IMAGE_VERSION  \
+            -t $DOCKER_IMAGE_ID:couchdb-latest \
+            --build-arg COUCHDB_VERSION=latest \
+            -f ./Dockerfile-couchdb .
+
+          DOCKER_BUILDKIT=1 docker build \
+            --secret id=TOKEN,src=.npmtoken \ 
+            -t $DOCKER_IMAGE_ID:builder-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION \
+            -t $DOCKER_IMAGE_ID:builder-$FABRIC_VERSION-latest \
+            --target=builder \
+            -f ./Dockerfile-fabric .
+
+          DOCKER_BUILDKIT=1 docker build \
+            --secret id=TOKEN,src=.npmtoken \
+            -t $DOCKER_IMAGE_ID:weaver-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION \
+            -t $DOCKER_IMAGE_ID:weaver-$FABRIC_VERSION-latest \
+            -f ./Dockerfile-fabric .
+
+      - name: Tag and Push Docker Image
+        env:
+          FABRIC_VERSION: ${{ vars.FABRIC_VERSION }}
+        run: |
+          docker push $DOCKER_IMAGE_ID:base-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION
+          docker push $DOCKER_IMAGE_ID:base-$FABRIC_VERSION-latest
+
+          docker push $DOCKER_IMAGE_ID:couchdb-$DOCKER_IMAGE_VERSION
+          docker push $DOCKER_IMAGE_ID:couchdb-latest
+
+          docker push $DOCKER_IMAGE_ID:builder-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION
+          docker push $DOCKER_IMAGE_ID:builder-$FABRIC_VERSION-latest
+
+          docker push $DOCKER_IMAGE_ID:weaver-$FABRIC_VERSION-$DOCKER_IMAGE_VERSION
+          docker push $DOCKER_IMAGE_ID:weaver-$FABRIC_VERSION-latest
