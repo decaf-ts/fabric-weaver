@@ -116,7 +116,6 @@
     "ts-jest": "^29.3.2",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3",
     "typescript-eslint": "^8.31.0"
   },
   "license": "LGPL",
@@ -126,10 +125,12 @@
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-replace": "^6.0.2",
     "@rollup/plugin-typescript": "^12.1.2",
     "commander": "^13.1.0",
     "express": "^5.1.0",
     "js-yaml": "^4.1.0",
-    "rollup": "^4.40.2"
+    "rollup": "^4.40.2",
+    "typescript": "^5.8.3"
   }
 }
