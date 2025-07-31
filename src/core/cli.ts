@@ -1,8 +1,5 @@
-// import { CoreCLI } from "./cli/core-cli";
+#!/usr/bin/env node
 import { CoreCLI } from "./cli/core-cli";
 
-// Create and run the Core CLI
-// const cli = new CoreCLI();
 const server = new CoreCLI();
-// cli.run();
 server.run();

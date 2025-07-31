@@ -1,25 +1,18 @@
 import { Logging } from "@decaf-ts/logging";
-import * as path from "path";
+import path from "path";
 
 /**
- * @summary Determines if a given file path is an absolute path on a Linux system.
+ * Resolves a provided path to an absolute path.
+ * If the input path is already absolute, it returns it unchanged.
+ * If it's relative, it resolves it based on the current working directory.
  *
- * @description On Linux (and other POSIX-compliant systems), an absolute path always starts
- * with a forward slash (`/`). This function checks for that condition.
- *
- * @param {string} path - The file path to evaluate.
- * @returns {boolean} - Returns `true` if the path is absolute, `false` otherwise.
- *
- * @memberOf module:fabric-integration.Utils
- *
- * @example
- * isAbsolutePath('/home/user/file.txt'); // true
- * isAbsolutePath('./relative/path.txt'); // false
- * isAbsolutePath('relative/path.txt');   // false
+ * @param inputPath - The path to evaluate.
+ * @returns An absolute path.
  */
-export function isAbsolutePath(path: string) {
-  // On Linux, an absolute path starts with "/"
-  return path.startsWith("/");
+export function resolvePath(inputPath: string): string {
+  return path.isAbsolute(inputPath)
+    ? inputPath
+    : path.resolve(process.cwd(), inputPath);
 }
 
 /**
