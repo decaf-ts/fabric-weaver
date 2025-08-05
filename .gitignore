@@ -26,6 +26,7 @@
 /bin/*
 !/bin/build-scripts.cjs
 !/bin/update-scripts.cjs
+!/bin/she-bang.cjs
 !/bin/fabric.sh
 !/bin/install-fabric.sh
 !/bin/tag-release.cjs
