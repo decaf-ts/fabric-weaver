@@ -6,14 +6,7 @@
 
 import { BuildScripts, readFile, writeFile } from "@decaf-ts/utils";
 import fs from "fs";
-
-/**
- * @description List of command names to be built.
- * @summary Defines the command-line interfaces that will be generated during the build process.
- * @const {string[]} Commands
- * @memberOf module:build-scripts
- */
-const Commands = ["fabric", "build-scripts-extended"];
+import path from "path";
 
 /**
  * @description Enumeration of module modes.
@@ -54,8 +47,11 @@ export class BuildScriptsCustom extends BuildScripts {
    *   end
    */
   async buildCommands() {
-    for (const cmd of Commands) {
-      await this.bundle(Modes.CJS, true, true, `src/bin/${cmd}.ts`, cmd);
+    const commands = fs.readdirSync(path.join(process.cwd() + "/src/bin"));
+    for (const cmd of commands) {
+      if (!cmd.endsWith(".ts")) continue;
+
+      await this.bundle(Modes.CJS, true, true, `src/bin/${cmd}`, cmd);
       let data = readFile(`bin/${cmd}.cjs`);
       data = "#!/usr/bin/env node\n" + data;
       writeFile(`bin/${cmd}.cjs`, data);
