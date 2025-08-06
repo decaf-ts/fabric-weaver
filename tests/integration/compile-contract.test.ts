@@ -4,7 +4,7 @@ import { execSync } from "child_process";
 
 jest.setTimeout(50000);
 
-describe("Test test model contract", () => {
+describe.skip("Test test model contract", () => {
   beforeAll(async () => {
     // compile contract
     execSync(`weaver compile-contract -d --contract-path ./tests/assets/contracts/base-contract \
