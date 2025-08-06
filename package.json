@@ -124,7 +124,7 @@
   "dependencies": {
     "@decaf-ts/logging": "^0.2.1",
     "@decaf-ts/utils": "^0.3.4",
-    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-replace": "^6.0.2",

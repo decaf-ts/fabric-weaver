@@ -10,6 +10,9 @@ import {
   NAME_PLACEHOLDER,
   VERSION_PLACEHOLDER,
 } from "../constants/constants";
+import resolve from "@rollup/plugin-node-resolve";
+import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
 
 export async function compileContract(
   contractDirectory: string,
@@ -31,11 +34,14 @@ export async function compileContract(
         delimiters: ["", ""],
         values: { VERSION_PLACEHOLDER: version },
       }),
+      resolve(),
+      commonjs(),
+      json(),
       typescript({
         tsconfig: tsConfigFile,
-        module: "esnext",
-        declaration: false,
         compilerOptions: {
+          declaration: false,
+          module: "esnext",
           outDir: "",
         },
       }),
