@@ -33,9 +33,9 @@ export async function compileContract(
       }),
       typescript({
         tsconfig: tsConfigFile,
-        module: "esnext",
-        declaration: false,
         compilerOptions: {
+          declaration: false,
+          module: "esnext",
           outDir: "",
         },
       }),
