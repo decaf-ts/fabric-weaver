@@ -41,7 +41,7 @@ import path from "path";
 import axios from "axios";
 import { execSync } from "child_process";
 import { Command } from "commander";
-import { VERSION } from "../index";
+import { safeParseCSV, VERSION } from "../index";
 
 const INSTALL_SCRIPT = path.join(__dirname, "..", "bin", "install-fabric.sh");
 
@@ -79,6 +79,7 @@ program
   .option(
     "--components <components...>",
     "Components to install (binary, docker, podman, samples)",
+    safeParseCSV,
     defaultConfig.components
   )
   .action(async (options) => {

@@ -19,6 +19,7 @@ import {
   PrivateDataStoreConfig,
   ProfileConfig,
   TLSConfig,
+  VMConfig,
 } from "../../fabric/interfaces/fabric/peer-config";
 import {
   MetricsConfig,
@@ -59,7 +60,8 @@ export function issuePeer(
   pvtData?: PrivateDataStoreConfig,
   ledgerSnapshosRootDir?: string,
   operation?: OperationsConfig,
-  metrics?: MetricsConfig
+  metrics?: MetricsConfig,
+  vm?: VMConfig
 ) {
   const logger = Logging.for(issuePeer);
   log.debug(`Issuing Peer...`);
@@ -91,6 +93,7 @@ export function issuePeer(
     .setConnTimeoutClient(clientConnectionTimeout)
     .setDeliveryClient(delivery)
     .setProfile(profile)
+    .setVMOptions(vm)
     .save(cpath);
 }
 
@@ -128,7 +131,8 @@ export async function bootPeer(
   pvtData?: PrivateDataStoreConfig,
   ledgerSnapshosRootDir?: string,
   operation?: OperationsConfig,
-  metrics?: MetricsConfig
+  metrics?: MetricsConfig,
+  vm?: VMConfig
 ) {
   const logger = Logging.for(bootPeer);
   log.debug(`Booting Peer...`);
@@ -159,7 +163,8 @@ export async function bootPeer(
       pvtData,
       ledgerSnapshosRootDir,
       operation,
-      metrics
+      metrics,
+      vm
     );
 
   startPeer(logger);
