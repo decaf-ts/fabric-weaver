@@ -20,6 +20,7 @@ import {
   PrivateDataStoreConfig,
   ProfileConfig,
   TLSConfig,
+  VMConfig,
 } from "../interfaces/fabric/peer-config";
 import {
   MetricsConfig,
@@ -1035,6 +1036,97 @@ export class FabricPeerConfigBuilder {
         this.config.chaincode!.logging!.format = logging.format;
       }
     }
+    return this;
+  }
+
+  setVMOptions(options?: VMConfig): this {
+    if (options === undefined) return this;
+
+    if (options.endpoint !== undefined) {
+      this.log.debug(`Setting VM endpoint: ${options.endpoint}`);
+      this.config.vm!.endpoint = options.endpoint;
+    }
+
+    if (options.docker != undefined) {
+      const docker = options.docker;
+
+      if (docker.tls !== undefined) {
+        if (docker.tls.enabled !== undefined) {
+          this.log.debug(`Setting TLS enabled: ${docker.tls.enabled}`);
+          this.config.vm!.docker!.tls!.enabled = docker.tls.enabled;
+        }
+
+        if (docker.tls.ca !== undefined) {
+          if (docker.tls.ca.file !== undefined) {
+            this.log.debug(`Setting TLS CA file: ${docker.tls.ca.file}`);
+            this.config.vm!.docker!.tls!.ca!.file = docker.tls.ca.file;
+          }
+        }
+
+        if (docker.tls.cert !== undefined) {
+          if (docker.tls.cert.file !== undefined) {
+            this.log.debug(`Setting TLS cert file: ${docker.tls.cert.file}`);
+            this.config.vm!.docker!.tls!.cert!.file = docker.tls.cert.file;
+          }
+        }
+
+        if (docker.attachStdout !== undefined) {
+          this.log.debug(`Setting attach stdout: ${docker.attachStdout}`);
+          this.config.vm!.docker!.attachStdout = docker.attachStdout;
+        }
+
+        if (docker.hostConfig !== undefined) {
+          const hostConfig = docker.hostConfig;
+
+          if (hostConfig.NetworkMode !== undefined) {
+            this.log.debug(`Setting NetworkMode: ${hostConfig.NetworkMode}`);
+            this.config.vm!.docker!.hostConfig!.NetworkMode =
+              hostConfig.NetworkMode;
+          }
+
+          if (hostConfig.Dns !== undefined && hostConfig.Dns.length > 0) {
+            this.log.debug(`Setting DNS: ${hostConfig.Dns.join(", ")}`);
+            this.config.vm!.docker!.hostConfig!.Dns = hostConfig.Dns;
+          }
+
+          if (hostConfig.Memory !== undefined) {
+            this.log.debug(`Setting Memory: ${hostConfig.Memory}`);
+            this.config.vm!.docker!.hostConfig!.Memory = hostConfig.Memory;
+          }
+
+          if (hostConfig.LogConfig !== undefined) {
+            if (hostConfig.LogConfig.Type !== undefined) {
+              this.log.debug(
+                `Setting LogConfig Type: ${hostConfig.LogConfig.Type}`
+              );
+              this.config.vm!.docker!.hostConfig!.LogConfig!.Type =
+                hostConfig.LogConfig.Type;
+            }
+
+            if (hostConfig.LogConfig.Config !== undefined) {
+              if (hostConfig.LogConfig.Config["max-size"] !== undefined) {
+                this.log.debug(
+                  `Setting LogConfig max-size: ${hostConfig.LogConfig.Config["max-size"]}`
+                );
+                this.config.vm!.docker!.hostConfig!.LogConfig!.Config![
+                  "max-size"
+                ] = hostConfig.LogConfig.Config["max-size"];
+              }
+
+              if (hostConfig.LogConfig.Config["max-file"] !== undefined) {
+                this.log.debug(
+                  `Setting LogConfig max-file: ${hostConfig.LogConfig.Config["max-file"]}`
+                );
+                this.config.vm!.docker!.hostConfig!.LogConfig!.Config![
+                  "max-file"
+                ] = hostConfig.LogConfig.Config["max-file"];
+              }
+            }
+          }
+        }
+      }
+    }
+
     return this;
   }
 

@@ -33,36 +33,7 @@ export interface PeerConfig {
     maxRecvMsgSize?: number;
     maxSendMsgSize?: number;
   };
-  vm?: {
-    endpoint?: string;
-    docker?: {
-      tls?: {
-        enabled?: boolean;
-        ca?: {
-          file?: string;
-        };
-        cert?: {
-          file?: string;
-        };
-        key?: {
-          file?: string;
-        };
-      };
-      attachStdout?: boolean;
-      hostConfig?: {
-        NetworkMode?: string;
-        Dns?: string[];
-        LogConfig?: {
-          Type?: string;
-          Config?: {
-            "max-size"?: string;
-            "max-file"?: string;
-          };
-        };
-        Memory?: number;
-      };
-    };
-  };
+  vm?: VMConfig;
   chaincode?: ChaincodeConfig;
   ledger?: {
     blockchain?: any;
@@ -348,5 +319,36 @@ export interface BCCSPConfig {
     Immutable?: boolean;
     AltID?: string;
     KeyIds?: string[];
+  };
+}
+
+export interface VMConfig {
+  endpoint?: string;
+  docker?: {
+    tls?: {
+      enabled?: boolean;
+      ca?: {
+        file?: string;
+      };
+      cert?: {
+        file?: string;
+      };
+      key?: {
+        file?: string;
+      };
+    };
+    attachStdout?: boolean;
+    hostConfig?: {
+      NetworkMode?: string;
+      Dns?: string[];
+      LogConfig?: {
+        Type?: string;
+        Config?: {
+          "max-size"?: string;
+          "max-file"?: string;
+        };
+      };
+      Memory?: number;
+    };
   };
 }
