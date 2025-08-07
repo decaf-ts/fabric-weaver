@@ -849,7 +849,14 @@ export class CoreCLI extends BaseCLI {
           {},
           options.snapshotRootDir,
           { listenAddress: options.operationsAddress },
-          {}
+          {},
+          {
+            docker: {
+              hostConfig: {
+                NetworkMode: options.vmNetworkMode,
+              },
+            },
+          }
         );
 
         this.log.info("Command completed successfully!");
