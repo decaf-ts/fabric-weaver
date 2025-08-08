@@ -107,7 +107,7 @@ export function overrideContractImports(folderPath: string) {
 
 export function overrideDoubleDotImports(code: string) {
   return code.replace(
-    /require\(\s*["']((?:\.\.\/)+(?:[^"']+\/)*([^"']+)|\.\/(?:[^"']+\/)*([^"']+))["']\s*\)/g,
+    /require\(\s*["']((?:\.\.\/)+(?:[^/"']+\/)*([^/"']+)|\.\/(?:[^/"']+\/)*([^/"']+))["']\s*\)/g,
     (match, p1, p2, p3) => {
       const lastSegment = p2 || p3;
       return `require("./${lastSegment}")`;
