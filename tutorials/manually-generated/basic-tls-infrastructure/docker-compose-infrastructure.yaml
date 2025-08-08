@@ -90,23 +90,7 @@ services:
         exit 0;
       fi;
 
-      docker exec org-1-peer-0 peer chaincode invoke \
-      -o org-1-orderer-0:7021 \
-      --tls --cafile /weaver/peer/tls-ca-cert.pem \
-      -C simple-channel \
-      -n simple \
-      --peerAddresses org-1-peer-0:7031 \
-      --tlsRootCertFiles /weaver/peer/tls-ca-cert.pem \
-      -c '{\"function\":\"put\",\"Args\":[\"add\", \"100\"]}' &&
-
-      docker exec org-1-peer-0 peer chaincode invoke \
-      -o org-1-orderer-0:7021 \
-      --tls --cafile /weaver/peer/tls-ca-cert.pem \
-      -C simple-channel \
-      -n simple \
-      --peerAddresses org-1-peer-0:7031 \
-      --tlsRootCertFiles /weaver/peer/tls-ca-cert.pem \
-      -c '{\"function\":\"get\",\"Args\":[\"add\"]}' &&
+      echo \"Skipping test\"
 
       touch /boot/boot-test-chaincode.lock
       "

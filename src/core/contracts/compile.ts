@@ -1,61 +1,86 @@
-import { rollup } from "rollup";
-import replace from "@rollup/plugin-replace";
-import typescript from "@rollup/plugin-typescript";
-import fs from "fs";
-import path from "path";
-import { Logging } from "@decaf-ts/logging";
-import { resolvePath } from "../../utils-old/path";
 import {
   ENTRY_PLACEHOLDER,
   NAME_PLACEHOLDER,
   VERSION_PLACEHOLDER,
 } from "../constants/constants";
-import resolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
-import json from "@rollup/plugin-json";
 
-export async function compileContract(
-  contractDirectory: string,
-  contractName: string,
-  version: string,
-  tsConfigFile: string,
-  destinationDirectory: string,
-  sourceMaps: boolean = false
-) {
-  const log = Logging.for(compileContract);
+import fs from "fs";
+import { Logging } from "@decaf-ts/logging";
+import path from "path";
+import ts from "typescript";
 
-  log.info(`Compiling TypeScript contract ${contractName}`);
-
-  await rollup({
-    input: `${resolvePath(contractDirectory)}/${contractName}.ts`,
-    plugins: [
-      replace({
-        preventAssignment: true,
-        delimiters: ["", ""],
-        values: { VERSION_PLACEHOLDER: version },
-      }),
-      resolve(),
-      commonjs(),
-      json(),
-      typescript({
-        tsconfig: tsConfigFile,
-        compilerOptions: {
-          declaration: false,
-          module: "esnext",
-          outDir: "",
-        },
-      }),
-    ],
-  }).then((bundle) =>
-    bundle.write({
-      file: `${resolvePath(destinationDirectory)}/${contractName}.js`,
-      format: "umd",
-      name: contractName,
-      sourcemap: sourceMaps,
-    })
-  );
+export function resolvePath(inputPath: string): string {
+  return path.isAbsolute(inputPath)
+    ? inputPath
+    : path.resolve(process.cwd(), inputPath);
 }
 
+export function compileStandaloneFile(filePath: string, outDir: string) {
+  const compilerOptions: ts.CompilerOptions = {
+    target: ts.ScriptTarget.ES2022,
+    module: ts.ModuleKind.CommonJS,
+    allowJs: true,
+    checkJs: true,
+    declaration: false,
+    declarationMap: false,
+    emitDeclarationOnly: false,
+    isolatedModules: true,
+    sourceMap: false,
+    removeComments: true,
+    strict: true,
+    skipLibCheck: true,
+    resolveJsonModule: true,
+    forceConsistentCasingInFileNames: true,
+    experimentalDecorators: true,
+    emitDecoratorMetadata: true,
+    moduleResolution: ts.ModuleResolutionKind.NodeJs,
+    noImplicitAny: true,
+    useDefineForClassFields: true,
+    allowSyntheticDefaultImports: true,
+    esModuleInterop: false,
+    outDir,
+  };
+
+  const host = ts.createCompilerHost(compilerOptions);
+  host.writeFile = (fileName, content) => {
+    const outputPath = path.join(outDir, path.basename(fileName));
+    fs.writeFileSync(outputPath, content);
+    console.log(`Written: ${outputPath}`);
+  };
+
+  const program = ts.createProgram(
+    [path.join(resolvePath(filePath))],
+    compilerOptions,
+    host
+  );
+  const emitResult = program.emit();
+
+  const diagnostics = ts
+    .getPreEmitDiagnostics(program)
+    .concat(emitResult.diagnostics);
+
+  diagnostics.forEach((diagnostic) => {
+    if (diagnostic.file && diagnostic.start !== undefined) {
+      const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(
+        diagnostic.start
+      );
+      const message = ts.flattenDiagnosticMessageText(
+        diagnostic.messageText,
+        "\n"
+      );
+      console.log(
+        `${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`
+      );
+    } else {
+      console.log(
+        ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n")
+      );
+    }
+  });
+
+  const exitCode = emitResult.emitSkipped ? 1 : 0;
+  console.log(`Process exited with code ${exitCode}`);
+}
 export async function addPackage(
   contractName: string,
   version: string,

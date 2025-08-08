@@ -1069,60 +1069,60 @@ export class FabricPeerConfigBuilder {
             this.config.vm!.docker!.tls!.cert!.file = docker.tls.cert.file;
           }
         }
+      }
 
-        if (docker.attachStdout !== undefined) {
-          this.log.debug(`Setting attach stdout: ${docker.attachStdout}`);
-          this.config.vm!.docker!.attachStdout = docker.attachStdout;
+      if (docker.attachStdout !== undefined) {
+        this.log.debug(`Setting attach stdout: ${docker.attachStdout}`);
+        this.config.vm!.docker!.attachStdout = docker.attachStdout;
+      }
+
+      if (docker.hostConfig !== undefined) {
+        const hostConfig = docker.hostConfig;
+
+        if (hostConfig.NetworkMode !== undefined) {
+          this.log.debug(`Setting NetworkMode: ${hostConfig.NetworkMode}`);
+          this.config.vm!.docker!.hostConfig!.NetworkMode =
+            hostConfig.NetworkMode;
         }
 
-        if (docker.hostConfig !== undefined) {
-          const hostConfig = docker.hostConfig;
+        if (hostConfig.Dns !== undefined) {
+          this.log.info(`Setting DNS: ${hostConfig.Dns.join(", ")}`);
+          this.config.vm!.docker!.hostConfig!.Dns = hostConfig.Dns;
+        }
 
-          if (hostConfig.NetworkMode !== undefined) {
-            this.log.debug(`Setting NetworkMode: ${hostConfig.NetworkMode}`);
-            this.config.vm!.docker!.hostConfig!.NetworkMode =
-              hostConfig.NetworkMode;
+        if (hostConfig.LogConfig !== undefined) {
+          const logConfig = hostConfig.LogConfig;
+
+          if (logConfig.Type !== undefined) {
+            this.log.info(`Setting LogType: ${logConfig.Type}`);
+            this.config.vm!.docker!.hostConfig!.LogConfig!.Type =
+              logConfig.Type;
           }
 
-          if (hostConfig.Dns !== undefined && hostConfig.Dns.length > 0) {
-            this.log.debug(`Setting DNS: ${hostConfig.Dns.join(", ")}`);
-            this.config.vm!.docker!.hostConfig!.Dns = hostConfig.Dns;
-          }
-
-          if (hostConfig.Memory !== undefined) {
-            this.log.debug(`Setting Memory: ${hostConfig.Memory}`);
-            this.config.vm!.docker!.hostConfig!.Memory = hostConfig.Memory;
-          }
-
-          if (hostConfig.LogConfig !== undefined) {
-            if (hostConfig.LogConfig.Type !== undefined) {
-              this.log.debug(
-                `Setting LogConfig Type: ${hostConfig.LogConfig.Type}`
+          if (logConfig.Config !== undefined) {
+            if (logConfig.Config["max-size"] !== undefined) {
+              this.log.info(
+                `Setting Log maxSize: ${logConfig.Config["max-size"]}`
               );
-              this.config.vm!.docker!.hostConfig!.LogConfig!.Type =
-                hostConfig.LogConfig.Type;
+              this.config.vm!.docker!.hostConfig!.LogConfig!.Config![
+                "max-size"
+              ] = logConfig.Config["max-size"];
             }
 
-            if (hostConfig.LogConfig.Config !== undefined) {
-              if (hostConfig.LogConfig.Config["max-size"] !== undefined) {
-                this.log.debug(
-                  `Setting LogConfig max-size: ${hostConfig.LogConfig.Config["max-size"]}`
-                );
-                this.config.vm!.docker!.hostConfig!.LogConfig!.Config![
-                  "max-size"
-                ] = hostConfig.LogConfig.Config["max-size"];
-              }
-
-              if (hostConfig.LogConfig.Config["max-file"] !== undefined) {
-                this.log.debug(
-                  `Setting LogConfig max-file: ${hostConfig.LogConfig.Config["max-file"]}`
-                );
-                this.config.vm!.docker!.hostConfig!.LogConfig!.Config![
-                  "max-file"
-                ] = hostConfig.LogConfig.Config["max-file"];
-              }
+            if (logConfig.Config["max-file"] !== undefined) {
+              this.log.info(
+                `Setting Log maxFile: ${logConfig.Config["max-file"]}`
+              );
+              this.config.vm!.docker!.hostConfig!.LogConfig!.Config![
+                "max-file"
+              ] = logConfig.Config["max-file"];
             }
           }
+        }
+
+        if (hostConfig.Memory !== undefined) {
+          this.log.info(`Setting Memory: ${hostConfig.Memory}`);
+          this.config.vm!.docker!.hostConfig!.Memory = hostConfig.Memory;
         }
       }
     }

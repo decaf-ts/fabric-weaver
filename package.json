@@ -122,7 +122,7 @@
   },
   "license": "LGPL",
   "dependencies": {
-    "@decaf-ts/logging": "^0.2.1",
+    "@decaf-ts/logging": "^0.3.4",
     "@decaf-ts/utils": "^0.3.4",
     "@rollup/plugin-commonjs": "^28.0.6",
     "@rollup/plugin-json": "^6.1.0",

@@ -41,6 +41,11 @@ check_container_status() {
 
 set -e
 
+echo "Compiling contract"
+npx weaver compile-contract -d --contract-file ../../../tests/assets/contracts/asset-transfer/index.ts --output-dir ./chaincode
+
+cp ../../../tests/assets/contracts/asset-transfer/package.json ./chaincode/package.json
+cp ../../../tests/assets/contracts/asset-transfer/npm-shrinkwrap.json ./chaincode/npm-shrinkwrap.json
 
 ## STAGE 1
 echo "Starting Compose Org-1 Stage-1..."
