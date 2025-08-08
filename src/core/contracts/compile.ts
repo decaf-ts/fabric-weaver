@@ -79,7 +79,40 @@ export function compileStandaloneFile(filePath: string, outDir: string) {
   });
 
   const exitCode = emitResult.emitSkipped ? 1 : 0;
+
+  overrideContractImports(outDir);
   console.log(`Process exited with code ${exitCode}`);
+}
+
+export function overrideContractImports(folderPath: string) {
+  folderPath = resolvePath(folderPath);
+  const files = fs.readdirSync(folderPath);
+
+  files.forEach((file) => {
+    const filePath = path.join(folderPath, file);
+    console.log(filePath);
+
+    if (fs.statSync(filePath).isFile() && file.toLowerCase().endsWith(".js")) {
+      // Read file content
+      const content = fs.readFileSync(filePath, "utf8");
+
+      // Parse/transform
+      const newContent = overrideDoubleDotImports(content);
+
+      // Write back to file
+      fs.writeFileSync(filePath, newContent, "utf8");
+    }
+  });
+}
+
+export function overrideDoubleDotImports(code: string) {
+  return code.replace(
+    /require\(\s*["']((?:\.\.\/)+(?:[^/"']+\/)*([^/"']+)|\.\/(?:[^/"']+\/)*([^/"']+))["']\s*\)/g,
+    (match, p1, p2, p3) => {
+      const lastSegment = p2 || p3;
+      return `require("./${lastSegment}")`;
+    }
+  );
 }
 export async function addPackage(
   contractName: string,
