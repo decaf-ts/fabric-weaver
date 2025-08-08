@@ -19,7 +19,7 @@ import {
 import { osnAdminJoin } from "../scripts/osn-admin";
 import { DEFAULT_PORT } from "../constants/peer-middleware";
 import { PeerMiddleware } from "../middlewares/PeerMiddleware";
-import { addPackage, compileContract } from "../contracts/compile";
+import { addPackage, compileStandaloneFile } from "../contracts/compile";
 
 export class CoreCLI extends BaseCLI {
   constructor() {
@@ -1103,31 +1103,15 @@ export class CoreCLI extends BaseCLI {
     this.program
       .command("compile-contract")
       .option("-d, --debug", "Enables debug mode")
-      .option("--contract-path <string>", "Path to the contract directory")
-      .option("--contract-filename <string>", "Contract filename")
-      .option("--contract-version <string>", "Version of the contract")
-      .option("--tsconfig <string>", "Path to the tsconfig.json file")
-      .option("--output-path <string>", "Output path for the compiled contract")
-      .option(
-        "--include-sourcemaps",
-        "Include sourcemaps in the compiled contract",
-        false
-      )
-
+      .option("--contract-file <string>", "Path to the contract entry file")
+      .option("--output-dir <string>", "Output path for the compiled contract")
       .action(async (options: any) => {
         this.log.setConfig({
           level: options.debug ? LogLevel.debug : LogLevel.info,
         });
         this.log.info("Compiling Contract...");
 
-        compileContract(
-          options.contractPath,
-          options.contractFilename,
-          options.contractVersion,
-          options.tsconfig,
-          options.outputPath,
-          options.includeSourcemaps
-        );
+        compileStandaloneFile(options.contractFile, options.outputDir);
 
         this.log.info("Contract compiled successfully!");
       });
