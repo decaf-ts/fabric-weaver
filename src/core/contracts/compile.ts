@@ -37,7 +37,7 @@ export function compileStandaloneFile(filePath: string, outDir: string) {
     noImplicitAny: true,
     useDefineForClassFields: true,
     allowSyntheticDefaultImports: true,
-    esModuleInterop: true,
+    esModuleInterop: false,
     outDir,
   };
 
