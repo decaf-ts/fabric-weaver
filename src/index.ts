@@ -23,6 +23,7 @@
 
 export * from "./utils-old";
 export * from "./utils";
+export * from "./fabric";
 
 /**
  * @const VERSION
