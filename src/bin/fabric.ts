@@ -217,6 +217,12 @@ async function setupFabric(config: typeof defaultConfig): Promise<void> {
 
     try {
       const srcConfigDir = path.join(__dirname, "..", "src", "configs");
+      const baseConfigDir = path.join(
+        __dirname,
+        "..",
+        "fabric-samples",
+        "config"
+      );
       const destConfigDir = path.join(__dirname, "..", "config");
 
       // Create the destination directory if it doesn't exist
@@ -231,6 +237,15 @@ async function setupFabric(config: typeof defaultConfig): Promise<void> {
         fs.copyFileSync(srcPath, destPath);
         console.log(`Copied ${file} to ${destConfigDir}`);
       });
+
+      if (fs.existsSync(baseConfigDir))
+        // In case install script installed config in fabric-samples
+        fs.readdirSync(baseConfigDir).forEach((file) => {
+          const srcPath = path.join(srcConfigDir, file);
+          const destPath = path.join(destConfigDir, file);
+          fs.copyFileSync(srcPath, destPath);
+          console.log(`Copied ${file} to ${destConfigDir}`);
+        });
 
       console.log("Configuration files copied successfully.");
     } catch (error) {

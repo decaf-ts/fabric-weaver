@@ -46,16 +46,17 @@ export class BuildScriptsCustom extends BuildScripts {
    *     BuildScriptsCustom->>FileSystem: chmodSync(`bin/${cmd}.cjs`, "755")
    *   end
    */
-  async buildCommands() {
+  override async buildCommands() {
     const commands = fs.readdirSync(path.join(process.cwd() + "/src/bin"));
     for (const cmd of commands) {
       if (!cmd.endsWith(".ts")) continue;
 
-      await this.bundle(Modes.CJS, true, true, `src/bin/${cmd}`, cmd);
-      let data = readFile(`bin/${cmd}.cjs`);
+      const commandName = cmd.replace(/\.ts$/, "");
+      await this.bundle(Modes.CJS, true, true, `src/bin/${cmd}`, commandName);
+      let data = readFile(`bin/${commandName}.cjs`);
       data = "#!/usr/bin/env node\n" + data;
-      writeFile(`bin/${cmd}.cjs`, data);
-      fs.chmodSync(`bin/${cmd}.cjs`, "755");
+      writeFile(`bin/${commandName}.cjs`, data);
+      fs.chmodSync(`bin/${commandName}.cjs`, "755");
     }
   }
 }

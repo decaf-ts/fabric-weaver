@@ -747,19 +747,20 @@ export class FabricCAServerConfigBuilder {
    *     Builder->>FileSystem: Write YAML configuration to file
    *   end
    *   Builder-->>Client: Return this
-   */
+  */
   save(cpath?: string): this {
     if (cpath === undefined) return this;
 
-    if (!fs.existsSync(path.join(cpath)))
-      fs.mkdirSync(path.join(cpath), { recursive: true });
+    let destination = cpath;
+    if (!destination.endsWith(".yaml"))
+      destination = path.join(destination, "fabric-ca-server-config.yaml");
 
-    if (!cpath.endsWith(".yaml"))
-      cpath = path.join(cpath, "fabric-ca-server-config.yaml");
+    const directory = path.dirname(destination);
+    if (!fs.existsSync(directory)) fs.mkdirSync(directory, { recursive: true });
 
-    this.log.debug(`Writing configuration to ${cpath}`);
+    this.log.debug(`Writing configuration to ${destination}`);
     this.log.debug(`Config file: ${JSON.stringify(this.config, null, 2)}`);
-    writeFileYaml(cpath, this.config);
+    writeFileYaml(destination, this.config);
 
     return this;
   }

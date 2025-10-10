@@ -44,6 +44,7 @@ jobs:
           restore-keys: |
             build-${{ runner.os }}-${{ matrix.node-version }}-
 
+      - run: npm run setup
       - if: ${{ steps.cache-build.outputs.cache-hit != 'true' }}
         run: npm run build:prod # Replace with your build command
       - run: npm run test:all
