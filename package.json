@@ -63,7 +63,8 @@
   },
   "files": [
     "lib",
-    "dist"
+    "dist",
+    "config"
   ],
   "keywords": [
     "plantuml",
