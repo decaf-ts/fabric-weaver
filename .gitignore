@@ -1,6 +1,7 @@
 /lib
 /dist
 /docs
+/fabric-samples
 /workdocs/drawings/*
 !/workdocs/drawings/*.drawio
 /workdocs/resources/*
@@ -36,3 +37,4 @@
 !/bin/check-docker-ready.sh
 !/bin/check-lockfile.sh
 /output
+.dockeruser
