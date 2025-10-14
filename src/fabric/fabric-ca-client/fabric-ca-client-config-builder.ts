@@ -19,13 +19,15 @@ export class FabricCAClientConfigBuilder {
     const levels = key.split(".");
     let cursor = this.config;
 
-    for (const level in levels) {
-      cursor = {};
-      cursor[level] = {};
-      cursor[level] = value;
+    for (let i = 0; i < levels.length - 1; i++) {
+      const level = levels[i];
+      if (typeof cursor[level] !== "object" || cursor[level] === null) {
+        cursor[level] = {}; // ensure it’s an object
+      }
       cursor = cursor[level];
     }
 
+    cursor[levels[levels.length - 1]] = value;
     return this;
   }
   deleteBCCSP() {
