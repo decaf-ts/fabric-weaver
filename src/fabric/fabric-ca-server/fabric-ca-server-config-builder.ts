@@ -511,25 +511,30 @@ export class FabricCAServerConfigBuilder {
       this.config.bccsp!.default = bccsp.default;
     }
 
-    if (bccsp.sw !== undefined) {
-      if (bccsp.sw.hash !== undefined) {
-        this.log.debug(`Setting BCCSP hash: ${bccsp.sw.hash}`);
-        this.config.bccsp!.sw!.hash = bccsp.sw.hash;
-      }
+    if (bccsp.default !== "PKCS11") {
+      if (bccsp.sw !== undefined) {
+        if (bccsp.sw.hash !== undefined) {
+          this.log.debug(`Setting BCCSP hash: ${bccsp.sw.hash}`);
+          this.config.bccsp!.sw!.hash = bccsp.sw.hash;
+        }
 
-      if (bccsp.sw.security !== undefined) {
-        this.log.debug(`Setting BCCSP security: ${bccsp.sw.security}`);
-        this.config.bccsp!.sw!.security = bccsp.sw.security;
-      }
-      if (bccsp.sw.filekeystore !== undefined) {
-        if (bccsp.sw.filekeystore.keystore !== undefined) {
-          this.log.debug(
-            `Setting BCCSP filekeystore keystore: ${bccsp.sw.filekeystore.keystore}`
-          );
-          this.config.bccsp!.sw!.filekeystore!.keystore =
-            bccsp.sw.filekeystore.keystore;
+        if (bccsp.sw.security !== undefined) {
+          this.log.debug(`Setting BCCSP security: ${bccsp.sw.security}`);
+          this.config.bccsp!.sw!.security = bccsp.sw.security;
+        }
+        if (bccsp.sw.filekeystore !== undefined) {
+          if (bccsp.sw.filekeystore.keystore !== undefined) {
+            this.log.debug(
+              `Setting BCCSP filekeystore keystore: ${bccsp.sw.filekeystore.keystore}`
+            );
+            this.config.bccsp!.sw!.filekeystore!.keystore =
+              bccsp.sw.filekeystore.keystore;
+          }
         }
       }
+    } else {
+      delete this.config.bccsp;
+      this.config.bccsp = bccsp;
     }
 
     return this;
@@ -747,7 +752,7 @@ export class FabricCAServerConfigBuilder {
    *     Builder->>FileSystem: Write YAML configuration to file
    *   end
    *   Builder-->>Client: Return this
-  */
+   */
   save(cpath?: string): this {
     if (cpath === undefined) return this;
 
