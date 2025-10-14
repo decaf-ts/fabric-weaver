@@ -2,6 +2,10 @@ import { FabricCAServerEnrollmentType } from "../../constants/fabric-ca-server";
 import { FabricAccountType } from "../../constants/fabric-general";
 import { CSRConfig } from "./fabric-ca-server-config";
 
+
+
+
+
 export type CommadCSRConfig = Pick<CSRConfig, "cn" | "hosts" | "names"> & {
   keyrequest?: {
     algo?: string;
