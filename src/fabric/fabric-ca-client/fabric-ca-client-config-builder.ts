@@ -16,10 +16,21 @@ export class FabricCAClientConfigBuilder {
   }
 
   setCustom(key: string, value: any) {
-    this.config.key = value;
+    const levels = key.split(".");
+    let cursor = this.config;
+
+    for (const level in levels) {
+      cursor = {};
+      cursor[level] = {};
+      cursor[level] = value;
+      cursor = cursor[level];
+    }
+
+    return this;
   }
   deleteBCCSP() {
     delete this.config.bccsp;
+    return this;
   }
 
   /**
