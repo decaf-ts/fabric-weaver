@@ -1,0 +1,42 @@
+url: http://localhost:7054
+mspdir: msp
+tls:
+  certfiles:
+  client:
+    certfile:
+    keyfile:
+csr:
+  cn: caname
+  keyrequest:
+    algo: ecdsa
+    size: 256
+    reusekey: false
+  serialnumber:
+  names:
+    - C: US
+      ST: North Carolina
+      L:
+      O: Hyperledger
+      OU: Fabric
+  hosts:
+    - localhost
+id:
+  name:
+  type:
+  affiliation:
+  maxenrollments: 0
+  attributes:
+enrollment:
+  profile:
+  label:
+caname:
+bccsp:
+  default: PKCS11
+  pkcs11:
+    Library: /usr/lib/softhsm/libsofthsm2.so
+    Pin: 1213213
+    Label: lasdasdasd
+    hash: SHA2
+    security: 256
+    Immutable: false
+idemixCurveID: amcl.Fp256bn
