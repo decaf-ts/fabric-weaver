@@ -2,6 +2,7 @@ import { Logger, Logging } from "@decaf-ts/logging";
 import { FabricBinaries } from "../constants/fabric-binaries";
 import { PeerChannelCommands, PeerCommands } from "../constants/fabric-peer";
 import { runCommand } from "../../utils/child-process";
+import { mapParser } from "../../utils/parsers";
 
 export class FabricPeerChannelCommandBuilder {
   private log: Logger;
@@ -14,7 +15,7 @@ export class FabricPeerChannelCommandBuilder {
   private blockReference?: string;
   private destination?: string;
 
-  private args: string[] = [];
+  private args: Map<string, string | boolean | number | string[]> = new Map();
 
   constructor(logger?: Logger) {
     if (!logger) this.log = Logging.for(FabricPeerChannelCommandBuilder);
@@ -32,7 +33,7 @@ export class FabricPeerChannelCommandBuilder {
   setBlockPath(blockPath?: string): this {
     if (blockPath !== undefined) {
       this.log.debug(`Setting blockpath to ${blockPath}`);
-      this.args.push(`--blockpath ${blockPath}`);
+      this.args.set("blockpath", blockPath);
     }
     return this;
   }
@@ -56,7 +57,7 @@ export class FabricPeerChannelCommandBuilder {
   setChannelID(channelID?: string): this {
     if (channelID !== undefined) {
       this.log.debug(`Setting channel ID to ${channelID}`);
-      this.args.push(`--channelID ${channelID}`);
+      this.args.set("channelID", channelID);
     }
     return this;
   }
@@ -64,7 +65,7 @@ export class FabricPeerChannelCommandBuilder {
   setOrderer(orderer?: string): this {
     if (orderer !== undefined) {
       this.log.debug(`Setting orderer to ${orderer}`);
-      this.args.push(`--orderer ${orderer}`);
+      this.args.set("orderer", orderer);
     }
     return this;
   }
@@ -72,7 +73,7 @@ export class FabricPeerChannelCommandBuilder {
   enableTLS(enable?: boolean): this {
     if (enable !== undefined && enable === true) {
       this.log.debug(`Setting TLS enabled: ${enable}`);
-      this.args.push(`--tls`);
+      this.args.set(`tls`, enable);
     }
     return this;
   }
@@ -80,7 +81,7 @@ export class FabricPeerChannelCommandBuilder {
   setTLSCAFile(caFile?: string): this {
     if (caFile !== undefined) {
       this.log.debug(`Setting TLS CA file: ${caFile}`);
-      this.args.push(`--cafile ${caFile}`);
+      this.args.set("cafile", caFile);
     }
 
     return this;
@@ -93,7 +94,7 @@ export class FabricPeerChannelCommandBuilder {
       this.getCommand(),
       this.blockReference,
       this.destination,
-      ...[...new Set(this.args)],
+      ...mapParser(this.args),
     ]
       .filter((item) => item !== undefined && item !== null && item !== "")
       .join(" ");
@@ -115,7 +116,7 @@ export class FabricPeerChannelCommandBuilder {
   }
 
   getArgs(): string[] {
-    return [...new Set(this.args)];
+    return mapParser(this.args);
   }
 
   async execute(): Promise<void> {
@@ -125,7 +126,7 @@ export class FabricPeerChannelCommandBuilder {
       this.getCommand(),
       this.blockReference,
       this.destination,
-      ...this.getArgs(),
+      ...mapParser(this.args),
     ].filter(
       (item) => item !== undefined && item !== null && item !== ""
     ) as string[];
