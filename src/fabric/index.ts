@@ -1,4 +1,5 @@
 export * from "./configtxgen";
+export * from "./configtxlator";
 export * from "./constants";
 export * from "./fabric-ca-client";
 export * from "./fabric-ca-server";
