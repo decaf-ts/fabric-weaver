@@ -87,6 +87,15 @@ export class FabricPeerChannelCommandBuilder {
     return this;
   }
 
+  setFile(file?: string): this {
+    if (file !== undefined) {
+      this.log.debug(`Setting file: ${file}`);
+      this.args.set("file", file);
+    }
+
+    return this;
+  }
+
   build(): string {
     const command: string = [
       this.getBinary(),
