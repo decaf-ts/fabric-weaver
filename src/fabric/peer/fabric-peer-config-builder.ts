@@ -593,7 +593,8 @@ export class FabricPeerConfigBuilder {
   }
 
   setBCCSP(bccsp?: BCCSPConfig): this {
-    if (bccsp !== undefined) {
+    if (!bccsp) return this;
+    if (bccsp.Default !== "PKCS11") {
       if (bccsp.Default !== undefined) {
         this.log.debug(`Setting BCCSP default to ${bccsp.Default}`);
         this.config.peer!.BCCSP!.Default = bccsp.Default;
@@ -617,59 +618,9 @@ export class FabricPeerConfigBuilder {
           }
         }
       }
-
-      if (bccsp.PKCS11 !== undefined) {
-        if (bccsp.PKCS11.Library !== undefined) {
-          this.log.debug(
-            `Setting BCCSP PKCS11 library to ${bccsp.PKCS11.Library}`
-          );
-          this.config.peer!.BCCSP!.PKCS11!.Library = bccsp.PKCS11.Library;
-        }
-        if (bccsp.PKCS11.Label !== undefined) {
-          this.log.debug(`Setting BCCSP PKCS11 label to ${bccsp.PKCS11.Label}`);
-          this.config.peer!.BCCSP!.PKCS11!.Label = bccsp.PKCS11.Label;
-        }
-        if (bccsp.PKCS11.Pin !== undefined) {
-          this.log.debug(`Setting BCCSP PKCS11 pin to ${bccsp.PKCS11.Pin}`);
-          this.config.peer!.BCCSP!.PKCS11!.Pin = bccsp.PKCS11.Pin;
-        }
-        if (bccsp.PKCS11.Hash !== undefined) {
-          this.log.debug(`Setting BCCSP PKCS11 hash to ${bccsp.PKCS11.Hash}`);
-          this.config.peer!.BCCSP!.PKCS11!.Hash = bccsp.PKCS11.Hash;
-        }
-        if (bccsp.PKCS11.Security !== undefined) {
-          this.log.debug(
-            `Setting BCCSP PKCS11 security to ${bccsp.PKCS11.Security}`
-          );
-          this.config.peer!.BCCSP!.PKCS11!.Security = bccsp.PKCS11.Security;
-        }
-
-        if (bccsp.PKCS11.SoftwareVerify !== undefined) {
-          this.log.debug(
-            `Setting BCCSP PKCS11 software verify to ${bccsp.PKCS11.SoftwareVerify}`
-          );
-          this.config.peer!.BCCSP!.PKCS11!.SoftwareVerify =
-            bccsp.PKCS11.SoftwareVerify;
-        }
-        if (bccsp.PKCS11.Immutable !== undefined) {
-          this.log.debug(
-            `Setting BCCSP PKCS11 immutable to ${bccsp.PKCS11.Immutable}`
-          );
-          this.config.peer!.BCCSP!.PKCS11!.Immutable = bccsp.PKCS11.Immutable;
-        }
-        if (bccsp.PKCS11.AltID !== undefined) {
-          this.log.debug(
-            `Setting BCCSP PKCS11 alt ID to ${bccsp.PKCS11.AltID}`
-          );
-          this.config.peer!.BCCSP!.PKCS11!.AltID = bccsp.PKCS11.AltID;
-        }
-        if (bccsp.PKCS11.KeyIds !== undefined) {
-          this.log.debug(
-            `Setting BCCSP PKCS11 key IDs to ${bccsp.PKCS11.KeyIds}`
-          );
-          this.config.peer!.BCCSP!.PKCS11!.KeyIds = bccsp.PKCS11.KeyIds;
-        }
-      }
+    } else {
+      delete this.config.peer?.BCCSP;
+      this.config.peer!.BCCSP = bccsp;
     }
 
     return this;

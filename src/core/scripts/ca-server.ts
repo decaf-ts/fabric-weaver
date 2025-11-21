@@ -2,6 +2,7 @@ import fs from "fs";
 import { Logger, Logging } from "@decaf-ts/logging";
 import { FabricCAServerConfigBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server-config-builder";
 import {
+  BCCSPConfig,
   CAConfig,
   CorsConfig,
   CSRConfig,
@@ -47,7 +48,8 @@ export function issueCA(
   noCA?: boolean,
   csrConfig?: CSRConfig,
   operations?: OperationsConfig,
-  metrics?: MetricsConfig
+  metrics?: MetricsConfig,
+  bccsp?: BCCSPConfig
 ) {
   const builder = new FabricCAServerConfigBuilder(logger);
 
@@ -64,6 +66,7 @@ export function issueCA(
     .setCSR(csrConfig)
     .setOperations(operations)
     .setMetrics(metrics)
+    .setBCCSP(bccsp)
     .save(caDir);
 }
 
@@ -92,7 +95,8 @@ export async function bootCA(
   csrConfig?: CSRConfig,
   operations?: OperationsConfig,
   metrics?: MetricsConfig,
-  bootFile?: string
+  bootFile?: string,
+  bccsp?: BCCSPConfig
 ) {
   if (!hasCAInitialized(bootFile))
     issueCA(
@@ -110,7 +114,8 @@ export async function bootCA(
       noCA,
       csrConfig,
       operations,
-      metrics
+      metrics,
+      bccsp
     );
 
   await startCA(logger);

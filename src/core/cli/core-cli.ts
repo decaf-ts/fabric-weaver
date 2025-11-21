@@ -104,6 +104,10 @@ export class CoreCLI extends BaseCLI {
       //TODO: Map setSigning
       //TODO: Map setIdemix
       //TODO: Map setBCCSP
+      .option("--hsm", "Enable HSM bccsp")
+      .option("--hsm-library <string>", "hsm lib")
+      .option("--hsm-label <string>", "hsm label")
+      .option("--hsm-pin <string>", "hsm pin")
       //TODO: Map setCACount
       //TODO: Map setCAFiles
       //TODO: Map setIntermediate
@@ -223,7 +227,19 @@ export class CoreCLI extends BaseCLI {
                 prefix: options.metricsStatsdPrefix,
                 writeInterval: options.metricsStatsdWriteInterval,
               },
-            }
+            },
+            options.hsm
+              ? ({
+                  default: "PKCS11",
+                  pkcs11: {
+                    Library: options.hsmLibrary,
+                    Pin: options.hsmPin,
+                    Label: options.hsmLabel,
+                    Hash: "SHA2",
+                    Security: 256,
+                  },
+                } as any)
+              : {}
           );
         } catch (error) {
           this.log.error(`"Error issuing Fabric CA Server config: ${error}"`);
@@ -312,6 +328,10 @@ export class CoreCLI extends BaseCLI {
       //TODO: Map setSigning
       //TODO: Map setIdemix
       //TODO: Map setBCCSP
+      .option("--hsm", "Enable HSM bccsp")
+      .option("--hsm-library <string>", "hsm lib")
+      .option("--hsm-label <string>", "hsm label")
+      .option("--hsm-pin <string>", "hsm pin")
       //TODO: Map setCACount
       //TODO: Map setCAFiles
       //TODO: Map setIntermediate
@@ -433,7 +453,19 @@ export class CoreCLI extends BaseCLI {
                 writeInterval: options.metricsStatsdWriteInterval,
               },
             },
-            options.bootFile
+            options.bootFile,
+            options.hsm
+              ? ({
+                  default: "PKCS11",
+                  pkcs11: {
+                    Library: options.hsmLibrary,
+                    Pin: options.hsmPin,
+                    Label: options.hsmLabel,
+                    Hash: "SHA2",
+                    Security: 256,
+                  },
+                } as any)
+              : {}
           );
         } catch (error) {
           this.log.error(`"Error issuing Fabric CA Server config: ${error}"`);
@@ -677,6 +709,10 @@ export class CoreCLI extends BaseCLI {
       )
       .option("--bootstrap-method <string>", "Bootstrap Method")
       .option("--channel-participation-enabled", "Enable Channel Participation")
+      .option("--hsm", "Enable HSM bccsp")
+      .option("--hsm-library <string>", "hsm lib")
+      .option("--hsm-label <string>", "hsm label")
+      .option("--hsm-pin <string>", "hsm pin")
       //TODO: Implement all functionality in this command
       .action((options) => {
         this.log.setConfig({
@@ -727,7 +763,19 @@ export class CoreCLI extends BaseCLI {
           {},
           undefined,
           undefined,
-          {},
+          options.hsm
+            ? ({
+                Default: "PKCS11",
+                PKCS11: {
+                  Library: options.hsmLibrary,
+                  Pin: options.hsmPin,
+                  Label: options.hsmLabel,
+                  Hash: "SHA2",
+                  Security: 256,
+                  Immutable: false,
+                },
+              } as any)
+            : {},
           {}
         );
 
@@ -776,6 +824,11 @@ export class CoreCLI extends BaseCLI {
         "Address for the operations server to listen on"
       )
       .option("--snapshot-root-dir <string>", "Snapshot Root Directory")
+
+      .option("--hsm", "Enable HSM bccsp")
+      .option("--hsm-library <string>", "hsm lib")
+      .option("--hsm-label <string>", "hsm label")
+      .option("--hsm-pin <string>", "hsm pin")
       .action((options) => {
         this.log.setConfig({
           level: options.debug ? LogLevel.debug : LogLevel.info,
@@ -823,7 +876,19 @@ export class CoreCLI extends BaseCLI {
             fileSystemPath: options.fileSystemPath,
             chaincodeListenAddress: options.chaincodeListenAddress,
           },
-          {},
+          options.hsm
+            ? ({
+                Default: "PKCS11",
+                PKCS11: {
+                  Library: options.hsmLibrary,
+                  Pin: options.hsmPin,
+                  Label: options.hsmLabel,
+                  Hash: "SHA2",
+                  Security: 256,
+                  Immutable: false,
+                },
+              } as any)
+            : {},
           {
             mspConfigPath: options.localMspdir,
             localMspId: options.localMspid,

@@ -215,7 +215,8 @@ export class FabricOrdererConfigBuilder {
   }
 
   setBCCSP(bccsp?: BCCSPConfig): this {
-    if (bccsp !== undefined) {
+    if (!bccsp) return this;
+    if (bccsp.Default !== "PKCS11") {
       if (bccsp.Default !== undefined) {
         this.log.debug(`Setting BCCSP default to ${bccsp.Default}`);
         this.config.General!.BCCSP!.Default = bccsp.Default;
@@ -239,42 +240,9 @@ export class FabricOrdererConfigBuilder {
           }
         }
       }
-
-      if (bccsp.PKCS11 !== undefined) {
-        if (bccsp.PKCS11.Library !== undefined) {
-          this.log.debug(
-            `Setting BCCSP PKCS11 library to ${bccsp.PKCS11.Library}`
-          );
-          this.config.General!.BCCSP!.PKCS11!.Library = bccsp.PKCS11.Library;
-        }
-        if (bccsp.PKCS11.Label !== undefined) {
-          this.log.debug(`Setting BCCSP PKCS11 label to ${bccsp.PKCS11.Label}`);
-          this.config.General!.BCCSP!.PKCS11!.Label = bccsp.PKCS11.Label;
-        }
-        if (bccsp.PKCS11.Pin !== undefined) {
-          this.log.debug(`Setting BCCSP PKCS11 pin to ${bccsp.PKCS11.Pin}`);
-          this.config.General!.BCCSP!.PKCS11!.Pin = bccsp.PKCS11.Pin;
-        }
-        if (bccsp.PKCS11.Hash !== undefined) {
-          this.log.debug(`Setting BCCSP PKCS11 hash to ${bccsp.PKCS11.Hash}`);
-          this.config.General!.BCCSP!.PKCS11!.Hash = bccsp.PKCS11.Hash;
-        }
-        if (bccsp.PKCS11.Security !== undefined) {
-          this.log.debug(
-            `Setting BCCSP PKCS11 security to ${bccsp.PKCS11.Security}`
-          );
-          this.config.General!.BCCSP!.PKCS11!.Security = bccsp.PKCS11.Security;
-        }
-        if (bccsp.PKCS11.FileKeyStore !== undefined) {
-          if (bccsp.PKCS11.FileKeyStore.KeyStore !== undefined) {
-            this.log.debug(
-              `Setting BCCSP PKCS11 FileKeyStore key store to ${bccsp.PKCS11.FileKeyStore.KeyStore}`
-            );
-            this.config.General!.BCCSP!.PKCS11!.FileKeyStore!.KeyStore =
-              bccsp.PKCS11.FileKeyStore.KeyStore;
-          }
-        }
-      }
+    } else {
+      delete this.config.General?.BCCSP;
+      this.config.General!.BCCSP = bccsp;
     }
 
     return this;
