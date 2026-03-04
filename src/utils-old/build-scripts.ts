@@ -46,7 +46,7 @@ export class BuildScriptsCustom extends BuildScripts {
    *     BuildScriptsCustom->>FileSystem: chmodSync(`bin/${cmd}.cjs`, "755")
    *   end
    */
-  override async buildCommands() {
+  async buildCommands() {
     const commands = fs.readdirSync(path.join(process.cwd() + "/src/bin"));
     for (const cmd of commands) {
       if (!cmd.endsWith(".ts")) continue;
