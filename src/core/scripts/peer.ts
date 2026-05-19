@@ -335,7 +335,8 @@ export async function commitChainCode(
     version?: string,
     sequence?: string,
     enableTLS?: boolean,
-    tlsCACertFile?: string
+    tlsCACertFile?: string,
+    collectionsConfigPath?: string
   ) {
     const verificationBuilder = new FabricPeerLifecycleChaincodeCommandBuilder(
       logger
@@ -350,6 +351,7 @@ export async function commitChainCode(
         .setSequence(sequence)
         .enableTLS(enableTLS)
         .setTLSCAFile(tlsCACertFile)
+        .setCollectionsConfigPath(collectionsConfigPath)
         .setOutput("json")
         .build()
     ).toString();
@@ -388,7 +390,8 @@ export async function commitChainCode(
         version,
         sequence,
         enableTLS,
-        tlsCACertFile
+        tlsCACertFile,
+        collectionConfigPath
       )
     ) {
       log.info("Chaincode not ready, waiting...");
