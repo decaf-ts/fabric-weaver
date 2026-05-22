@@ -776,6 +776,7 @@ export class CoreCLI extends BaseCLI {
         "Address for the operations server to listen on"
       )
       .option("--snapshot-root-dir <string>", "Snapshot Root Directory")
+      .option("--enable-ccaas", "Enables external chaincode builders")
       .action((options) => {
         this.log.setConfig({
           level: options.debug ? LogLevel.debug : LogLevel.info,
@@ -835,7 +836,21 @@ export class CoreCLI extends BaseCLI {
           {},
           {},
           {},
-          {},
+          {
+            ...(options.enableCcaas
+              ? {
+                  externalBuilders: [
+                    {
+                      name: "ccaas",
+                      path: "/weaver/ccaas_builders/ccaas_builder",
+                      propagateEnvironment: [
+                        "CHAINCODE_AS_A_SERVICE_BUILDER_CONFIG",
+                      ],
+                    },
+                  ],
+                }
+              : {}),
+          },
           {
             stateDatabase: options.stateDatabase,
             couchDBConfig: {

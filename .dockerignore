@@ -8,3 +8,4 @@
 !jest.config.ts
 !bin/*
 !docker/*
+!ccaas_builders/*
