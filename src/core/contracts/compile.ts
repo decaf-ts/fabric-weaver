@@ -125,7 +125,7 @@ export async function addPackage(
   fs.mkdirSync(resolvePath(destinationDirectory), { recursive: true });
 
   for (const file of inputFiles) {
-    const inputPath = path.join(__dirname, "../..", "assets", file);
+    const inputPath = path.join(__dirname, "../../..", "assets", file);
 
     if (!fs.existsSync(inputPath)) {
       log.info(`File not found: ${inputPath}`);

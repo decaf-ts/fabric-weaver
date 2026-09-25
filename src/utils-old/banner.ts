@@ -1,6 +1,11 @@
 import { Logger, Logging } from "@decaf-ts/logging";
 import { style } from "styled-string-builder";
-import slogans from "../assets/slogans.json";
+import fs from "fs";
+import path from "path";
+
+const slogans: { Slogan: string; Tags: string }[] = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../../assets/slogans.json"), "utf8")
+);
 
 const bannerBorder: string =
   "##########################################################################################";

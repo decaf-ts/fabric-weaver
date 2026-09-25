@@ -7,7 +7,7 @@ export class FabricCAClientConfigBuilder {
   private log: Logger;
 
   private config: any = readFileYaml(
-    path.join(__dirname, "../../../config/fabric-ca-client-config.yaml")
+    path.join(__dirname, "../../../../config/fabric-ca-client-config.yaml")
   ) as any;
 
   constructor(logger?: Logger) {

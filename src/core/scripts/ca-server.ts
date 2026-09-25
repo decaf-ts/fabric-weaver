@@ -11,7 +11,7 @@ import {
 } from "../../fabric/interfaces/fabric/fabric-ca-server-config";
 import { FabricCAServerCommandBuilder } from "../../fabric/fabric-ca-server/fabric-ca-server-command-builder";
 import {
-  DEFAULT_CA_CERT_PATH,
+  getDefaultCACertPath,
   FabricCAServerCommand,
 } from "../../fabric/constants/fabric-ca-server";
 import {
@@ -20,7 +20,7 @@ import {
 } from "../../fabric/interfaces/fabric/general-configs";
 
 export function hasCAInitialized(
-  fileLocation: string = DEFAULT_CA_CERT_PATH
+  fileLocation: string = getDefaultCACertPath()
 ): boolean {
   const log: Logger = Logging.for(hasCAInitialized);
 

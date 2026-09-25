@@ -25,7 +25,7 @@ export class FabricOrdererConfigBuilder {
   private log: Logger;
 
   private config: OrdererConfig = readFileYaml(
-    path.join(__dirname, "../../../config/orderer.yaml")
+    path.join(__dirname, "../../../../config/orderer.yaml")
   ) as OrdererConfig;
 
   constructor(logger?: Logger) {

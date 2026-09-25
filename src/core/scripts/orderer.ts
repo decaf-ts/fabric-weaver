@@ -134,7 +134,7 @@ export function hasOrdererInitialized(fileLocation?: string): boolean {
 
   const defaultFileLocation = path.join(
     __dirname,
-    "../../../orderer/orderer.yaml"
+    "../../../../orderer/orderer.yaml"
   );
 
   if (!fileLocation) {

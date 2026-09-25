@@ -173,7 +173,7 @@ export async function bootPeer(
 export function hasPeerInitialized(fileLocation?: string): boolean {
   const log: Logger = Logging.for(hasPeerInitialized);
 
-  const defaultFileLocation = path.join(__dirname, "../../../peer/core.yaml");
+  const defaultFileLocation = path.join(__dirname, "../../../../peer/core.yaml");
 
   if (!fileLocation) {
     log.debug(

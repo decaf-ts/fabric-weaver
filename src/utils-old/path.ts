@@ -39,7 +39,7 @@ export function resolvePath(inputPath: string): string {
  */
 export function addFabricToPath(binPath?: string) {
   const log = Logging.for(addFabricToPath);
-  const fabricBinPath: string = binPath || path.join(__dirname, "../../bin");
+  const fabricBinPath: string = binPath || path.join(__dirname, "../../../bin");
 
   log.info(`Adding Fabric bin folder to path. Path: ${fabricBinPath}`);
 

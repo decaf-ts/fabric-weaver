@@ -3,7 +3,9 @@ import { Config } from "@jest/types";
 const config: Config.InitialOptions = {
   verbose: true,
   rootDir: __dirname,
-  transform: { "^.+\\.ts?$": "ts-jest" },
+  transform: {
+    "^.+\\.[tj]sx?$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.tests.json" }],
+  },
   testEnvironment: "node",
   testRegex: "/tests/.*\\.(test|spec)\\.(ts|tsx)$",
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node"],

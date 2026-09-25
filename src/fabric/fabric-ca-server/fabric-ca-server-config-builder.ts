@@ -26,7 +26,7 @@ export class FabricCAServerConfigBuilder {
   private log: Logger;
 
   private config: FabricCAServerConfig = readFileYaml(
-    path.join(__dirname, "../../../config/fabric-ca-server-config.yaml")
+    path.join(__dirname, "../../../../config/fabric-ca-server-config.yaml")
   ) as FabricCAServerConfig;
 
   constructor(logger?: Logger) {

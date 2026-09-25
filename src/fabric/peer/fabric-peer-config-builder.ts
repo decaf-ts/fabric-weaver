@@ -31,7 +31,7 @@ export class FabricPeerConfigBuilder {
   private log: Logger;
 
   private config: PeerConfig = readFileYaml(
-    path.join(__dirname, "../../../config/core.yaml")
+    path.join(__dirname, "../../../../config/core.yaml")
   ) as PeerConfig;
 
   constructor(logger?: Logger) {

@@ -3,14 +3,25 @@
   "version": "0.0.33",
   "description": "template for ts projects",
   "type": "module",
-  "bin": {
-    "weaver": "./lib/core/cli.cjs"
-  },
   "exports": {
-    "require": "./lib/index.cjs",
-    "import": "./lib/esm/index.js"
+    ".": {
+      "import": {
+        "types": "./lib/types/index.d.mts",
+        "default": "./lib/esm/index.js"
+      },
+      "require": {
+        "types": "./lib/types/index.d.cts",
+        "default": "./lib/cjs/index.cjs"
+      },
+      "default": "./lib/esm/index.js"
+    }
   },
-  "types": "lib/index.d.ts",
+  "bin": {
+    "weaver": "lib/cjs/core/cli.cjs"
+  },
+  "types": "./lib/types/index.d.mts",
+  "main": "./lib/cjs/index.cjs",
+  "module": "./lib/esm/index.js",
   "scripts": {
     "do-install": "TOKEN=$(cat .token) npm install",
     "update-dependencies": "PREFIX=\"decaf-ts\"; npm ls | grep \"$PREFIX\" | awk -F/ '{print $NF}' | sed 's/@.*//' | xargs -I package npm update @\"$PREFIX\"/package",
@@ -20,11 +31,8 @@
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
     "update-fabric": "./bin/fabric.cjs update",
     "setup": "npm run build && ./bin/fabric.cjs setup",
-    "build:weaver": "chmod +x ./lib/core/cli.cjs && node ./bin/she-bang.cjs add-node-shebang --file ./lib/core/cli.cjs",
-    "build:bin": "npm run build:weaver",
-    "build": "node ./bin/build-scripts.cjs --dev && npm run build:command && npm run build:bin",
-    "build:prod": "node ./bin/build-scripts.cjs --prod && npm run build:command && npm run build:bin",
-    "build:command": "node ./bin/build-scripts-extended.cjs --commands",
+    "build": "decaf build --dev && sed -i -e '1i#!/usr/bin/env node\\' lib/cjs/core/cli.cjs",
+    "build:prod": "decaf build --prod && sed -i -e '1i#!/usr/bin/env node\\' lib/cjs/core/cli.cjs",
     "test": "jest --runInBand --detectOpenHandles",
     "test:unit": "jest --testPathPattern=\"/tests/unit\" --passWithNoTests --detectOpenHandles",
     "test:integration": "jest --testPathPattern=\"/tests/(integration)\" --passWithNoTests --detectOpenHandles",
@@ -38,7 +46,7 @@
     "clean-publish": "npx clean-publish",
     "drawings": "for FILE in workdocs/drawings/*.drawio; do echo \"converting $FILE to image...\" && docker run --rm -v $(pwd):/data rlespinasse/drawio-export --format png $FILE; done && cp -rf workdocs/drawings/export/* workdocs/resources/",
     "uml": "cd workdocs/uml && for FILE in ./*.puml; do docker run --rm -v $(pwd):/work -w /work miy4/plantuml -DPLANTUML_LIMIT_SIZE=8192 -tpng $FILE; done && cd ../.. && cp -fr workdocs/uml/*.png workdocs/resources/",
-    "docs": "npx rimraf ./docs && mkdir docs && node ./bin/build-scripts.cjs --docs",
+    "docs": "npx rimraf ./docs && mkdir docs && build-scripts --docs",
     "basic:up": "cd ./tutorials/manually-generated/basic-tls-infrastructure && ./docker-up.sh",
     "basic:down": "cd ./tutorials/manually-generated/basic-tls-infrastructure && ./docker-down.sh",
     "publish-docs": "docker run -it --rm --user $(id -u):$(id -g) -v \"$(pwd)/workdocs/confluence:/content\" -e ATLASSIAN_API_TOKEN=$(cat .confluence-token) ghcr.io/markdown-confluence/publish:latest",
@@ -65,7 +73,7 @@
   "files": [
     "lib",
     "dist",
-    "config"
+    "workdocs/assets/slogans.json"
   ],
   "keywords": [
     "plantuml",
@@ -94,11 +102,14 @@
   },
   "homepage": "https://github.com/decaf-ts/ts-workspace#readme",
   "devDependencies": {
+    "@decaf-ts/cli": "latest",
+    "@decaf-ts/utils": "latest",
     "@eslint/js": "^9.25.1",
     "@stylistic/eslint-plugin": "^4.2.0",
     "@types/express": "^5.0.3",
     "@types/jest": "^29.5.14",
     "@types/js-yaml": "^4.0.9",
+    "@types/node": "^22.14.1",
     "axios": "^1.9.0",
     "clean-publish": "^5.1.0",
     "dpdm": "^3.14.0",
@@ -124,17 +135,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@decaf-ts/logging": "^0.3.4",
-    "@decaf-ts/utils": "^0.3.4",
-    "@rollup/plugin-commonjs": "^28.0.6",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-replace": "^6.0.2",
-    "@rollup/plugin-typescript": "^12.1.2",
+    "@decaf-ts/logging": "latest",
     "commander": "^13.1.0",
     "express": "^5.1.0",
     "js-yaml": "^4.1.0",
-    "rollup": "^4.40.2",
     "typescript": "^5.8.3"
   }
 }

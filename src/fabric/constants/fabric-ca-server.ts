@@ -73,7 +73,6 @@ export enum FabricCAServerEnrollmentType {
   IDEMIX = "idemix",
 }
 
-export const DEFAULT_CA_CERT_PATH = path.join(
-  __dirname,
-  "../../../server/ca-cert.pem"
-);
+export function getDefaultCACertPath(): string {
+  return path.join(__dirname, "../../../../server/ca-cert.pem");
+}
