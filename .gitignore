@@ -35,3 +35,4 @@
 !/bin/check-lockfile.sh
 /output
 .dockeruser
+legacy/
