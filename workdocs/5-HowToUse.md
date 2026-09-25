@@ -1,6 +1,7 @@
 ### How to Use
 
 - [Initial Setup](./tutorials/For%20Developers.md#_initial-setup_)
+- [weaver-images CLI](./tutorials/weaver-images%20CLI.md)
 - [Installation](./tutorials/For%20Developers.md#installation)
 - [Scripts](./tutorials/For%20Developers.md#scripts)
 - [Linting](./tutorials/For%20Developers.md#testing)

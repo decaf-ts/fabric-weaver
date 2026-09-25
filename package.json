@@ -17,7 +17,7 @@
     }
   },
   "bin": {
-    "weaver": "lib/cjs/core/cli.cjs"
+    "weaver-images": "lib/cjs/bin/weaver-images.cjs"
   },
   "types": "./lib/types/index.d.mts",
   "main": "./lib/cjs/index.cjs",
@@ -31,8 +31,8 @@
     "reset": "rm -rf * && git checkout . && git pull && npm run do-install",
     "update-fabric": "./bin/fabric.cjs update",
     "setup": "npm run build && ./bin/fabric.cjs setup",
-    "build": "decaf build --dev && sed -i -e '1i#!/usr/bin/env node\\' lib/cjs/core/cli.cjs",
-    "build:prod": "decaf build --prod && sed -i -e '1i#!/usr/bin/env node\\' lib/cjs/core/cli.cjs",
+    "build": "decaf build --dev && sed -i -e '1i#!/usr/bin/env node\\' lib/cjs/bin/weaver-images.cjs && chmod +x lib/cjs/bin/weaver-images.cjs",
+    "build:prod": "decaf build --prod && sed -i -e '1i#!/usr/bin/env node\\' lib/cjs/bin/weaver-images.cjs && chmod +x lib/cjs/bin/weaver-images.cjs",
     "test": "jest --runInBand --detectOpenHandles",
     "test:unit": "jest --testPathPattern=\"/tests/unit\" --passWithNoTests --detectOpenHandles",
     "test:integration": "jest --testPathPattern=\"/tests/(integration)\" --passWithNoTests --detectOpenHandles",
@@ -103,7 +103,6 @@
   "homepage": "https://github.com/decaf-ts/ts-workspace#readme",
   "devDependencies": {
     "@decaf-ts/cli": "latest",
-    "@decaf-ts/utils": "latest",
     "@eslint/js": "^9.25.1",
     "@stylistic/eslint-plugin": "^4.2.0",
     "@types/express": "^5.0.3",
@@ -136,6 +135,7 @@
   "license": "MIT",
   "dependencies": {
     "@decaf-ts/logging": "latest",
+    "@decaf-ts/utils": "^1.11.1",
     "commander": "^13.1.0",
     "express": "^5.1.0",
     "js-yaml": "^4.1.0",

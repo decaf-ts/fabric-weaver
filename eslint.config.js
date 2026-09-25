@@ -13,6 +13,7 @@ export default [
       "docs",
       "gulpfile.js",
       "workdocs",
+      "legacy",
       "!src/**/*",
       "!tests/**/*",
       "tests/bundling/**/*",
