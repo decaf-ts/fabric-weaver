@@ -1,4 +1,4 @@
-[![Banner](./workdocs/assets/Banner.png)](https://decaf-ts.github.io/ts-workspace/)
+[![Banner](./workdocs/assets/Banner.png)](https://decaf-ts.github.io/fabric-weaver/)
 ## Typescript Template
 
 This repository is meant to provide an enterprise template for any standard Typescript project
@@ -10,7 +10,7 @@ This repository is meant to provide an enterprise template for any standard Type
 [![Build & Test](https://github.com/decaf-ts/fabric-weaver/actions/workflows/nodejs-build-prod.yaml/badge.svg)](https://github.com/decaf-ts/fabric-weaver/actions/workflows/nodejs-build-prod.yaml)
 [![CodeQL](https://github.com/decaf-ts/fabric-weaver/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/decaf-ts/fabric-weaver/actions/workflows/codeql-analysis.yml)[![Snyk Analysis](https://github.com/decaf-ts/fabric-weaver/actions/workflows/snyk-analysis.yaml/badge.svg)](https://github.com/decaf-ts/fabric-weaver/actions/workflows/snyk-analysis.yaml)
 [![Pages builder](https://github.com/decaf-ts/fabric-weaver/actions/workflows/pages.yaml/badge.svg)](https://github.com/decaf-ts/fabric-weaver/actions/workflows/pages.yaml)
-[![.github/workflows/release-on-tag.yaml](https://github.com/decaf-ts/fabric-weaver/actions/workflows/release-on-tag.yaml/badge.svg?event=release)](https://github.com/decaf-ts/fabric-weaver/actions/workflows/release-on-tag.yaml)
+[![Release](https://github.com/decaf-ts/fabric-weaver/actions/workflows/release-on-tag.yaml/badge.svg?event=push)](https://github.com/decaf-ts/fabric-weaver/actions/workflows/release-on-tag.yaml)
 
 ![Open Issues](https://img.shields.io/github/issues/decaf-ts/fabric-weaver.svg)
 ![Closed Issues](https://img.shields.io/github/issues-closed/decaf-ts/fabric-weaver.svg)
@@ -21,8 +21,8 @@ This repository is meant to provide an enterprise template for any standard Type
 ![Stars](https://img.shields.io/github/stars/decaf-ts/fabric-weaver.svg)
 ![Watchers](https://img.shields.io/github/watchers/decaf-ts/fabric-weaver.svg)
 
-![Node Version](https://img.shields.io/badge/dynamic/json.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbadges%2Fshields%2Fmaster%2Fpackage.json&label=Node&query=$.engines.node&colorB=blue)
-![NPM Version](https://img.shields.io/badge/dynamic/json.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Fbadges%2Fshields%2Fmaster%2Fpackage.json&label=NPM&query=$.engines.npm&colorB=purple)
+![Node Version](https://img.shields.io/badge/dynamic/json.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdecaf-ts%2Ffabric-weaver%2Fmaster%2Fpackage.json&label=Node&query=$.engines.node&colorB=blue)
+![NPM Version](https://img.shields.io/badge/dynamic/json.svg?url=https%3A%2F%2Fraw.githubusercontent.com%2Fdecaf-ts%2Ffabric-weaver%2Fmaster%2Fpackage.json&label=NPM&query=$.engines.npm&colorB=purple)
 
 Documentation available [here](https://decaf-ts.github.io/fabric-weaver/)
 
